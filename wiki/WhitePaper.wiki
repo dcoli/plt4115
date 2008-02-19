@@ -9,7 +9,7 @@ The Java programming language and environment is designed to solve a number of p
 
 = Rumble =
 
-Rumble: A simple, engaging, illustrative, and competitive language designed with children in mind. 
+Rumble: A simple, engaging, illustrative, and competitive language designed for young programmers. 
 
 == Simple ==
 _Text_
