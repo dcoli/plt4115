@@ -6,7 +6,7 @@ The Java programming language and environment is designed to solve a number of p
 
 = Details =
 
-*Java*
+<h1>Java</h1>
 
 Java: A simple, object-oriented, network-savvy, interpreted, robust, secure, architecture neutral, portable, high-performance, multithreaded, dynamic language.
 
