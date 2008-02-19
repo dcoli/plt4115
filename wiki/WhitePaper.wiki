@@ -7,29 +7,26 @@
 
 The Java programming language and environment is designed to solve a number of problems in modern programming practice. Java started as a part of a larger project to develop advanced software for consumer electronics. These devices are small, reliable, portable, distributed, real-time embedded systems. When we started the project we intended to use C++, but encountered a number of problems. Initially these were just compiler technology problems, but as time passed more problems emerged that were best solved by changing the language.
 
-= Java =
+= Rumble =
 
-Java: A simple, object-oriented, network-savvy, interpreted, robust, secure, architecture neutral, portable, high-performance, multithreaded, dynamic language.
+~~Java: A simple, object-oriented, network-savvy, interpreted, robust, secure, architecture neutral, portable, high-performance, multithreaded, dynamic language.~~
 
-One way to characterize a system is with a set of buzzwords. We use a standard set of them in describing Java. Here's an explanation of what we mean by those buzzwords and the problems we were trying to solve.
+Rumble: A simple, engaging, illustrative, and competitive language designed with children in mind. 
 
-_Archimedes Inc. is a fictitious software company that produces software to teach about basic physics. This software is designed to interact with the user, providing not only text and illustrations in the manner of a traditional textbook, but also a set of software lab benches on which experiments can be set up and their behavior simulated. The most basic experiment allows students to put together levers and pulleys and see how they act. The italicized narrative of the trials and tribulations of the Archimedes' designers is used here to provide examples of Java language concepts._
+~~One way to characterize a system is with a set of buzzwords. We use a standard set of them in describing Java. Here's an explanation of what we mean by those buzzwords and the problems we were trying to solve.~~
+
+_Tommy and Wanda are two 11-year-olds who are interested in creating fun things on their computers._ 
 
 == Simple ==
-We wanted to build a system that could be programmed easily without a lot of esoteric training and which leveraged today's standard practice. Most programmers working these days use C, and most programmers doing object-oriented programming use C++. So even though we found that C++ was unsuitable, we designed Java as closely to C++ as possible in order to make the system more comprehensible.
 
-Java omits many rarely used, poorly understood, confusing features of C++ that in our experience bring more grief than benefit. These omitted features primarily consist of operator overloading (although the Java language does have method overloading), multiple inheritance, and extensive automatic coercions.
-
-We added automatic garbage collection, thereby simplifying the task of Java programming but making the system somewhat more complicated. A common source of complexity in many C and C++ applications is storage management: the allocation and freeing of memory. By virtue of having automatic garbage collection (periodic freeing of memory not being referenced) the Java language not only makes the programming task easier, it also dramatically cuts down on bugs.
-
-_The folks at Archimedes wanted to spend their time thinking about levers and pulleys, but instead spent a lot of time on mundane programming tasks. Their central expertise was teaching, not programming. One of the most complicated of these programming tasks was figuring out where memory was being wasted across their 20K lines of code._
-
-Another aspect of being simple is being small. One of the goals of Java is to enable the construction of software that can run stand-alone in small machines. The Java interpreter and standard libraries have a small footprint. A small size is important for use in embedded systems and so Java can be easily downloaded over the net.
+== Illustrative ==
+  Children being introduced to programming have a big strike against them - they do not yet have an adult's capacity for abstract thought. They need a programming language that takes concrete concepts from the world they know. Rumble is designed to be as concrete as possible. It features control statements based on simple cause-and-effect scenarios that children can appreciate. Values that are assigned to attributes represent varying amounts of easily recognized qualities, such as strength and speed.
 
 ... and so on, for each buzzword.
 
 ----
 
 = Summary =
-The Java language provides a powerful addition to the tools that programmers have at their disposal. Java makes programming easier because it is object-oriented and has automatic garbage collection. In addition, because compiled Java code is architecture-neutral, Java applications are ideal for a diverse environment like the Internet. For more information, visit our web site,
-http://java.sun.com/.
+~~The Java language provides a powerful addition to the tools that programmers have at their disposal. Java makes programming easier because it is object-oriented and has automatic garbage collection. In addition, because compiled Java code is architecture-neutral, Java applications are ideal for a diverse environment like the Internet.~~ 
+
+For more information, visit our web site, http://code.google.com/p/plt4115.
