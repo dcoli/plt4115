@@ -9,15 +9,13 @@ The Java programming language and environment is designed to solve a number of p
 
 = Rumble =
 
-~~Java: A simple, object-oriented, network-savvy, interpreted, robust, secure, architecture neutral, portable, high-performance, multithreaded, dynamic language.~~
-
 Rumble: A simple, engaging, illustrative, and competitive language designed with children in mind. 
 
-~~One way to characterize a system is with a set of buzzwords. We use a standard set of them in describing Java. Here's an explanation of what we mean by those buzzwords and the problems we were trying to solve.~~
-
-_Tommy and Wanda are two 11-year-olds who are interested in creating fun things on their computers._ 
-
 == Simple ==
+_Text_
+
+== Engaging ==
+_Text_
 
 == Illustrative ==
   Children being introduced to programming have a big strike against them - they do not yet have an adult's capacity for abstract thought. They need a programming language that takes concrete concepts from the world they know. Rumble is designed to be as concrete as possible. It features control statements based on simple cause-and-effect scenarios that children can appreciate. Values that are assigned to attributes represent varying amounts of easily recognized qualities, such as strength and speed.
