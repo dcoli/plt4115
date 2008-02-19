@@ -18,7 +18,7 @@ _Text_
 _Text_
 
 == Illustrative ==
-  Children being introduced to programming have a big strike against them - they do not yet have an adult's capacity for abstract thought. They need a programming language that takes concrete concepts from the world they know. Rumble is designed to be as concrete as possible. It features control statements based on simple cause-and-effect scenarios that children can appreciate. Values that are assigned to attributes represent varying amounts of easily recognized qualities, such as strength and speed.
+  Children being introduced to programming have a big strike against them: they do not yet have an adult's capacity for abstract thought. They need a programming language that takes concrete concepts from the world they know. Rumble is designed to be as concrete as possible. It features control statements based on simple cause-and-effect scenarios that children can appreciate. Values that are assigned to attributes represent varying amounts of easily recognized qualities, such as strength and speed.
 
 ... and so on, for each buzzword.
 
