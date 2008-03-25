@@ -1,0 +1,76 @@
+#summary One-sentence summary of this page.
+#labels Phase-Requirements,Reference,Tutorial
+
+= Introduction =
+
+Notes from the 3/24 meeting
+
+= Details =
+
+Next meeting: Tomorrow (Tuesday) at 7:30pm in the office
+
+Assignments:
+       - General/file/how language works - Nick
+       - Flow & functions - Dave
+       - Variables/hash/constraints - Josh
+       - Expressions - Colin
+       - Optional - Katie
+
+Language reference must define:
+       - types - int, float, string (immutable)
+       - keywords
+       - have a full CFG
+       - scoping
+       - implicit variables (me, action, participant)
+       - how while works
+       - how if works
+       - how step works
+       - logical operators and, or, not
+       - arithmetic operators (precedence, what operands they take)
+       - case-sensitive
+       - functions
+       - Environment spec
+       - Participant spec
+       - Simulation spec
+       - hash stores number of participants, actions, step number as values
+       - what the hash is
+       - = returns whatever is on the left side
+       - minimum output: print out state of environment and each participant
+       - semantics -- e.g., me cannot be used in the environment file
+       - casting -- always cast down
+       - in environment file: int money where money >= 0 and money <= 1000;
+       - if an assignment is invalid ()
+       - comments
+       - subroutines in participant files
+       - for changing hash values, must use set(), which returns 0 or 1
+
+OPTIONAL:
+       - output from participant files
+       - private vs. public attributes
+       - arrays
+
+Example code
+-------------
+
+environment world;
+
+step {
+       $part[0].go();
+}
+
+action hello() {
+}
+
+end {
+       return num_steps == 1;
+}
+
+participant Aho
+
+choose {
+       hello();
+}
+
+Output: Aho does hello
+
+}
