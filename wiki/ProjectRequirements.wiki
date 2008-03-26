@@ -1,10 +1,4 @@
-#summary One-sentence summary of this page.
-
-= Introduction =
-
-This is taken from the lecture notes given on the second day of class.
-
-= Course Project =
+#summary This is taken from the lecture notes given on the second day of class.
 
 == Project description ==
 Form a team of five to create and implement an innovative little language of your own design.
