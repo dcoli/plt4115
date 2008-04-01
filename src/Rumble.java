@@ -30,17 +30,14 @@ public class Rumble {
 		}
 		try {
 			//Start processing
+			File file = new File (simulationFile);
+			Yylex scanner = new Yylex(new FileInputStream(file));
+
+			//alert the scanner as to the current working directory
+			if (file.getParent() != null)
+				scanner.setCWD(file.getParent() + "\\");
 			
-			/*BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(simulationFile)));
-			String s;
-			while ((s = br.readLine()) != null)
-				System.out.println(s);
-			br.close();
-			*/
-			
-			Analyzer analyzer = new Analyzer(
-					new parser(
-							new Yylex(new FileInputStream(simulationFile))));
+			Analyzer analyzer = new Analyzer(new parser(scanner));
 			analyzer.setVerbose(verbose);
 			analyzer.analyze();
 		}
