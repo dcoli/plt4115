@@ -11,11 +11,13 @@ public class Rumble {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		String simulationFile = "";
+		boolean verbose = false;
 		for (int i = 0; i < args.length; i++){
 			if (args[i].startsWith("-")){
 				for (int j = 1; j < args[i].length(); j++){
 					switch (args[i].charAt(j)){
 						case 'v':
+							verbose = true;
 						break;
 					}
 				}
@@ -28,9 +30,19 @@ public class Rumble {
 		}
 		try {
 			//Start processing
+			
+			/*BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(simulationFile)));
+			String s;
+			while ((s = br.readLine()) != null)
+				System.out.println(s);
+			br.close();
+			*/
+			
 			Analyzer analyzer = new Analyzer(
 					new parser(
-							new Yylex(new FileInputStream(simulationFile))));	
+							new Yylex(new FileInputStream(simulationFile))));
+			analyzer.setVerbose(verbose);
+			analyzer.analyze();
 		}
 		catch (Exception e){
 			displayHelp();
@@ -43,6 +55,7 @@ public class Rumble {
 		System.out.println("To run type: java Rumble [options] [simulation file (*.rus)]");
 		System.out.println("\n-v\t\t\tVerbose Mode");
 		System.out.println("=========================================================");
+		System.exit(0);
 	}
 
 }
