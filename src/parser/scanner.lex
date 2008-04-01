@@ -1,8 +1,15 @@
 package syntax;
 
 import java_cup.runtime.Symbol;
+import java.util.LinkedList;
+
 %%
 %cup
+%public
+%eofval{
+  return new Symbol(sym.EOF);
+%eofval}
+
 %%
 		 
 "name" { return new Symbol(sym.NAME); }
@@ -21,6 +28,8 @@ import java_cup.runtime.Symbol;
 "return" { return new Symbol(sym.RETURN); }
 "int" { return new Symbol(sym.INT); }
 "float" { return new Symbol(sym.FLOAT); }
+"def" { return new Symbol(sym.DEF); }
+"required" { return new Symbol(sym.REQUIRED); }
 
 "num_steps" { return new Symbol(sym.NUM_STEPS); }
 "num_parts" { return new Symbol(sym.NUM_PARTS); }
@@ -34,6 +43,7 @@ import java_cup.runtime.Symbol;
 [0-9]+ { return new Symbol(sym.NUMBER, new Integer(yytext())); }
 [0-9]\.[0-9]+ { return new Symbol(sym.DECIMAL, new Float(yytext())); }
 [ \t\r\n\f] { /* ignore white space. */ }
+([^/*\n]|[^*\n]"/"[^*\n]|[^/\n]"*"[^/\n]|"*"[^/\n]|"/"[^*\n])* { /* ignore comments. */ }
 
 "{" { return new Symbol(sym.LBRC); }
 "}" { return new Symbol(sym.RBRC); }

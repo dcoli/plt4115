@@ -21,7 +21,8 @@ non terminal MultiplicativeExpression, UnaryExpression, Data;
 
 terminal NAME, ENVIRONMENT, PARTICIPANT, PART,		//Keywords
 		 SIMULATION, GLOBAL, STEP, ACTION, END,
-		 IF, ELSE, WHILE, RETURN, INT, FLOAT, ATTRIBUTES;
+		 IF, ELSE, WHILE, RETURN, INT, FLOAT, ATTRIBUTES,
+		 DEF, REQUIRED;
 		 
 terminal NUM_STEPS, NUM_PARTS, NUM_ACTIONS,			//System Variables
 		 RANDI, RANDF, ME;  				
@@ -53,7 +54,7 @@ Environmental_vars ::= GLOBAL LBRC AttributeDeclarations RBRC | /* empty */;
 Participant_vars ::= ATTRIBUTES LBRC AttributeDeclarations RBRC | /* empty */;
 
 //Environment and Participant File Specific
-Step ::= STEP Block;
+Step ::= DEF REQUIRED STEP Block;
 Actions ::= Action Actions | Action;
 Action ::= ACTION ID LPREN ArgList RPREN Block;
 ArgList ::= Arg COMMA ArgList | Arg;
@@ -72,7 +73,7 @@ ParticipantConfig ::= PARTICIPANT STRING ID LBRC AssignmentList RBRC
 
 AssignmentList ::= Assignment SEMI AssignmentList | Assignment;
 
-End ::= END Block;
+End ::= DEF REQUIRED END Block;
 
 //===========================================================================
 //Block Level
