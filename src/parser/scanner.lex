@@ -11,7 +11,8 @@ import java.util.LinkedList;
 %eofval}
 
 %%
-		 
+
+"//".* { /* ignore comments. */ }	 
 "name" { return new Symbol(sym.NAME); }
 "environment" { return new Symbol(sym.ENVIRONMENT); }
 "attributes" { return new Symbol(sym.ATTRIBUTES); }
@@ -39,11 +40,10 @@ import java.util.LinkedList;
 "me" { return new Symbol(sym.ME); }
 
 [A-Za-z_][A-Za-z_0-9]* { return new Symbol(sym.ID, new String(yytext().substring(0, yytext().length()))); }
-\".*\" { return new Symbol(sym.STRING, new Integer(yytext())); }
+\".*\" { return new Symbol(sym.STRING, new String(yytext())); }
 [0-9]+ { return new Symbol(sym.NUMBER, new Integer(yytext())); }
 [0-9]\.[0-9]+ { return new Symbol(sym.DECIMAL, new Float(yytext())); }
 [ \t\r\n\f] { /* ignore white space. */ }
-([^/*\n]|[^*\n]"/"[^*\n]|[^/\n]"*"[^/\n]|"*"[^/\n]|"/"[^*\n])* { /* ignore comments. */ }
 
 "{" { return new Symbol(sym.LBRC); }
 "}" { return new Symbol(sym.RBRC); }

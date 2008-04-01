@@ -27,7 +27,7 @@ terminal NAME, ENVIRONMENT, PARTICIPANT, PART,		//Keywords
 terminal NUM_STEPS, NUM_PARTS, NUM_ACTIONS,			//System Variables
 		 RANDI, RANDF, ME;  				
 
-terminal STRING, NUMBER, DECIMAL, ID;		//Constants
+terminal STRING, NUMBER, DECIMAL, ID;				//Constants
 
 terminal LBRC, RBRC, SEMI, LPREN, RPREN, COMMA,		//Punctuation	
 		 TIMESEQ, DIVIDEEQ, MINUSEQ, PLUSEQ, MODEQ, 
@@ -44,14 +44,15 @@ S ::= SimulationFile EnvironmentFile ParticipantFiles;
 EnvironmentFile ::= ENVIRONMENT Meta Interface Step Actions;
 ParticipantFile ::= PARTICIPANT Meta Step;
 ParticipantFiles ::= ParticipantFile ParticipantFiles | ParticipantFile;
-SimulationFile ::= SIMULATION Meta EnvironmentConfig ParticipantConfigList End;
+SimulationFile ::= SIMULATION Meta:m EnvironmentConfig ParticipantConfigList End {: System.out.println("Parsed simulation file: " + m); :};
 
 //===========================================================================
 //File Level
-Meta ::= NAME STRING;
+Meta ::= NAME STRING:s SEMI {: RESULT = s; :};
 Interface ::= Environmental_vars Participant_vars;
 Environmental_vars ::= GLOBAL LBRC AttributeDeclarations RBRC | /* empty */;
 Participant_vars ::= ATTRIBUTES LBRC AttributeDeclarations RBRC | /* empty */;
+
 
 //Environment and Participant File Specific
 Step ::= DEF REQUIRED STEP Block;
@@ -71,9 +72,9 @@ ParticipantConfigs ::= ParticipantConfig ParticipantConfigs
 ParticipantConfig ::= PARTICIPANT STRING ID LBRC AssignmentList RBRC
                    | PARTICIPANT STRING ID;
 
-AssignmentList ::= Assignment SEMI AssignmentList | Assignment;
+AssignmentList ::= Assignment SEMI AssignmentList | Assignment SEMI;
 
-End ::= DEF REQUIRED END Block;
+End ::= DEF REQUIRED END LPREN RPREN Block;
 
 //===========================================================================
 //Block Level

@@ -1,5 +1,6 @@
 package semantics;
-import syntax.*;
+import java_cup.runtime.Symbol;
+import syntax.parser;
 
 public class Analyzer {
 	private boolean verbose;
@@ -14,6 +15,18 @@ public class Analyzer {
 	}
 	
 	public void analyze(){
-		System.out.println("analyzing...");
+		try {
+			if (verbose) {
+				System.out.println("analyzing...");
+				Symbol s = parser.debug_parse();
+			}
+			else {
+				Symbol s = parser.parse();
+			}
+
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 }
