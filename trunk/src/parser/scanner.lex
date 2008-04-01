@@ -2,12 +2,35 @@ package syntax;
 
 import java_cup.runtime.Symbol;
 import java.util.LinkedList;
+import java.io.*;
 
 %%
 %cup
 %public
+
+%{
+	public static LinkedList<String> files;
+	private static String cwd;
+	
+	public static void setCWD(String s){
+		cwd = s;
+	} 
+%}
+
+%init{
+	files = new LinkedList();
+	cwd = "";
+%init} 
+
 %eofval{
+if (files.size() == 0)
   return new Symbol(sym.EOF);
+else {
+	yy_reader.close();
+	String nextFile = cwd + (String)files.removeFirst();
+	yy_reader = new BufferedReader(new InputStreamReader(new FileInputStream(nextFile)));
+	System.out.println("Now tokenizing " + nextFile);
+}
 %eofval}
 
 %%
@@ -39,8 +62,8 @@ import java.util.LinkedList;
 "randf" { return new Symbol(sym.RANDF); }
 "me" { return new Symbol(sym.ME); }
 
-[A-Za-z_][A-Za-z_0-9]* { return new Symbol(sym.ID, new String(yytext().substring(0, yytext().length()))); }
-\".*\" { return new Symbol(sym.STRING, new String(yytext())); }
+[A-Za-z_][A-Za-z_0-9]* { return new Symbol(sym.ID, new String(yytext())); }
+\".*\" { return new Symbol(sym.STRING, new String(yytext().substring(1, yytext().length() - 1))); }
 [0-9]+ { return new Symbol(sym.NUMBER, new Integer(yytext())); }
 [0-9]\.[0-9]+ { return new Symbol(sym.DECIMAL, new Float(yytext())); }
 [ \t\r\n\f] { /* ignore white space. */ }
@@ -74,4 +97,5 @@ import java.util.LinkedList;
 "==" { return new Symbol(sym.EQEQ); }
 "!=" { return new Symbol(sym.NOTEQ); }
 "!" { return new Symbol(sym.NOT); }
+"," { return new Symbol(sym.COMMA); }
 . { System.err.println("Illegal character: "+yytext()); }

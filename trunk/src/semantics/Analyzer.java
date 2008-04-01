@@ -1,6 +1,6 @@
 package semantics;
 import java_cup.runtime.Symbol;
-import syntax.parser;
+import syntax.*;
 
 public class Analyzer {
 	private boolean verbose;
@@ -23,9 +23,10 @@ public class Analyzer {
 			else {
 				Symbol s = parser.parse();
 			}
-
+			
 		}
 		catch(Exception e){
+			Object[] s = Yylex.files.toArray();
 			e.printStackTrace();
 		}
 	}
