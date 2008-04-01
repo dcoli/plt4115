@@ -20,7 +20,7 @@ import java_cup.runtime.Symbol;
 "while" { return new Symbol(sym.WHILE); }
 "return" { return new Symbol(sym.RETURN); }
 "int" { return new Symbol(sym.INT); }
-"float" { return new Symbol(sym.float); }
+"float" { return new Symbol(sym.FLOAT); }
 
 "num_steps" { return new Symbol(sym.NUM_STEPS); }
 "num_parts" { return new Symbol(sym.NUM_PARTS); }
@@ -29,7 +29,7 @@ import java_cup.runtime.Symbol;
 "randf" { return new Symbol(sym.RANDF); }
 "me" { return new Symbol(sym.ME); }
 
-[A-Za-z_][A-Za-z_0-9]* { return new Symbol(sym.ID, new String(yytext().substring(0, yytext().length())); }
+[A-Za-z_][A-Za-z_0-9]* { return new Symbol(sym.ID, new String(yytext().substring(0, yytext().length()))); }
 \".*\" { return new Symbol(sym.STRING, new Integer(yytext())); }
 [0-9]+ { return new Symbol(sym.NUMBER, new Integer(yytext())); }
 [0-9]\.[0-9]+ { return new Symbol(sym.DECIMAL, new Float(yytext())); }
