@@ -1,4 +1,4 @@
-package Example;
+package syntax;
 
 import java_cup.runtime.Symbol;
 %%
