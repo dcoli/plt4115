@@ -2,18 +2,15 @@ package Example;
 
 import java_cup.runtime.*;
 
-/* Preliminaries to set up and use the scanner.  */
-init with {: scanner.init();              :};
-scan with {: return scanner.next_token(); :};
 
 //NON TERMINALS
 non terminal S, EnvironmentFile, Meta, Interface, Step, Actions;
 non terminal ParticipantFiles, ParticipantFile;
-non terminal SimulationFile, EnvironmentConfig, ParticipantConfigs, ParticipantConfig, End;
+non terminal SimulationFile, EnvironmentConfig, ParticipantConfigList, ParticipantConfigs, ParticipantConfig, End;
 non terminal Environmental_vars, Participant_vars, AttributeDeclarations;
 non terminal Block, Action, ArgList, Arg, DataType;
 non terminal AssignmentList, Assignment;
-non terminal Lines, Statement, Expression, ElseStatement, Declaration, Constraint, ArithmeticExpression;
+non terminal Lines, Statement, Expression, IfStatement, Declaration, Constraint, ArithmeticExpression;
 non terminal IdList;
 non terminal FunctionCall, ExpressionList, SystemPartRef, SystemVar, SystemVarName, Index;
 non terminal OrExpression, AndExpression, RelationalExpression, EqualityExpression, AdditiveExpression;
@@ -46,7 +43,7 @@ S ::= SimulationFile EnvironmentFile ParticipantFiles;
 EnvironmentFile ::= ENVIRONMENT Meta Interface Step Actions;
 ParticipantFile ::= PARTICIPANT Meta Step;
 ParticipantFiles ::= ParticipantFile ParticipantFiles | ParticipantFile;
-SimulationFile ::= SIMULATION Meta EnvironmentConfig ParticipantConfigs End;
+SimulationFile ::= SIMULATION Meta EnvironmentConfig ParticipantConfigList End;
 
 //===========================================================================
 //File Level
@@ -65,9 +62,10 @@ Arg ::= DataType ID;
 //Simulation File Specific
 EnvironmentConfig ::= ENVIRONMENT STRING LBRC AssignmentList RBRC;
 
+ParticipantConfigList ::= ParticipantConfigs | /* empty */;
+
 ParticipantConfigs ::= ParticipantConfig ParticipantConfigs
-                    | ParticipantConfig
-                    | /* empty */;
+                    | ParticipantConfig;
 
 ParticipantConfig ::= PARTICIPANT STRING ID LBRC AssignmentList RBRC
                    | PARTICIPANT STRING ID;
@@ -85,15 +83,14 @@ Lines ::= Statement Lines
        | Statement;
 
 Statement ::= Block
-           | IF LPREN Expression RPREN Statement ElseStatement
-           | IF LPREN Expression RPREN Statement
+           | IfStatement ELSE Statement
+           | IfStatement Statement
            | WHILE LPREN Expression RPREN Statement
            | RETURN Expression SEMI
            | Expression SEMI
            | Declaration SEMI;
-
-ElseStatement ::= ELSE Statement;
-
+           
+IfStatement ::= IF LPREN Expression RPREN Statement;
 
 //DECLARATIONS
 AttributeDeclarations ::= Declaration Constraint SEMI | Declaration SEMI;
