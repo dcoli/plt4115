@@ -9,25 +9,25 @@ import java_cup.runtime.*;
 public class Rumble {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		String simulationFile = "";
-		boolean verbose = false;
+		boolean debug = false, verbose = false;
+		
+		//loop through args
 		for (int i = 0; i < args.length; i++){
 			if (args[i].startsWith("-")){
 				for (int j = 1; j < args[i].length(); j++){
 					switch (args[i].charAt(j)){
-						case 'v':
-							verbose = true;
-						break;
+						case 'v': verbose = true; break;
+						case 'd': debug = true; break;
 					}
 				}
 			}
 			else simulationFile = args[i];
 		}
 		
-		if (simulationFile.equals("")){
+		if (simulationFile.equals(""))
 			displayHelp();
-		}
+		
 		try {
 			//Start processing
 			File file = new File (simulationFile);
@@ -51,6 +51,7 @@ public class Rumble {
 		System.out.println("==============RUMBLE SIMULATION INTERPRETER==============");
 		System.out.println("To run type: java Rumble [options] [simulation file (*.rus)]");
 		System.out.println("\n-v\t\t\tVerbose Mode");
+		System.out.println("\n-v\t\t\tCompiler Debugging Mode");
 		System.out.println("=========================================================");
 		System.exit(0);
 	}
