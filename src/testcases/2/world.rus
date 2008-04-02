@@ -1,0 +1,13 @@
+simulation name "worldSim";
+
+environment "world.rue" {
+
+
+}
+
+participant "world.rup" user1;
+
+def required end() {
+
+        return $num_steps == 1;
+}

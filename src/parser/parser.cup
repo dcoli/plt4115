@@ -57,7 +57,9 @@ Participant_vars ::= ATTRIBUTES LBRC AttributeDeclarationList RBRC | /* empty */
 //Environment and Participant File Specific
 Step ::= DEF REQUIRED STEP LPREN RPREN Block;
 Actions ::= Action Actions | /*empty*/;
-Action ::= ACTION ID LPREN ArgList RPREN Block;
+Action ::= DEF ACTION ID LPREN ArgList RPREN Block
+		 | DEF ACTION ID LPREN RPREN Block;
+
 ArgList ::= Arg COMMA ArgList | Arg;
 Arg ::= DataType ID;
 
@@ -70,9 +72,9 @@ ParticipantConfigs ::= ParticipantConfig ParticipantConfigs
                     | ParticipantConfig;
 
 ParticipantConfig ::= PARTICIPANT STRING:s ID LBRC AssignmentList RBRC {: Yylex.files.addLast((String)s); :}
-                   | PARTICIPANT STRING:s ID {: Yylex.files.addLast((String)s); :};
+                   | PARTICIPANT STRING:s ID {: Yylex.files.addLast((String)s); :} SEMI;
 
-AssignmentList ::= Assignment SEMI AssignmentList | Assignment SEMI;
+AssignmentList ::= Assignment SEMI AssignmentList | /*empty*/;
 
 End ::= DEF REQUIRED END LPREN RPREN Block;
 
@@ -82,7 +84,7 @@ End ::= DEF REQUIRED END LPREN RPREN Block;
 Block ::= LBRC Lines RBRC;
 
 Lines ::= Statement Lines
-       | Statement;
+       | /*empty*/;
 
 Statement ::= Block
            | IfStatement ELSE Statement
@@ -95,7 +97,7 @@ Statement ::= Block
 IfStatement ::= IF LPREN Expression RPREN Statement;
 
 //DECLARATIONS
-AttributeDeclarationList ::= AttributeDeclaration SEMI AttributeDeclarationList | AttributeDeclaration SEMI;
+AttributeDeclarationList ::= AttributeDeclaration SEMI AttributeDeclarationList | /*empty*/;
 AttributeDeclaration ::= Declaration Constraint | Declaration;
 
 Constraint ::= LBRC ArithmeticExpression RBRC;
@@ -116,9 +118,11 @@ Assignment ::= ID TIMESEQ Expression
 
 //FUNCTION CALLS
 FunctionCall ::= ID LPREN ExpressionList RPREN  
-				| ID LPREN  RPREN  
-				| DOLLAR SystemPartRef DOT STEP LPREN ExpressionList RPREN  
-				| DOLLAR ACTION LSBRK Index RSBRK LPREN ExpressionList RPREN; 
+				| ID LPREN RPREN  
+				| DOLLAR SystemPartRef DOT STEP LPREN ExpressionList RPREN
+				| DOLLAR SystemPartRef DOT STEP LPREN RPREN  
+				| DOLLAR ACTION LSBRK Index RSBRK LPREN ExpressionList RPREN 
+				| DOLLAR ACTION LSBRK Index RSBRK LPREN RPREN;
 
 
 //EXPRESSIONS
