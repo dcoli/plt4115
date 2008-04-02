@@ -14,20 +14,13 @@ public class Analyzer {
 		parser = p;
 	}
 	
-	public void analyze(){
-		try {
-			if (verbose) {
-				System.out.println("analyzing...");
-				Symbol s = parser.debug_parse();
-			}
-			else {
-				Symbol s = parser.parse();
-			}
-			
+	public void analyze() throws Exception{
+		if (verbose) {
+			System.out.println("analyzing...");
+			Symbol s = parser.debug_parse();
 		}
-		catch(Exception e){
-			Object[] s = Yylex.files.toArray();
-			e.printStackTrace();
+		else {
+			Symbol s = parser.parse();
 		}
 	}
 }
