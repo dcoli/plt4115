@@ -6,8 +6,8 @@ import semantics.*;
 import java.io.*;
 import java_cup.runtime.*;
 
-public class Rumble {
-//testing svn commits
+public class RumbleCompiler {
+
 	public static void main(String[] args) {
 		String simulationFile = "";
 		boolean debug = false, verbose = false;
@@ -37,9 +37,15 @@ public class Rumble {
 			if (file.getParent() != null)
 				scanner.setCWD(file.getParent() + "\\");
 			
-			Analyzer analyzer = new Analyzer(new parser(scanner));
-			analyzer.setVerbose(verbose);
-			analyzer.analyze();
+			try {
+				Analyzer analyzer = new Analyzer(new parser(scanner));
+				analyzer.setVerbose(verbose);
+				analyzer.analyze();
+				System.out.println("Compilation completed successfully!");
+			}
+			catch (Exception e){
+				System.out.println("Compile time error: " + e.getMessage());
+			}
 		}
 		catch (Exception e){
 			displayHelp();
