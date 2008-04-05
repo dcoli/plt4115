@@ -13,16 +13,24 @@ public class SymbolTable {
 		
 	}
 	
-	public void set( String id, int scopedepth, Type type, int value ) {
+	public void set( String id, int scopedepth, Type type, Object value ) {
 		String catid = id + ":" + scopedepth;
 		Symbol symbol = new Symbol ( id, scopedepth, type, value );
 		table.put(catid, symbol);
 	}
 	
-	public int get( String id, int scopedepth ) {
+	public Symbol get( String id, int scopedepth ) {
 		String catid = id + ":" + scopedepth;
-		int value = table.get(catid).getValue();
-		return value;
+		return table.get(catid);
 	}
-	
+
+	public Object getValue( String id, int scopedepth ) {
+		String catid = id + ":" + scopedepth;
+		return table.get(catid).getValue();
+	}
+
+	public Type getType( String id, int scopedepth ) {
+		String catid = id + ":" + scopedepth;
+		return table.get(catid).getType();
+	}
 }

@@ -7,16 +7,16 @@ public class Symbol {
 	private final String id;
 	private final int scopedepth;
 	private final Type type;
-	private final int value;
+	private final Object value;
 	
-	public Symbol ( String id, int scopedepth, Type type, int value ) {
+	public Symbol ( String id, int scopedepth, Type type, Object value ) {
 		this.id = id;
 		this.scopedepth = scopedepth;
 		this.type = type;
 		this.value = value;
 	}	
 	
-	public int getValue () {
+	public Object getValue () {
 		return this.value;
 	}
 
