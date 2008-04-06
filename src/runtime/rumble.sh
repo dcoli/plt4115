@@ -12,4 +12,14 @@ if [[ $# < $MINIMUM_ARGS ]]; then
 	exit $ARG_ERROR
 fi
 
-java rumble.Runtime.Main $1 $2
+java rumble.compiler.Compiler.Main $1
+# the following must be done by Compiler.Main:
+# mkdir build, build/rumble, build/rumble/runtime
+# create build/rumble/runtime/Runtime.java
+# compile/create build/rumble/Environment.java
+# compile/create build/rumble/Participant.java
+
+# if Compiler.Main does not return an error...
+javac build/rumble/*.java
+java build/rumble.runtime.Runtime.Main $2
+rm -rf build
