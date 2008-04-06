@@ -1,3 +1,7 @@
+/**
+ * This is what I used to test everything. I suspect once we get it all hooked up I'll have 
+ * some other way to run it, so it won't conflict with the other main.
+ */
 package settings;
 
 import java.util.ArrayList;
@@ -5,7 +9,7 @@ import java.util.ArrayList;
 public class TableTester {
 
 	/**
-	 * @param args
+	 * @param args (none needed)
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
