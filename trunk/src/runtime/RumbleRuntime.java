@@ -1,5 +1,5 @@
-package Rumble;
-import Rumble.Environment;
+package rumble;
+import rumble.Environment;
 
 public class RumbleRuntime
 {
