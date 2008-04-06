@@ -1,7 +1,7 @@
 package rumble;
 import rumble.Environment;
 
-public class RumbleRuntime
+public class Runtime
 {
 	public static void main(String[] args) {
 		Environment e = new Environment();
