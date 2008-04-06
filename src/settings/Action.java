@@ -24,7 +24,7 @@ public class Action {
 	}	
 	
 /**
- * 
+ * Returns a List of arguments given as Strings.
  * @return	a list of arguments, which is List type of Strings.
  */
 	public List<String> getArgList () {
