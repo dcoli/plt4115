@@ -1,5 +1,5 @@
 package rumble;
-import rumble.Environment;
+import rumble.runtime.Environment;
 
 public class Runtime
 {
@@ -12,6 +12,6 @@ public class Runtime
 			e.step();
 			if (verbose) { System.out.println(e); }
 		}
-		System.out.println(e);		
+		System.out.println(e);	
 	}
 }
