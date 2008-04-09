@@ -10,7 +10,7 @@ public class Analyzer {
 		parser = p;
 	}
 	
-	public void analyze() throws Exception{
+	public void analyzeAndValidate() throws Exception{
 		if (Settings.isVerbose())
 			System.out.println("analyzing...");
 		
@@ -19,7 +19,24 @@ public class Analyzer {
 		if (Settings.isDebug())
 			s = parser.debug_parse();
 		else 
-			s = parser.parse();			
+			s = parser.parse();		
+		
+		ASTNode root = (ASTNode)s.value;
+		
+		validateSimulation(root.getDescriptor());
+		validateEnvironment(root.getOp(0));
+		validateParticipants(root.getOp(1));
+	}
+
+	public void validateSimulation(Object o){
+		
+	}
+	
+	public void validateEnvironment(Object o){
+		
+	}
+
+	public void validateParticipants(Object o){
 		
 	}
 }
