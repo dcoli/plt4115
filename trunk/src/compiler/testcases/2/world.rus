@@ -9,5 +9,8 @@ participant "world.rup" user1;
 
 def required end() {
 
-        return $num_steps == 1;
+	if ($num_steps == 1)
+        return 1;
+     else
+     	return 0;
 }

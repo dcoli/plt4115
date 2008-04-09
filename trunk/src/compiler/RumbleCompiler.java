@@ -2,7 +2,7 @@ package compiler;
 /*
  * Main class for Rumble.  Displays help info and takes in arguments for processing.
  */
-
+import compiler.settings.*;
 import java.io.*;
 
 import compiler.semantics.*;
@@ -42,12 +42,10 @@ public class RumbleCompiler {
 			
 			//alert the scanner as to the current working directory
 			if (file.getParent() != null)
-				
-				scanner.setCWD(file.getParent() + "\\");
+				Settings.setCurrentWorkingDirectory(file.getParent() + "\\");
 			
 			try {
 				Analyzer analyzer = new Analyzer(new parser(scanner));
-				analyzer.setVerbose(verbose);
 				analyzer.analyze();
 				System.out.println("Compilation completed successfully!");
 			}
