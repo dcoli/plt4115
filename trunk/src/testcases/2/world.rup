@@ -1,5 +1,0 @@
-participant name "I";
-
-def required step() {
-        hello();
-}
