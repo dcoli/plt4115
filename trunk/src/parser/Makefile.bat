@@ -3,4 +3,4 @@ copy scanner.lex.java Yylex.java
 java java_cup.Main < parser.cup
 javac -d . parser.java sym.java Yylex.java
 del scanner.lex.java
-move *.java ../syntax
+move *.java ../compiler/syntax
