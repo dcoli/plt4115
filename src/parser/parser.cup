@@ -4,6 +4,11 @@ import compiler.settings.*;
 import java_cup.runtime.*;
 
 
+parser code {:
+	
+:}
+
+
 //NON TERMINALS
 non terminal S, EnvironmentFile, Meta, Interface, Step, Actions;
 non terminal ParticipantFiles, ParticipantFile;
@@ -37,16 +42,58 @@ terminal LBRC, RBRC, SEMI, LPREN, RPREN, COMMA,		//Punctuation
 		 PLUS, MINUS, TIMES, DIVIDE, MOD, EQEQ, NOTEQ, 
 		 AND, OR, LT, GT, NOT;
 
+//solves the if-else ambiguity
+precedence left ELSE;
+
 //////////////////////
 //GRAMMAR
 //////////////////////
+start with S;
 
 //Simulation Level
-S ::= SimulationFile EnvironmentFile ParticipantFiles; 
-EnvironmentFile ::= ENVIRONMENT Meta Interface Step Actions;
-ParticipantFile ::= PARTICIPANT Meta Step;
-ParticipantFiles ::= ParticipantFile ParticipantFiles | /*empty*/;
-SimulationFile ::= SIMULATION Meta:m EnvironmentConfig ParticipantConfigList End {: System.out.println("Parsed simulation file: " + m); :};
+S ::= SimulationFile:s EnvironmentFile:ef ParticipantFiles:pf
+																{: ASTNode n = new ASTNode(s); 
+																   n.pushOp(ef);
+																   n.pushOp(pf);
+																   RESULT = n;
+																:}; 
+
+EnvironmentFile ::= ENVIRONMENT Meta:m Interface:i Step:s Actions:a 
+																{: ASTNode n = new ASTNode(sym.ENVIRONMENT); 
+																   n.pushOp(m);
+																   n.pushOp(i);
+																   n.pushOp(s);
+																   n.pushOp(a);
+																   RESULT = n;
+																:}; 
+
+ParticipantFile ::= PARTICIPANT Meta:m Step:s
+																{: ASTNode n = new ASTNode(sym.PARTICIPANT); 
+																   n.pushOp(m);
+																   n.pushOp(s);
+																   RESULT = n;
+																:}; 
+																
+ParticipantFiles ::= ParticipantFile:p ParticipantFiles:pf  
+																{: ASTNode n = new ASTNode(null); 
+																   n.pushOp(p);
+																   n.pushOp(pf);
+																   RESULT = n;
+																:} 
+					| /*empty*/;
+					
+					
+					
+					
+SimulationFile ::= SIMULATION Meta:m EnvironmentConfig:ec ParticipantConfigList:ecl End 
+																{: ASTNode n = new ASTNode(sym.SIMULATION); 
+																		   n.pushOp(m);
+																		   n.pushOp(ec);
+																		   n.pushOp(ecl);
+																		   RESULT = n;
+																System.out.println("Parsed simulation file: " + m); 
+																:};
+
 
 //===========================================================================
 //File Level
@@ -89,15 +136,15 @@ Lines ::= Statement Lines
        | /*empty*/;
 
 Statement ::= Block
-           | IfStatement ElseStatement Statement
-           | IfStatement Statement
+           | IfStatement 
+           | ElseStatement
            | WHILE LPREN BooleanExpression RPREN Statement
            | RETURN NumericalExpression SEMI
            | NumericalExpression SEMI
            | Declaration SEMI;
            
 IfStatement ::= IF LPREN BooleanExpression RPREN Statement;
-ElseStatement ::= ELSE Statement;
+ElseStatement ::= IF LPREN BooleanExpression RPREN Statement ELSE Statement;
 
 //DECLARATIONS
 AttributeDeclarationList ::= AttributeDeclaration SEMI AttributeDeclarationList | /*empty*/;

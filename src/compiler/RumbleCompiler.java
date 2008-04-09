@@ -46,7 +46,7 @@ public class RumbleCompiler {
 			
 			try {
 				Analyzer analyzer = new Analyzer(new parser(scanner));
-				analyzer.analyze();
+				analyzer.analyzeAndValidate();
 				System.out.println("Compilation completed successfully!");
 			}
 			catch (Exception e){
