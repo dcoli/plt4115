@@ -1,5 +1,5 @@
-package syntax;
-
+package compiler.syntax;
+import compiler.settings.*;
 import java_cup.runtime.Symbol;
 import java.util.LinkedList;
 import java.io.*;
@@ -10,16 +10,10 @@ import java.io.*;
 
 %{
 	public static LinkedList<String> files;
-	private static String cwd;
-	
-	public static void setCWD(String s){
-		cwd = s;
-	} 
 %}
 
 %init{
 	files = new LinkedList();
-	cwd = "";
 %init} 
 
 %eofval{
@@ -27,7 +21,7 @@ if (files.size() == 0)
   return new Symbol(sym.EOF);
 else {
 	yy_reader.close();
-	String nextFile = cwd + (String)files.removeFirst();
+	String nextFile = Settings.getCurrentWorkingDirectory() + (String)files.removeFirst();
 	yy_reader = new BufferedReader(new InputStreamReader(new FileInputStream(nextFile)));
 	System.out.println("Now tokenizing " + nextFile);
 }
