@@ -2,8 +2,6 @@ package compiler;
 /*
  * Main class for Rumble.  Displays help info and takes in arguments for processing.
  */
-import syntax.Yylex;
-import syntax.parser;
 
 import java.io.*;
 
@@ -40,7 +38,7 @@ public class RumbleCompiler {
 			Yylex scanner = new Yylex(new FileInputStream(file));
 
 			//Initialize the Settings class
-			//Settings.init(verbose, debug);
+			Settings.init(verbose, debug);
 			
 			//alert the scanner as to the current working directory
 			if (file.getParent() != null)
