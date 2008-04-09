@@ -1,0 +1,16 @@
+ environment name "world";
+
+
+global {
+
+}
+
+
+def required step() {
+       $part[0].step();
+
+}
+
+def action hello() {
+
+}
