@@ -1,5 +1,6 @@
-package syntax;
+package compiler.syntax;
 
+import compiler.settings.*;
 import java_cup.runtime.*;
 
 
@@ -10,9 +11,10 @@ non terminal SimulationFile, EnvironmentConfig, ParticipantConfigList, Participa
 non terminal Environmental_vars, Participant_vars, AttributeDeclaration, AttributeDeclarationList;
 non terminal Block, Action, ArgList, Arg, DataType;
 non terminal AssignmentList, Assignment;
-non terminal Lines, Statement, Expression, IfStatement, Declaration, Constraint, ArithmeticExpression;
+non terminal Lines, Statement, BooleanExpression, NumericalExpression;
+non terminal IfStatement, ElseStatement, Declaration, Constraint, ArithmeticExpression;
 non terminal IdList;
-non terminal FunctionCall, ExpressionList, SystemPartRef, SystemVar, SystemVarName, Index;
+non terminal FunctionCall, NumericalExpressionList, SystemPartRef, SystemVar, SystemVarName, Index;
 non terminal OrExpression, AndExpression, RelationalExpression, EqualityExpression, AdditiveExpression;
 non terminal MultiplicativeExpression, UnaryExpression, Data;
 
@@ -87,14 +89,15 @@ Lines ::= Statement Lines
        | /*empty*/;
 
 Statement ::= Block
-           | IfStatement ELSE Statement
+           | IfStatement ElseStatement Statement
            | IfStatement Statement
-           | WHILE LPREN Expression RPREN Statement
-           | RETURN Expression SEMI
-           | Expression SEMI
+           | WHILE LPREN BooleanExpression RPREN Statement
+           | RETURN NumericalExpression SEMI
+           | NumericalExpression SEMI
            | Declaration SEMI;
            
-IfStatement ::= IF LPREN Expression RPREN Statement;
+IfStatement ::= IF LPREN BooleanExpression RPREN Statement;
+ElseStatement ::= ELSE Statement;
 
 //DECLARATIONS
 AttributeDeclarationList ::= AttributeDeclaration SEMI AttributeDeclarationList | /*empty*/;
@@ -109,36 +112,31 @@ IdList ::= ID COMMA IdList | ID;
 DataType ::= INT | FLOAT; 
 
 //ASSIGNMENT
-Assignment ::= ID TIMESEQ Expression
-            | ID DIVIDEEQ Expression
-            | ID MINUSEQ Expression
-            | ID PLUSEQ Expression
-            | ID MODEQ Expression
-            | ID EQ Expression;
+Assignment ::= ID TIMESEQ NumericalExpression
+            | ID DIVIDEEQ NumericalExpression
+            | ID MINUSEQ NumericalExpression
+            | ID PLUSEQ NumericalExpression
+            | ID MODEQ NumericalExpression
+            | ID EQ NumericalExpression;
 
 //FUNCTION CALLS
-FunctionCall ::= ID LPREN ExpressionList RPREN  
+FunctionCall ::= ID LPREN NumericalExpressionList RPREN  
 				| ID LPREN RPREN  
-				| DOLLAR SystemPartRef DOT STEP LPREN ExpressionList RPREN
+				| DOLLAR SystemPartRef DOT STEP LPREN NumericalExpressionList RPREN
 				| DOLLAR SystemPartRef DOT STEP LPREN RPREN  
-				| DOLLAR ACTION LSBRK Index RSBRK LPREN ExpressionList RPREN 
+				| DOLLAR ACTION LSBRK Index RSBRK LPREN NumericalExpressionList RPREN 
 				| DOLLAR ACTION LSBRK Index RSBRK LPREN RPREN;
 
+NumericalExpressionList ::= NumericalExpression COMMA NumericalExpressionList | NumericalExpression;
 
-//EXPRESSIONS
-Expression ::= Assignment
-            | FunctionCall
-            | ArithmeticExpression;
-
-ExpressionList ::= Expression COMMA ExpressionList | Expression;
-
-ArithmeticExpression ::= OrExpression;
+//EXPRESSIONS	
+BooleanExpression ::= OrExpression;
 
 OrExpression ::= OrExpression OR AndExpression
     | AndExpression;
 
 AndExpression ::= AndExpression AND EqualityExpression 
-      | EqualityExpression;
+      			| EqualityExpression;
 
 EqualityExpression ::= EqualityExpression EQEQ RelationalExpression
                    | EqualityExpression NOTEQ RelationalExpression
@@ -148,7 +146,13 @@ RelationalExpression ::= RelationalExpression LT AdditiveExpression
                       | RelationalExpression GT AdditiveExpression
                       | RelationalExpression LTEQ AdditiveExpression
                       | RelationalExpression GTEQ AdditiveExpression
-                      | AdditiveExpression;
+                      | Data
+                      | LPREN NumericalExpression RPREN;
+
+NumericalExpression ::= Assignment
+            | ArithmeticExpression;
+
+ArithmeticExpression ::= AdditiveExpression;
 
 AdditiveExpression ::= AdditiveExpression PLUS MultiplicativeExpression
                    | AdditiveExpression MINUS MultiplicativeExpression
@@ -160,11 +164,11 @@ MultiplicativeExpression ::= MultiplicativeExpression TIMES UnaryExpression
                          | UnaryExpression;
 
 UnaryExpression ::= NOT UnaryExpression
-                | LPREN ArithmeticExpression RPREN 
+                | LPREN NumericalExpression RPREN 
                 | Data;
 
-//VARIABLES
-Data ::= ID | SystemVar | NUMBER | DECIMAL;
+//VARIABLES AND DATA
+Data ::= ID | SystemVar | NUMBER | DECIMAL | FunctionCall;
 
 SystemVar ::= DOLLAR SystemVarName | DOLLAR SystemPartRef DOT ID | DOLLAR GLOBAL DOT ID;
 
