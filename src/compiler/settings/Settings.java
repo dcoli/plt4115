@@ -12,7 +12,7 @@ public class Settings {
 	   public static boolean debug;
 	   
 	   
-	   public static void init(boolean verbose, boolean debug, String cwd) {
+	   public static void init(boolean verbose, boolean debug) {
 	      // Exists only to defeat instantiation.
 		   
 		   Settings.actionTable = new ActionTable();
@@ -21,7 +21,6 @@ public class Settings {
 		   
 		   Settings.verbose = verbose;
 		   Settings.debug = debug;
-		   Settings.currentWorkingDirectory = cwd;
 	   }
 
 

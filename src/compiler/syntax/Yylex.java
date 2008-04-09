@@ -1,4 +1,5 @@
 package compiler.syntax;
+import compiler.settings.*;
 import java_cup.runtime.Symbol;
 import java.util.LinkedList;
 import java.io.*;
@@ -16,10 +17,6 @@ public class Yylex implements java_cup.runtime.Scanner {
 	private final int YY_EOF = 129;
 
 	public static LinkedList<String> files;
-	private static String cwd;
-	public static void setCWD(String s){
-		cwd = s;
-	} 
 	private java.io.BufferedReader yy_reader;
 	private int yy_buffer_index;
 	private int yy_buffer_read;
@@ -55,7 +52,6 @@ public class Yylex implements java_cup.runtime.Scanner {
 		yy_lexical_state = YYINITIAL;
 
 	files = new LinkedList();
-	cwd = "";
 	}
 
 	private boolean yy_eof_done = false;
@@ -445,7 +441,7 @@ if (files.size() == 0)
   return new Symbol(sym.EOF);
 else {
 	yy_reader.close();
-	String nextFile = cwd + (String)files.removeFirst();
+	String nextFile = Settings.getCurrentWorkingDirectory() + (String)files.removeFirst();
 	yy_reader = new BufferedReader(new InputStreamReader(new FileInputStream(nextFile)));
 	System.out.println("Now tokenizing " + nextFile);
 }

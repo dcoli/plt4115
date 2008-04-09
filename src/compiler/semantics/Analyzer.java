@@ -1,30 +1,25 @@
 package compiler.semantics;
-import compiler.syntax.*;
 
-import java_cup.runtime.Symbol;
-import syntax.parser;
+import compiler.syntax.*;
+import compiler.settings.*;
 
 public class Analyzer {
-	private boolean verbose;
 	private parser parser;
-	
-	public void setVerbose(boolean bool){
-		verbose = bool;
-	}
 	
 	public Analyzer(parser p){
 		parser = p;
 	}
 	
 	public void analyze() throws Exception{
-		if (verbose) {
+		if (Settings.isVerbose())
 			System.out.println("analyzing...");
-			Symbol s = parser.debug_parse();
-			s = s;
-		}
-		else {
-			Symbol s = parser.parse();			
-		}
+		
+		java_cup.runtime.Symbol s;
+		
+		if (Settings.isDebug())
+			s = parser.debug_parse();
+		else 
+			s = parser.parse();			
 		
 	}
 }
