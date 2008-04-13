@@ -1,12 +1,19 @@
 package rumble;
-import rumble.runtime.Participant;
 
 public class Environment
 {
+	// Standard rumble stuff
 	public static String NAME = "My Very First Environment";
+	private int num_steps;
+	
+	// custom globals
 	private int rumVar_days;
 	
-	Environment () {
+	Environment() {
+		// standard rumble stuff
+		this.num_steps = 0;
+		
+		// custom globals
 		this.rumVar_days = 0;
 	}
 	
@@ -25,6 +32,10 @@ public class Environment
 	}
 	
 	public void step() {
+		// standard rumble stuff
+		this.num_steps++;
+		
+		// everything else
 		this.setRumVar_days(this.getRumVar_days() + 1);
 	}
 	
