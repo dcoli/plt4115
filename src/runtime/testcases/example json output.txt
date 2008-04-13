@@ -1,0 +1,16 @@
+{
+	environment : "world",
+	participants :	
+	[
+		{	
+			participant: "I", 
+			foo: "bar", 
+			num: 5 
+		},
+		{	
+			participant: "You",
+			foo: "baz",
+			num: 8 
+		},
+	],
+}
