@@ -1,4 +1,4 @@
-package rumble;
+package rumble.runtime;
 
 public class Environment
 {
