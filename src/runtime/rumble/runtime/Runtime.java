@@ -7,7 +7,7 @@ public class Runtime
 	public static void main(String[] args) {
 		Environment e = new Environment();
 		
-		boolean verbose = (args.length > 1 && args[1] == "-v"); 
+		boolean verbose = (args.length > 0 && args[0] == "-v"); 
 		
 		while (!e.end()) {
 			e.step();
