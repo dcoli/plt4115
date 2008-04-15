@@ -1,4 +1,4 @@
-package rumble;
+package rumble.runtime;
 import java.util.ArrayList;
 import rumble.runtime.AbstractParticipant;
 import rumble.runtime.Participant1;
@@ -6,16 +6,22 @@ import rumble.runtime.Participant1;
 public class Environmnet
 {
 	// standard rumble stuff
-	public static String NAME = "world";
-	private ArrayList<AbstractParticipant> participants = new ArrayList<AbstractParticipant>();
+	private String name;
+	private ArrayList<AbstractParticipant> participants;
 	
 	private int num_steps;
 	
 	Environment() {
 		// SRS
+		this.name = "world";
 		this.num_steps = 0;
 		
+		participants = new ArrayList<AbstractParticipant>();
 		participants.append(new Participant1(this));
+	}
+	
+	public String getName() {
+		return this.name;
 	}
 	
 	public String participantStrings() {
@@ -32,7 +38,7 @@ public class Environmnet
 	}
 	
 	public String toString() {
-		return "{\n\tenvironment: " + this.NAME + "\n" + participantStrings() + 
+		return "{\n\tenvironment: " + this.name + "\n" + participantStrings() + 
 				"\n}";
 	}
 	
@@ -51,6 +57,6 @@ public class Environmnet
 	// "actions"
 	
 	public void rumAction_hello(AbstractParticipant p) {
-		
+		System.out.println(p.getName() + " did 'hello'");		
 	}
 }
