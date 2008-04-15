@@ -1,23 +1,15 @@
-package rumble;
+package rumble.runtime;
 import rumble.runtime.Environment;
 
 public class Participant1 extends AbstractParticipant
-{
-	// SRS
-	public static String NAME = "I";
-	private env;
-	
+{	
 	Participant1 (Environment e) {
+		// SRS
 		this.env = e;
-	}
-	
-	public String toString() {
-		return "{\n\tparticipant: " + this.NAME + 
-				"\n}";
+		this.name = "I";
 	}
 	
 	public void step() {
-		e.rumAction_hello(this);
+		this.env.rumAction_hello(this);
 	}
-	
 }
