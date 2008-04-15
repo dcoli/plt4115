@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import rumble.runtime.AbstractParticipant;
 import rumble.runtime.Participant1;
 
-public class Environmnet
+public class Environment
 {
 	// standard rumble stuff
 	private String name;
@@ -17,7 +17,7 @@ public class Environmnet
 		this.num_steps = 0;
 		
 		participants = new ArrayList<AbstractParticipant>();
-		participants.append(new Participant1(this));
+		participants.add(new Participant1(this));
 	}
 	
 	public String getName() {
@@ -25,9 +25,9 @@ public class Environmnet
 	}
 	
 	public String participantStrings() {
-		StringBuilder sb;
+		StringBuilder sb = new StringBuilder();
 		
-		sb.append("\tparticpants:\n\t[");
+		sb.append("\tparticpants :\n\t[\n");
 		
 		for (AbstractParticipant p : this.participants) {
 			sb.append(p);
@@ -38,7 +38,7 @@ public class Environmnet
 	}
 	
 	public String toString() {
-		return "{\n\tenvironment: " + this.name + "\n" + participantStrings() + 
+		return "{\n\tenvironment : \"" + this.name + "\",\n" + participantStrings() + 
 				"\n}";
 	}
 	
@@ -47,7 +47,7 @@ public class Environmnet
 		this.num_steps++;
 		
 		// everything else
-		participants[0].step();
+		participants.get(0).step();
 	}
 	
 	public boolean end() {
@@ -57,6 +57,6 @@ public class Environmnet
 	// "actions"
 	
 	public void rumAction_hello(AbstractParticipant p) {
-		System.out.println(p.getName() + " did 'hello'");		
+		System.out.println("{\n\taction : \"'" + p.getName() + "' did 'hello'\",\n}\n");		
 	}
 }
