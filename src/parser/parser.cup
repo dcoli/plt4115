@@ -1,6 +1,6 @@
 package compiler.syntax;
 
-import compiler.settings.*;
+//import compiler.settings.*;
 import java_cup.runtime.*;
 
 
@@ -129,40 +129,40 @@ Actions ::= Action:a Actions:al
 																:}
 						| /*empty*/; 
 //colin not sure if operator is necessary, maybe RESULT = Block
-Action ::= DEF ACTION ID LPREN ArgList:al RPREN Block
+Action ::= DEF ACTION ID LPREN ArgList:al RPREN Block:b
 																{: ASTNode n = new ASTNode(sym.ID); 
 																   n.pushOp(al);
-																   n.pushOp(Block);
+																   n.pushOp(b);
 																   RESULT = n;
 																:} 
-		 | DEF ACTION ID LPREN RPREN Block
+		 | DEF ACTION ID LPREN RPREN Block:b
 																{: ASTNode n = new ASTNode(sym.ID); 
-																   n.pushOp(Block);
+																   n.pushOp(b);
 																   RESULT = n;
 																:}; 
 
-ArgList ::= Arg COMMA ArgList 
+ArgList ::= Arg:a COMMA ArgList:l 
 																{: ASTNode n = new ASTNode(null); 
-																   n.pushOp(Arg);
-																   n.pushOP(ArgList);
+																   n.pushOp(a);
+																   n.pushOP(l);
 																   RESULT = n;
 																:} 
-		| Arg
-																{: RESULT = Arg;
+		| Arg:a
+																{: RESULT = a;
 																:}; 
-Arg ::= DataType ID
+Arg ::= DataType:d ID
 																{: ASTNode n = new ASTNode(sym.ID); 
-																   n.pushOp(DataType);
+																   n.pushOp(d);
 																   RESULT = n;
 																:}; 
 //Simulation File Specific
-EnvironmentConfig ::= ENVIRONMENT STRING:s LBRC AssignmentList RBRC {: Yylex.files.addFirst((String)s); 
+EnvironmentConfig ::= ENVIRONMENT STRING:s LBRC AssignmentList:l RBRC {: Yylex.files.addFirst((String)s); 
 																		ASTNode n = new ASTNode(s);
-																		n.pushOp(AssignmentList);
+																		n.pushOp(l);
 																		RESULT = n;
 																	:};
 
-ParticipantConfigList ::= ParticipantConfigs {: RESULT = ParticipantConfigs; :}
+ParticipantConfigList ::= ParticipantConfigs:p {: RESULT = p; :}
 					| /* empty */;
 
 ParticipantConfigs ::= ParticipantConfig:c ParticipantConfigs:cs 
@@ -171,12 +171,12 @@ ParticipantConfigs ::= ParticipantConfig:c ParticipantConfigs:cs
 																   n.pushOp(cs);
 																   RESULT = n;
 																:}
-                    | ParticipantConfig {: RESULT = ParticipantConfig; :};
+                    | ParticipantConfig:c {: RESULT = c; :};
 
-ParticipantConfig ::= PARTICIPANT STRING:s ID LBRC AssignmentList RBRC {: Yylex.files.addLast((String)s); 
+ParticipantConfig ::= PARTICIPANT STRING:s ID LBRC AssignmentList:l RBRC {: Yylex.files.addLast((String)s); 
 																			ASTNode n = new ASTNode(sym.PARTICIPANT);
 																			n.pushOp(sym.ID);
-																			n.pushOp(AssignmentList);
+																			n.pushOp(l);
 																			RESULT = n;
 																		:}
                    | PARTICIPANT STRING:s ID {: Yylex.files.addLast((String)s); 
@@ -185,111 +185,111 @@ ParticipantConfig ::= PARTICIPANT STRING:s ID LBRC AssignmentList RBRC {: Yylex.
                    								RESULT = n;
                    							:} SEMI; //I think the action just gets moved to the end anyway
 
-AssignmentList ::= Assignment SEMI AssignmentList 
+AssignmentList ::= Assignment:a SEMI AssignmentList:l 
 																{: ASTNode n = new ASTNode(null);
-																	n.pushOp(Assignment);
-																	n.pushOp(AssignmentList);
+																	n.pushOp(a);
+																	n.pushOp(l);
 																	RESULT = n;
 																:}
 					| /*empty*/;
 
-End ::= DEF REQUIRED END LPREN RPREN Block
+End ::= DEF REQUIRED END LPREN RPREN Block:b
 																{: ASTNode n = new ASTNode(sym.END);
-																   n.pushOp(Block);
+																   n.pushOp(b);
 																   RESULT = n;
 																:};
 
 //===========================================================================
 //Block Level
 
-Block ::= LBRC Lines RBRC
-																{: RESULT = Lines;
+Block ::= LBRC Lines:l RBRC
+																{: RESULT = l;
 																:};
 
-Lines ::= Statement Lines
+Lines ::= Statement:s Lines:l
 																{: ASTNode n = new ASTNode(null);
-																	n.pushOp(Statement);
-																   n.pushOp(Lines);
-																   RESULT = n;
+																	n.pushOp(s);
+																	n.pushOp(l);
+																	RESULT = n;
 																:}
        | /*empty*/;
 
-Statement ::= Block
-																{: RESULT = Block;
+Statement ::= Block:b
+																{: RESULT = b;
 																:}
-           | IfStatement 
-																{: RESULT = IfStatement;
+           | IfStatement:i 
+																{: RESULT = i;
 																:}
-           | ElseStatement
-																{: RESULT = ElseStatement;
+           | ElseStatement:e
+																{: RESULT = e;
 																:}
-           | WHILE LPREN BooleanExpression RPREN Statement
+           | WHILE LPREN BooleanExpression:b RPREN Statement:s
 																{: ASTNode n = new ASTNode(sym.WHILE);
-																	n.pushOp(BooleanExpression);
-																	n.pushOp(Statement);
+																	n.pushOp(b);
+																	n.pushOp(s);
 																	RESULT = n;
 																:}
-           | RETURN NumericalExpression SEMI
+           | RETURN NumericalExpression:ne SEMI
 																{: ASTNode n = new ASTNode(sym.RETURN);
-																	n.pushOp(NumericalExpression);
+																	n.pushOp(ne);
 																	RESULT = n;
 																:}
-           | NumericalExpression SEMI
-																{: RESULT = NumericalExpression;
+           | NumericalExpression:ne SEMI
+																{: RESULT = ne;
 																:}
-           | Declaration SEMI
-																{: RESULT = Declaration;
+           | Declaration:d SEMI
+																{: RESULT = d;
 																:};
            
-IfStatement ::= IF LPREN BooleanExpression RPREN Statement
+IfStatement ::= IF LPREN BooleanExpression:b RPREN Statement:s
 																{: ASTNode n = new ASTNode(sym.IF);
-																	n.pushOp(BooleanExpression);
-																	n.pushOp(Statement);
+																	n.pushOp(b);
+																	n.pushOp(s);
 																	RESULT = n;
 																:};
 
-ElseStatement ::= IF LPREN BooleanExpression RPREN Statement:s1 ELSE Statement:s2
+ElseStatement ::= IF LPREN BooleanExpression:b RPREN Statement:s1 ELSE Statement:s2
 																{: ASTNode n = new ASTNode(sym.IF);
-																	n.pushOp(BooleanExpression);
+																	n.pushOp(b);
 																	n.pushOp(s1);
 																	n.pushOp(s2);
 																	RESULT = n;
 																:};
 
 //DECLARATIONS
-AttributeDeclarationList ::= AttributeDeclaration SEMI AttributeDeclarationList 
+AttributeDeclarationList ::= AttributeDeclaration:ad SEMI AttributeDeclarationList:adl 
 																{: ASTNode n = new ASTNode(null);
-																	n.pushOp(AttributeDeclaration);
-																	n.pushOp(AttributeDeclarationList);
+																	n.pushOp(ad);
+																	n.pushOp(adl);
 																	RESULT = n;
 																:}
 			| /*empty*/;
 
-AttributeDeclaration ::= Declaration Constraint 
+AttributeDeclaration ::= Declaration:d Constraint:c 
 																{: ASTNode n = new ASTNode(null);
-																	n.pushOp(Declaration);
-																	n.pushOp(Constraint);
+																	n.pushOp(d);
+																	n.pushOp(c);
 																	RESULT = n;
 																:}
-			| Declaration
-																{: RESULT = Declaration;
+			| Declaration:d
+																{: RESULT = d;
 																:};
 
-Constraint ::= LBRC ArithmeticExpression RBRC
-																{: RESULT = ArithmeticExpression;
+Constraint ::= LBRC ArithmeticExpression:ae RBRC
+																{: RESULT = ae;
 																:};
 
-Declaration ::= DataType IdList
+Declaration ::= DataType:d IdList:i
 																{: ASTNode n = new ASTNode(null);
-																	n.pushOp(DataType);
-																	n.pushOp(IdList);
+																	n.pushOp(d);
+																	n.pushOp(i);
 																	RESULT = n;
 																:};
 
-IdList ::= ID COMMA IdList 
-																{: ASTNode n = new ASTNode(null)
+IdList ::= ID COMMA IdList:i 
+																{: ASTNode n = new ASTNode(null);
 																	n.pushOp(sym.ID);
-																	n.pushOp(IdList);
+																	n.pushOp(i);
 																	RESULT = n;
 																:}
 
@@ -305,220 +305,229 @@ DataType ::= INT
 																:};
 
 //ASSIGNMENT
-Assignment ::= ID TIMESEQ NumericalExpression
+Assignment ::= ID TIMESEQ NumericalExpression:ne
 																{: ASTNode n = new ASTNode(sym.TIMESEQ);
 																	n.pushOp(sym.ID);
-																	n.pushOp(NumericalExpression);
+																	n.pushOp(ne);
 																	RESULT = n;
 																:}
-            | ID DIVIDEEQ NumericalExpression
+            | ID DIVIDEEQ NumericalExpression:ne
 																{: ASTNode n = new ASTNode(sym.DIVIDEEQ);
 																	n.pushOp(sym.ID);
-																	n.pushOp(NumericalExpression);
+																	n.pushOp(ne);
 																	RESULT = n;
 																:}
-            | ID MINUSEQ NumericalExpression
+            | ID MINUSEQ NumericalExpression:ne
 																{: ASTNode n = new ASTNode(sym.MINUSEQ);
 																	n.pushOp(sym.ID);
-																	n.pushOp(NumericalExpression);
+																	n.pushOp(ne);
 																	RESULT = n;
 																:}
-            | ID PLUSEQ NumericalExpression
+            | ID PLUSEQ NumericalExpression:ne
 																{: ASTNode n = new ASTNode(sym.PLUSEQ);
 																	n.pushOp(sym.ID);
-																	n.pushOp(NumericalExpression);
+																	n.pushOp(ne);
 																	RESULT = n;
 																:}
-            | ID MODEQ NumericalExpression
+            | ID MODEQ NumericalExpression:ne
 																{: ASTNode n = new ASTNode(sym.MODEQ);
 																	n.pushOp(sym.ID);
-																	n.pushOp(NumericalExpression);
+																	n.pushOp(ne);
 																	RESULT = n;
 																:}
-            | ID EQ NumericalExpression
+            | ID EQ NumericalExpression:ne
 																{: ASTNode n = new ASTNode(sym.EQ);
 																	n.pushOp(sym.ID);
-																	n.pushOp(NumericalExpression);
+																	n.pushOp(ne);
 																	RESULT = n;
 																:};
 
 //FUNCTION CALLS
-FunctionCall ::= ID LPREN NumericalExpressionList RPREN  
+FunctionCall ::= ID LPREN NumericalExpressionList:l RPREN  
 																{: ASTNode n = new ASTNode(sym.ID);
-																	n.pushOp(NumericalExpressionList);
+																	n.pushOp(l);
 																	RESULT = n;
 																:}
 				| ID LPREN RPREN  
 																{: RESULT = sym.ID;
 																:}
-				| DOLLAR SystemPartRef DOT STEP LPREN NumericalExpressionList RPREN
-																{: ASTNode n = new ASTNode(SystemPartRef);
-																	n.pushOp(NumericalExpressionList);
+				| DOLLAR SystemPartRef:spr DOT STEP LPREN NumericalExpressionList:nel RPREN
+																{: ASTNode n = new ASTNode(spr);
+																	n.pushOp(nel);
+																	n.pushOp(sym.DOLLAR);
+																	n.pushOp(sym.DOT);
+																	n.pushOp(sym.STEP);
 																	RESULT = n;
 																:}
-				| DOLLAR SystemPartRef DOT STEP LPREN RPREN  
-																{: RESULT = SystemPartRef;
-																:}
-				| DOLLAR ACTION LSBRK Index RSBRK LPREN NumericalExpressionList RPREN 
-																{: ASTNode n = new ASTNode(sym.ACTION);
-																	n.pushOp(Index);
-																	n.pushOp(NumericalExpressionList);
+				| DOLLAR SystemPartRef:s DOT STEP LPREN RPREN  
+																{: ASTNode n = new ASTNode(s);
+																	n.pushOp(sym.DOLLAR);
+																	n.pushOp(sym.DOT);
+																	n.pushOp(sym.STEP);
 																	RESULT = n;
 																:}
-				| DOLLAR ACTION LSBRK Index RSBRK LPREN RPREN
+				| DOLLAR ACTION LSBRK Index:i RSBRK LPREN NumericalExpressionList:l RPREN 
 																{: ASTNode n = new ASTNode(sym.ACTION);
-																	n.pushOp(Index);
+																	n.pushOp(i);
+																	n.pushOp(l);
+																	n.pushOp(sym.DOLLAR);
+																	RESULT = n;
+																:}
+				| DOLLAR ACTION LSBRK Index:i RSBRK LPREN RPREN
+																{: ASTNode n = new ASTNode(sym.ACTION);
+																	n.pushOp(i);
+																	n.pushOp(sym.DOLLAR);
 																	RESULT = n;
 																:};
 
-NumericalExpressionList ::= NumericalExpression COMMA NumericalExpressionList 
+NumericalExpressionList ::= NumericalExpression:ne COMMA NumericalExpressionList:nel
 																{: ASTNode n = new ASTNode(null);
-																    n.pushOp(NumericalExpression);
-																	n.pushOp(NumericalExpressionList);
+																    n.pushOp(ne);
+																	n.pushOp(nel);
 																	RESULT = n;
 																:}
-				| NumericalExpression
-																{: RESULT = NumericalExpression;
+				| NumericalExpression:ne
+																{: RESULT = ne;
 																:};
 
 //EXPRESSIONS	
-BooleanExpression ::= OrExpression
-																{: RESULT = OrExpression;
+BooleanExpression ::= OrExpression:o
+																{: RESULT = o;
 																:};
-OrExpression ::= OrExpression OR AndExpression
+OrExpression ::= OrExpression:o OR AndExpression:a
 																{: ASTNode n = new ASTNode(sym.OR);
-																    n.pushOp(OrExpression);
-																	n.pushOp(AndExpression);
+																    n.pushOp(o);
+																	n.pushOp(a);
 																	RESULT = n;
 																:}
-    | AndExpression
-																{: RESULT = AndExpression;
+    | AndExpression:a
+																{: RESULT = a;
 																:};
-AndExpression ::= AndExpression AND EqualityExpression 
+AndExpression ::= AndExpression:a AND EqualityExpression:e
 																{: ASTNode n = new ASTNode(sym.AND);
-																	n.pushOp(AndExpression);
-																	n.pushOp(EqualityExpression);
+																	n.pushOp(a);
+																	n.pushOp(e);
 																	RESULT = n;
 																:}
-      			| EqualityExpression
-																{: RESULT = EqualityExpression;
+      			| EqualityExpression:e
+																{: RESULT = e;
 																:};
 
-EqualityExpression ::= EqualityExpression EQEQ RelationalExpression
+EqualityExpression ::= EqualityExpression:e EQEQ RelationalExpression:r
 																{: ASTNode n = new ASTNode(sym.EQEQ);
-																	n.pushOp(EqualityExpression);
-																	n.pushOp(RelationalExpression);
+																	n.pushOp(e);
+																	n.pushOp(r);
 																	RESULT = n;
 																:}
-                   | EqualityExpression NOTEQ RelationalExpression
+                   | EqualityExpression:e NOTEQ RelationalExpression:r
 																{: ASTNode n = new ASTNode(sym.NOTEQ);
-																	n.pushOp(EqualityExpression);
-																	n.pushOp(RelationalExpression);
+																	n.pushOp(e);
+																	n.pushOp(r);
 																	RESULT = n;
 																:}
-                   | RelationalExpression
-																{: RESULT = RelationalExpression;
+                   | RelationalExpression:r
+																{: RESULT = r;
 																:};
 
-RelationalExpression ::= RelationalExpression LT AdditiveExpression
+RelationalExpression ::= RelationalExpression:r LT AdditiveExpression:a
 																{: ASTNode n = new ASTNode(sym.LT);
-																	n.pushOp(RelationalExpression);
-																	n.pushOp(AdditiveExpression);
+																	n.pushOp(r);
+																	n.pushOp(a);
 																	RESULT = n;
 																:}
-                      | RelationalExpression GT AdditiveExpression
+                      | RelationalExpression:r GT AdditiveExpression:a
 																{: ASTNode n = new ASTNode(sym.GT);
-																	n.pushOp(RelationalExpression);
-																	n.pushOp(AdditiveExpression);
+																	n.pushOp(r);
+																	n.pushOp(a);
 																	RESULT = n;
 																:}
-                      | RelationalExpression LTEQ AdditiveExpression
+                      | RelationalExpression:r LTEQ AdditiveExpression:a
 																{: ASTNode n = new ASTNode(sym.LTEQ);
-																	n.pushOp(RelationalExpression);
-																	n.pushOp(AdditiveExpression);
+																	n.pushOp(r);
+																	n.pushOp(a);
 																	RESULT = n;
 																:}
-                      | RelationalExpression GTEQ AdditiveExpression
+                      | RelationalExpression:r GTEQ AdditiveExpression:a
 																{: ASTNode n = new ASTNode(sym.GTEQ);
-																	n.pushOp(RelationalExpression);
-																	n.pushOp(AdditiveExpression);
+																	n.pushOp(r);
+																	n.pushOp(a);
 																	RESULT = n;
 																:}
-                      | Data
-																{: RESULT = Data;
+                      | Data:d
+																{: RESULT = d;
 																:}
-                      | LPREN NumericalExpression RPREN
-																{: RESULT = NumericalExpression;
+                      | LPREN NumericalExpression:ne RPREN
+																{: RESULT = ne;
 																:};
 
-NumericalExpression ::= Assignment
-																{: RESULT = Assignment;
+NumericalExpression ::= Assignment:a
+																{: RESULT = a;
 																:}
-            | ArithmeticExpression
-																{: RESULT = ArithmeticExpression;
+            | ArithmeticExpression:a
+																{: RESULT = a;
 																:};
 
-ArithmeticExpression ::= AdditiveExpression
-																{: RESULT = AdditiveExpression;
+ArithmeticExpression ::= AdditiveExpression:a
+																{: RESULT = a;
 																:};
 
-AdditiveExpression ::= AdditiveExpression PLUS MultiplicativeExpression
+AdditiveExpression ::= AdditiveExpression:a PLUS MultiplicativeExpression:m
 																{: ASTNode n = new ASTNode(sym.PLUS);
-																	n.pushOp(AdditiveExpression);
-																	n.pushOp(MultiplicativeExpression);
+																	n.pushOp(a);
+																	n.pushOp(m);
 																	RESULT = n;
 																:}
-                   | AdditiveExpression MINUS MultiplicativeExpression
+                   | AdditiveExpression:a MINUS MultiplicativeExpression:m
 																{: ASTNode n = new ASTNode(sym.MINUS);
-																	n.pushOp(AdditiveExpression);
-																	n.pushOp(MultiplicativeExpression);
+																	n.pushOp(a);
+																	n.pushOp(m);
 																	RESULT = n;
 																:}
-                   | MultiplicativeExpression
-																{: RESULT = MultiplicativeExpression;
+                   | MultiplicativeExpression:m
+																{: RESULT = m;
 																:};
 
-MultiplicativeExpression ::= MultiplicativeExpression TIMES UnaryExpression
+MultiplicativeExpression ::= MultiplicativeExpression:m TIMES UnaryExpression:u
 																{: ASTNode n = new ASTNode(sym.TIMES);
-																	n.pushOp(MultiplicativeExpression);
-																	n.pushOp(UnaryExpression);
+																	n.pushOp(m);
+																	n.pushOp(u);
 																	RESULT = n;
 																:}
-                         |  MultiplicativeExpression DIVIDE UnaryExpression
+                         |  MultiplicativeExpression:m DIVIDE UnaryExpression:u
 																{: ASTNode n = new ASTNode(sym.DIVIDE);
-																	n.pushOp(MultiplicativeExpression);
-																	n.pushOp(UnaryExpression);
+																	n.pushOp(m);
+																	n.pushOp(u);
 																	RESULT = n;
 																:}
-                         |  MultiplicativeExpression MOD UnaryExpression
+                         |  MultiplicativeExpression:m MOD UnaryExpression:u
 																{: ASTNode n = new ASTNode(sym.MOD);
-																	n.pushOp(MultiplicativeExpression);
-																	n.pushOp(UnaryExpression);
+																	n.pushOp(m);
+																	n.pushOp(u);
 																	RESULT = n;
 																:}
-                         | UnaryExpression
-																{: RESULT = UnaryExpression;
+                         | UnaryExpression:u
+																{: RESULT = u;
 																:};
 
-UnaryExpression ::= NOT UnaryExpression
+UnaryExpression ::= NOT UnaryExpression:u
 																{: ASTNode n = new ASTNode(sym.NOT);
-																	n.pushOp(UnaryExpression);
+																	n.pushOp(u);
 																	RESULT = n;
 																:}
 
-                | LPREN NumericalExpression RPREN 
-																{: RESULT = NumericalExpression;
+                | LPREN NumericalExpression:ne RPREN 
+																{: RESULT = ne;
 																:}
-                | Data
-																{: RESULT = Data;
+                | Data:d
+																{: RESULT = d;
 																:};
 
 //VARIABLES AND DATA
 Data ::= ID 
 																{: RESULT = sym.ID;
 																:}
-			| SystemVar 
-																{: RESULT = SystemVar;
+			| SystemVar:s 
+																{: RESULT = s;
 																:}
 			| NUMBER 
 																{: RESULT = sym.NUMBER;
@@ -526,21 +535,22 @@ Data ::= ID
 			| DECIMAL 
 																{: RESULT = sym.DECIMAL;
 																:}
-			| FunctionCall
-																{: RESULT = FunctionCall;
+			| FunctionCall:f
+																{: RESULT = f;
 																:};
 
-SystemVar ::= DOLLAR SystemVarName 
+SystemVar ::= DOLLAR SystemVarName:s 
 																{: RESULT = SystemVarName;
 																:}
-			| DOLLAR SystemPartRef DOT ID 
+			| DOLLAR SystemPartRef:s DOT ID 
 																{: ASTNode n = new ASTNode(sym.DOT);
 																	n.pushOp(sym.ID);
-																	n.pushOp(SystemPartRef);
+																	n.pushOp(s);
 																	RESULT = n;
 																:}
 			| DOLLAR GLOBAL DOT ID
 																{: ASTNode n = new ASTNode(sym.DOT);
+																	n.pushOp(sym.DOLLAR);
 																	n.pushOp(sym.GLOBAL);
 																	n.pushOp(sym.ID);
 																	RESULT = n;
@@ -562,9 +572,9 @@ SystemVarName ::= NUM_STEPS
 																{: RESULT = sym.RANDF;
 																:};
 
-SystemPartRef ::= PART LSBRK Index RSBRK 
+SystemPartRef ::= PART LSBRK Index:i RSBRK 
 																{: ASTNode n = new ASTNode(sym.PART);
-																	n.pushOp(Index);
+																	n.pushOp(i);
 																	RESULT = n;
 																:}
 		| ME
