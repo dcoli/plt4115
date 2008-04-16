@@ -19,7 +19,7 @@ import compiler.settings.Participant;
  */
 public class ParticipantTable extends GenericTable {
 
-	private final ArrayList<Participant> table;
+	public final ArrayList<Participant> table;
 	
 	public ParticipantTable () {
 		this.table = new ArrayList();
