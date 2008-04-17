@@ -120,7 +120,7 @@ Participant_vars ::= ATTRIBUTES LBRC AttributeDeclarationList:l RBRC
 
 //Environment and Participant File Specific
 //colin
-Step ::= DEF REQUIRED STEP LPREN RPREN Block {: RESULT = Block; :};
+Step ::= DEF REQUIRED STEP LPREN RPREN Block:b {: RESULT = b; :};
 Actions ::= Action:a Actions:al 
 																{: ASTNode n = new ASTNode(null); 
 																   n.pushOp(a);
@@ -144,7 +144,7 @@ Action ::= DEF ACTION ID LPREN ArgList:al RPREN Block:b
 ArgList ::= Arg:a COMMA ArgList:l 
 																{: ASTNode n = new ASTNode(null); 
 																   n.pushOp(a);
-																   n.pushOP(l);
+																   n.pushOp(l);
 																   RESULT = n;
 																:} 
 		| Arg:a
@@ -540,7 +540,7 @@ Data ::= ID
 																:};
 
 SystemVar ::= DOLLAR SystemVarName:s 
-																{: RESULT = SystemVarName;
+																{: RESULT = s;
 																:}
 			| DOLLAR SystemPartRef:s DOT ID 
 																{: ASTNode n = new ASTNode(sym.DOT);
