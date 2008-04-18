@@ -429,28 +429,28 @@ EqualityExpression ::= EqualityExpression:e EQEQ RelationalExpression:r
 																{: RESULT = r;
 																:};
 
-RelationalExpression ::= RelationalExpression:r LT AdditiveExpression:a
+RelationalExpression ::= AdditiveExpression:al LT AdditiveExpression:ar
 																{: ASTNode n = new ASTNode(sym.LT);
-																	n.pushOp(r);
-																	n.pushOp(a);
+																	n.pushOp(al);
+																	n.pushOp(ar);
 																	RESULT = n;
 																:}
-                      | RelationalExpression:r GT AdditiveExpression:a
+                      | AdditiveExpression:al GT AdditiveExpression:ar
 																{: ASTNode n = new ASTNode(sym.GT);
-																	n.pushOp(r);
-																	n.pushOp(a);
+																	n.pushOp(al);
+																	n.pushOp(ar);
 																	RESULT = n;
 																:}
-                      | RelationalExpression:r LTEQ AdditiveExpression:a
+                      | AdditiveExpression:al LTEQ AdditiveExpression:ar
 																{: ASTNode n = new ASTNode(sym.LTEQ);
-																	n.pushOp(r);
-																	n.pushOp(a);
+																	n.pushOp(al);
+																	n.pushOp(ar);
 																	RESULT = n;
 																:}
-                      | RelationalExpression:r GTEQ AdditiveExpression:a
+                      | AdditiveExpression:al GTEQ AdditiveExpression:ar
 																{: ASTNode n = new ASTNode(sym.GTEQ);
-																	n.pushOp(r);
-																	n.pushOp(a);
+																	n.pushOp(al);
+																	n.pushOp(ar);
 																	RESULT = n;
 																:}
                       | Data:d
