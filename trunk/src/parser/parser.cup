@@ -1,6 +1,6 @@
 package compiler.syntax;
 
-//import compiler.settings.*;
+import compiler.settings.*;
 import java_cup.runtime.*;
 
 
@@ -229,12 +229,12 @@ Statement ::= Block:b
 																	n.pushOp(s);
 																	RESULT = n;
 																:}
-           | RETURN NumericalExpression:ne SEMI
+           | RETURN BooleanExpression:ne SEMI
 																{: ASTNode n = new ASTNode(sym.RETURN);
 																	n.pushOp(ne);
 																	RESULT = n;
 																:}
-           | NumericalExpression:ne SEMI
+           | BooleanExpression:ne SEMI
 																{: RESULT = ne;
 																:}
            | Declaration:d SEMI
@@ -453,10 +453,7 @@ RelationalExpression ::= AdditiveExpression:al LT AdditiveExpression:ar
 																	n.pushOp(ar);
 																	RESULT = n;
 																:}
-                      | Data:d
-																{: RESULT = d;
-																:}
-                      | LPREN NumericalExpression:ne RPREN
+                      | NumericalExpression:ne
 																{: RESULT = ne;
 																:};
 
