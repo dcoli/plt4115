@@ -22,6 +22,6 @@ public class ParticipantTable extends GenericTable {
 	public final ArrayList<Participant> table;
 	
 	public ParticipantTable () {
-		this.table = new ArrayList();
+		this.table = new ArrayList<Participant>();
 	}
 }
