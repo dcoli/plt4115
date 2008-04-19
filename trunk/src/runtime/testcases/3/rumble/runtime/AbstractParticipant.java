@@ -15,11 +15,10 @@ public abstract class AbstractParticipant extends Object
 		return this.name;
 	}
 	
-	
-	// NOT DONE
 	public String toString() {
 		return "\t\t{\n\t\t\tparticipant : \"" + this.name + 
-				"\",\n\t\t},\n";
+				"\",\n\t\t\thealth : " + this.rumVar_health + ",\nstrength : "
+				+ this.rumVar_strength + "\n\t\t},\n";
 	}
 	
 	public abstract void step();
