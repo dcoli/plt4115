@@ -42,7 +42,7 @@ public class RumbleCompiler {
 			
 			//alert the scanner as to the current working directory
 			if (file.getParent() != null)
-				Settings.setCurrentWorkingDirectory(file.getParent() + "\\");
+				Settings.setCurrentWorkingDirectory(file.getParent() + "/");
 			
 			try {
 				Analyzer analyzer = new Analyzer(new parser(scanner));
