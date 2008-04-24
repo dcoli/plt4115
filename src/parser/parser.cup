@@ -440,25 +440,25 @@ EqualityExpression ::= EqualityExpression:e EQEQ RelationalExpression:r
 																:}
                    | RelationalExpression:r						{: RESULT = r;:};
 
-RelationalExpression ::= RelationalExpression:al LT AdditiveExpression:ae
+RelationalExpression ::= AdditiveExpression:al LT AdditiveExpression:ae
 																{: ASTNode n = new ASTNode(sym.LT);
 																	n.pushOp(al);
 																	n.pushOp(ae);
 																	RESULT = n;
 																:}
-                      | RelationalExpression:al GT AdditiveExpression:ae
+                      | AdditiveExpression:al GT AdditiveExpression:ae
 																{: ASTNode n = new ASTNode(sym.GT);
 																	n.pushOp(al);
 																	n.pushOp(ae);
 																	RESULT = n;
 																:}
-                      | RelationalExpression:al LTEQ AdditiveExpression:ae
+                      | AdditiveExpression:al LTEQ AdditiveExpression:ae
 																{: ASTNode n = new ASTNode(sym.LTEQ);
 																	n.pushOp(al);
 																	n.pushOp(ae);
 																	RESULT = n;
 																:}
-                      | RelationalExpression:al GTEQ AdditiveExpression:ae
+                      | AdditiveExpression:al GTEQ AdditiveExpression:ae
 																{: ASTNode n = new ASTNode(sym.GTEQ);
 																	n.pushOp(al);
 																	n.pushOp(ae);
