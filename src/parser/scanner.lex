@@ -11,9 +11,15 @@ import java.io.*;
 %{
 	public static LinkedList<String> files;
 	public static int currentLine;
+	public static String nextFile;
+	
+	public static void displayError(String message){
+		System.err.println("Error in " + nextFile + ", line " + currentLine + ": " + message);
+	}
 %}
 
 %init{
+	currentLine = 1;
 	files = new LinkedList();
 %init} 
 
@@ -22,8 +28,9 @@ if (files.size() == 0)
   return new Symbol(sym.EOF);
 else {
 	yy_reader.close();
-	String nextFile = Settings.getCurrentWorkingDirectory() + (String)files.removeFirst();
+	nextFile = Settings.getCurrentWorkingDirectory() + (String)files.removeFirst();
 	yy_reader = new BufferedReader(new InputStreamReader(new FileInputStream(nextFile)));
+	currentLine = 1;
 	System.out.println("Now tokenizing " + nextFile);
 }
 %eofval}
@@ -47,6 +54,9 @@ else {
 "return" { return new Symbol(sym.RETURN); }
 "int" { return new Symbol(sym.INT); }
 "float" { return new Symbol(sym.FLOAT); }
+"boolean" { return new Symbol(sym.BOOLEAN); }
+"true" { return new Symbol(sym.TRUE); }
+"false" { return new Symbol(sym.FALSE); }
 "def" { return new Symbol(sym.DEF); }
 "required" { return new Symbol(sym.REQUIRED); }
 
