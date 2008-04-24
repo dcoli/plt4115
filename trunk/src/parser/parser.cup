@@ -322,39 +322,39 @@ DataType ::= INT 												{: RESULT = sym.INT;:}
 																
 
 //ASSIGNMENT
-Assignment ::= ID TIMESEQ Expression:e
+Assignment ::= ID:i TIMESEQ Expression:e
 																{: ASTNode n = new ASTNode(sym.TIMESEQ);
-																	n.pushOp(sym.ID);
+																	n.pushOp(i);
 																	n.pushOp(e);
 																	RESULT = n;
 																:}
-            | ID DIVIDEEQ Expression:e
+            | ID:i DIVIDEEQ Expression:e
 																{: ASTNode n = new ASTNode(sym.DIVIDEEQ);
-																	n.pushOp(sym.ID);
+																	n.pushOp(i);
 																	n.pushOp(e);
 																	RESULT = n;
 																:}
-            | ID MINUSEQ Expression:e
+            | ID:i MINUSEQ Expression:e
 																{: ASTNode n = new ASTNode(sym.MINUSEQ);
-																	n.pushOp(sym.ID);
+																	n.pushOp(i);
 																	n.pushOp(e);
 																	RESULT = n;
 																:}
-            | ID PLUSEQ Expression:e
+            | ID:i PLUSEQ Expression:e
 																{: ASTNode n = new ASTNode(sym.PLUSEQ);
-																	n.pushOp(sym.ID);
+																	n.pushOp(i);
 																	n.pushOp(e);
 																	RESULT = n;
 																:}
-            | ID MODEQ Expression:e
+            | ID:i MODEQ Expression:e
 																{: ASTNode n = new ASTNode(sym.MODEQ);
-																	n.pushOp(sym.ID);
+																	n.pushOp(i);
 																	n.pushOp(e);
 																	RESULT = n;
 																:}
-            | ID EQ Expression:e
+            | ID:i EQ Expression:e
             													{: ASTNode n = new ASTNode(sym.EQ);
-																	n.pushOp(sym.ID);
+																	n.pushOp(i);
 																	n.pushOp(e);
 																	RESULT = n;
 																:}
@@ -506,34 +506,53 @@ UnaryExpression ::= NOT UnaryExpression:u
 																	RESULT = n;
 																:}
 
-                | LPREN Expression:e RPREN 						{: RESULT = e;:}
+                | LPREN Expression:e RPREN 											{: ASTNode n = new ASTNode(sym.LPREN);
+																	n.pushOp(u);
+																	RESULT = n;
+																:}
+
                 | Data:d										{: RESULT = d;:};
 
 //VARIABLES AND DATA
-Data ::= ID 													{: RESULT = sym.ID;:}
-			| SystemVar:s										{: RESULT = s;:}
-			| NUMBER 											{: RESULT = sym.NUMBER;:}
-			| DECIMAL 											{: RESULT = sym.DECIMAL;:}
-			| FunctionCall:f									{: RESULT = f;:}
-			| TRUE												{: RESULT = new ASTNode(sym.TRUE); :}
-            | FALSE												{: RESULT = new ASTNode(sym.FALSE); :};
+Data ::= ID:i 													{: ASTNode n = new ASTNode(sym.ID);
+															n.pushOp(i);
+															RESULT = n;
+														:}
+			| SystemVar:s										{: ASTNode n = new ASTNode(astsym.SYSTEM_VAR);
+															n.pushOp(s);
+															RESULT = n;
+														:}
+			| NUMBER:num 										{: ASTNode n = new ASTNode(sym.NUMBER);
+															n.pushOp(num);
+															RESULT = n;
+														:}
+			| DECIMAL:d 										{: ASTNode n = new ASTNode(sym.DECIMAL);
+															n.pushOp(d);
+															RESULT = n;
+														:}
+			| FunctionCall:f									{: ASTNode n = new ASTNode(astsym.FUNCTION_CALL);
+															n.pushOp(f);
+															RESULT = n;
+														:}
+			| TRUE											{: RESULT = new ASTNode(sym.TRUE); :}
+            		| FALSE											{: RESULT = new ASTNode(sym.FALSE); :};
 
 SystemVar ::= DOLLAR SystemVarName:s 
-																{: RESULT = s;
-																:}
-			| DOLLAR SystemPartRef:s DOT ID 
-																{: ASTNode n = new ASTNode(sym.DOT);
-																	n.pushOp(sym.ID);
-																	n.pushOp(s);
-																	RESULT = n;
-																:}
-			| DOLLAR GLOBAL DOT ID
-																{: ASTNode n = new ASTNode(sym.DOT);
-																	n.pushOp(sym.DOLLAR);
-																	n.pushOp(sym.GLOBAL);
-																	n.pushOp(sym.ID);
-																	RESULT = n;
-																:};
+														{: ASTNode n = new ASTNode(astsym.SYSTEM_VAR_NAME);
+															n.pushOp(s);
+															RESULT = n;
+														:}
+	| DOLLAR SystemPartRef:s DOT ID:i 
+														{: ASTNode n = new ASTNode(astsym.SYSTEM_PART_REF);
+															n.pushOp(s);
+															n.pushOp(i);
+															RESULT = n;
+														:}
+
+	| DOLLAR GLOBAL DOT ID:i										{: ASTNode n = new ASTNode(astsym.SYSTEM_GLOBAL);
+															n.pushOp(i);
+															RESULT = n;
+														:};
 
 SystemVarName ::= NUM_STEPS
 																{: RESULT = sym.NUM_STEPS;
