@@ -316,19 +316,12 @@ IdList ::= ID COMMA IdList:i
 																	RESULT = n;
 																:}
 
-			| ID
-																{: RESULT = sym.ID;
-																:};
+			| ID												{: RESULT = sym.ID;:};
 
-DataType ::= INT 
-																{: RESULT = sym.INT;
-																:}
-			| FLOAT
-																{: RESULT = sym.FLOAT;
-																:}																
-			| BOOLEAN											
-																{: RESULT = sym.BOOLEAN;
-																:};
+DataType ::= INT 												{: RESULT = sym.INT;:}
+			| FLOAT												{: RESULT = sym.FLOAT;:}																
+			| BOOLEAN											{: RESULT = sym.BOOLEAN;:}
+			| PARTICIPANT										{: RESULT = sym.PARTICIPANT;:};
 																
 
 //ASSIGNMENT
