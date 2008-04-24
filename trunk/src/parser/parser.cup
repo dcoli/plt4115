@@ -253,12 +253,9 @@ Statement ::= Block:b
 																	n.pushOp(e);
 																	RESULT = n;
 																:}
-           | Declaration:d SEMI
-																{: RESULT = d;
-																:}
-		   | Assignment:a										
-           														{: RESULT = a;
-																:}
+           | Declaration:d SEMI									{: RESULT = d;:}
+		   | FunctionCall:f SEMI								{: RESULT = f;:}
+		   | Assignment:a										{: RESULT = a;:}
 		   | error ENVIRONMENT {: Yylex.displayError("Malformed statement"); :};
 																
 IfStatement ::= IF LPREN Expression:e RPREN Statement:s
