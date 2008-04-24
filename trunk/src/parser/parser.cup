@@ -18,7 +18,7 @@ non terminal ParticipantFiles, ParticipantFile;
 non terminal SimulationFile, EnvironmentConfig, ParticipantConfigList, ParticipantConfigs, ParticipantConfig, End;
 non terminal Environmental_vars, Participant_vars, AttributeDeclaration, AttributeDeclarationList;
 non terminal Block, Action, ArgList, Arg, DataType;
-non terminal AssignmentList, Assignment;
+non terminal AssignmentList, Assignment, LValueData;
 non terminal Lines, Statement;
 non terminal IfStatement, ElseStatement, Declaration, Constraint;
 non terminal IdList;
@@ -322,68 +322,73 @@ DataType ::= INT 												{: RESULT = sym.INT;:}
 																
 
 //ASSIGNMENT
-Assignment ::= ID:i TIMESEQ Expression:e
+Assignment ::= LValueData:i TIMESEQ Expression:e
 																{: ASTNode n = new ASTNode(sym.TIMESEQ);
 																	n.pushOp(i);
 																	n.pushOp(e);
 																	RESULT = n;
 																:}
-            | ID:i DIVIDEEQ Expression:e
+            | LValueData:i DIVIDEEQ Expression:e
 																{: ASTNode n = new ASTNode(sym.DIVIDEEQ);
 																	n.pushOp(i);
 																	n.pushOp(e);
 																	RESULT = n;
 																:}
-            | ID:i MINUSEQ Expression:e
+            | LValueData:i MINUSEQ Expression:e
 																{: ASTNode n = new ASTNode(sym.MINUSEQ);
 																	n.pushOp(i);
 																	n.pushOp(e);
 																	RESULT = n;
 																:}
-            | ID:i PLUSEQ Expression:e
+            | LValueData:i PLUSEQ Expression:e
 																{: ASTNode n = new ASTNode(sym.PLUSEQ);
 																	n.pushOp(i);
 																	n.pushOp(e);
 																	RESULT = n;
 																:}
-            | ID:i MODEQ Expression:e
+            | LValueData:i MODEQ Expression:e
 																{: ASTNode n = new ASTNode(sym.MODEQ);
 																	n.pushOp(i);
 																	n.pushOp(e);
 																	RESULT = n;
 																:}
-            | ID:i EQ Expression:e
+            | LValueData:i EQ Expression:e
             													{: ASTNode n = new ASTNode(sym.EQ);
 																	n.pushOp(i);
 																	n.pushOp(e);
 																	RESULT = n;
 																:}
 																										
-			| error EQ {: Yylex.displayError("Malformed assignment statement."); :};
+	    | error EQ {: Yylex.displayError("Malformed assignment statement."); :};
+
+
+LValueData ::= ID:i 												{: ASTNode n = new ASTNode(sym.ID);
+															n.pushOp(i);
+															RESULT = n;
+														:}
+	    | SystemVar:s											{: ASTNode n = new ASTNode(astsym.SYSTEM_VAR);
+															n.pushOp(s);
+															RESULT = n;
+														:};
+	    
+	   
 
 //FUNCTION CALLS
-FunctionCall ::= ID LPREN ExpressionList:l RPREN  
-																{: ASTNode n = new ASTNode(astsym.FUNCTION_CALL);
+FunctionCall ::= ID:i LPREN ExpressionList:l RPREN
+																{: ASTNode n = new ASTNode(sym.ID);
+																	n.pushOp(i);
 																	n.pushOp(l);
 																	RESULT = n;
 																:}
-				| ID LPREN RPREN  
-																{: RESULT = sym.ID;
+				| ID:i LPREN RPREN  
+																{: ASTNode n = new ASTNode(sym.ID);
+																   n.pushOp(i);
+																   RESULT = n;
 																:}
+				
 				| DOLLAR SystemPartRef:s DOT STEP LPREN RPREN  
 																{: ASTNode n = new ASTNode(astsym.STEP_CALL);
 																	n.pushOp(s);
-																	RESULT = n;
-																:}
-				| DOLLAR ACTION LSBRK NUMBER:i RSBRK LPREN ExpressionList:l RPREN 
-																{: ASTNode n = new ASTNode(sym.ACTION);
-																	n.pushOp(i);
-																	n.pushOp(l);
-																	RESULT = n;
-																:}
-				| DOLLAR ACTION LSBRK NUMBER:i RSBRK LPREN RPREN
-																{: ASTNode n = new ASTNode(sym.ACTION);
-																	n.pushOp(i);
 																	RESULT = n;
 																:}
 				| error RPREN {: Yylex.displayError("Malformed function call."); :};
@@ -394,10 +399,11 @@ ExpressionList ::= Expression:e COMMA ExpressionList:el
 																	n.pushOp(el);
 																	RESULT = n;
 																:}
-				| Expression:e
-																{: RESULT = e;
+		| Expression:e
+																{: ASTNode n = new ASTNode(null);
+																	n.pushOp(e);
+																	RESULT = n;
 																:};
-
 //EXPRESSIONS
 Expression	::= OrExpression:o									{: RESULT = o;
 																:};
@@ -506,8 +512,8 @@ UnaryExpression ::= NOT UnaryExpression:u
 																	RESULT = n;
 																:}
 
-                | LPREN Expression:e RPREN 											{: ASTNode n = new ASTNode(sym.LPREN);
-																	n.pushOp(u);
+                | LPREN Expression:e RPREN 						{: ASTNode n = new ASTNode(sym.LPREN);
+																	n.pushOp(e);
 																	RESULT = n;
 																:}
 
@@ -535,7 +541,8 @@ Data ::= ID:i 													{: ASTNode n = new ASTNode(sym.ID);
 															RESULT = n;
 														:}
 			| TRUE											{: RESULT = new ASTNode(sym.TRUE); :}
-            		| FALSE											{: RESULT = new ASTNode(sym.FALSE); :};
+            | FALSE											{: RESULT = new ASTNode(sym.FALSE); :};
+
 
 SystemVar ::= DOLLAR SystemVarName:s 
 														{: ASTNode n = new ASTNode(astsym.SYSTEM_VAR_NAME);
@@ -576,5 +583,5 @@ SystemPartRef ::= PART LSBRK NUMBER:i RSBRK
 																	RESULT = n;
 																:}
 		| ME
-																{: RESULT = sym.ME;
+																{: RESULT = new ASTNode(sym.ME);
 																:};

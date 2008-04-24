@@ -30,8 +30,6 @@ public class CodeGenerator {
 			ASTNode environmentConfig = (ASTNode)simulationNode.getOp(1);
 			String envFile = (String)environmentConfig.getDescriptor();
 			
-			
-			
 			pw = new PrintWriter(new FileOutputStream(Settings.outputPath + "/Environment.java"));
 			pw.println("import java.util.*;");
 			pw.println("public class Environment {");
@@ -60,6 +58,7 @@ public class CodeGenerator {
 			
 			HashMap globalValues = assignmentListToHash((ASTNode)environmentConfig.getOp(0));
 			
+//			pw.println(generateInterface((ASTNode)environmentConfig.getOp(1)));
 			
 			pw.println("}");
 			pw.close();
@@ -80,8 +79,7 @@ public class CodeGenerator {
 		while(assignmentList != null){
 			//get the assignment statement
 			ASTNode assignment = (ASTNode)assignmentList.getOp(0);
-			h.put(assignment.getOp(0), generateExpression((ASTNode)assignment.getOp(1)));
-			
+			h.put(generateLValueData((ASTNode)assignment.getOp(0)), generateExpression((ASTNode)assignment.getOp(1)));
 			assignmentList = (ASTNode)assignmentList.getOp(1);
 		}
 		
@@ -142,7 +140,43 @@ public class CodeGenerator {
 				sb.append(generateData(e));
 		}
 		
+		return "";
+	}
+		
+	public String generateAssignment(ASTNode a){
+		StringBuilder sb = new StringBuilder();
+		switch ((Integer)a.getDescriptor()){
+			case sym.TIMESEQ:
+				sb.append(generateLValueData((ASTNode)a.getOp(0)) + " *= " + generateExpression((ASTNode)a.getOp(1)));
+			break;
+			case sym.DIVIDEEQ:
+				sb.append(generateLValueData((ASTNode)a.getOp(0)) + " /= " + generateExpression((ASTNode)a.getOp(1)));
+			break;
+			case sym.MINUSEQ:
+				sb.append(generateLValueData((ASTNode)a.getOp(0)) + " -= " + generateExpression((ASTNode)a.getOp(1)));
+			break;
+			case sym.PLUSEQ:
+				sb.append(generateLValueData((ASTNode)a.getOp(0)) + " += " + generateExpression((ASTNode)a.getOp(1)));
+			break;
+			case sym.MODEQ:
+				sb.append(generateLValueData((ASTNode)a.getOp(0)) + " %= " + generateExpression((ASTNode)a.getOp(1)));
+			break;
+			case sym.EQ:
+				sb.append(generateLValueData((ASTNode)a.getOp(0)) + " = " + generateExpression((ASTNode)a.getOp(1)));
+			break;
+		}
+	
 		return sb.toString();
+	}
+	
+	public String generateLValueData(ASTNode a){
+		switch ((Integer)a.getDescriptor()){
+			case sym.ID:
+				return (String)a.getOp(0);
+			case astsym.SYSTEM_VAR:
+				return generateSystemVar((ASTNode)a.getOp(0));
+		}	
+		return "";	
 	}
 	
 	public String generateSystemVar(ASTNode systemVar){
@@ -181,15 +215,39 @@ public class CodeGenerator {
 		return "";
 	}
 	
-	public String generateFunctionCall(ASTNode systemVar){
-		return "";
+	public String generateFunctionCall(ASTNode functionCall){
+		StringBuilder sb = new StringBuilder();
+		switch ((Integer)functionCall.getDescriptor()){
+			case sym.ID:
+				sb.append((String)functionCall.getOp(0));
+				if (functionCall.getOp(1) != null)
+					sb.append("(this," + generateExpressionList((ASTNode)functionCall.getOp(1)) + ")");
+				else
+					sb.append("(this)");
+			break;
+			case astsym.STEP_CALL:
+				sb.append(generateSystemPartRef((ASTNode)functionCall.getOp(0)) + ".step()");
+			break;
+		}
+		
+		return sb.toString();
 	}
+	
+	public String generateExpressionList(ASTNode list){
+		StringBuilder sb = new StringBuilder();
+		while(list != null){
+			sb.append(generateExpression((ASTNode)list.getOp(0)));
+			if (list.getOp(1) != null) sb.append(", ");
+			list = (ASTNode)list.getOp(1);
+		}
+		return sb.toString();
+	}
+	
 	
 	public String generateData(ASTNode data){
 		switch ((Integer)data.getDescriptor()){
 			case sym.NUMBER:
-				return ((Integer)data.getOp(0))).toString();
-				break;
+				return ((Integer)data.getOp(0)).toString();
 			case astsym.SYSTEM_VAR:
 				generateSystemVar((ASTNode)data.getOp(0));
 				break;
@@ -197,17 +255,13 @@ public class CodeGenerator {
 				generateFunctionCall((ASTNode)data.getOp(0));
 				break;
 			case sym.DECIMAL:
-				return ((Float)data.getOp(0))).toString();
-				break;
+				return ((Float)data.getOp(0)).toString();
 			case sym.ID:
 				return (String)data.getOp(0);
-			break;
 			case sym.TRUE:
 				return "true";
-			break;
 			case sym.FALSE:
 				return "false";
-			break;
 		}
 		return "";
 	}
