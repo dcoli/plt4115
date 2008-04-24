@@ -5,7 +5,10 @@ import java_cup.runtime.*;
 
 
 parser code {:
-	
+	public parser(Yylex scanner, String rusFile){
+		this(scanner);
+		scanner.nextFile = rusFile;
+	}
 :}
 
 
@@ -16,10 +19,10 @@ non terminal SimulationFile, EnvironmentConfig, ParticipantConfigList, Participa
 non terminal Environmental_vars, Participant_vars, AttributeDeclaration, AttributeDeclarationList;
 non terminal Block, Action, ArgList, Arg, DataType;
 non terminal AssignmentList, Assignment;
-non terminal Lines, Statement, BooleanExpression, NumericalExpression;
-non terminal IfStatement, ElseStatement, Declaration, Constraint, ArithmeticExpression;
+non terminal Lines, Statement;
+non terminal IfStatement, ElseStatement, Declaration, Constraint;
 non terminal IdList;
-non terminal FunctionCall, NumericalExpressionList, SystemPartRef, SystemVar, SystemVarName, Index;
+non terminal FunctionCall, Expression, ExpressionList, SystemPartRef, SystemVar, SystemVarName;
 non terminal OrExpression, AndExpression, RelationalExpression, EqualityExpression, AdditiveExpression;
 non terminal MultiplicativeExpression, UnaryExpression, Data;
 
@@ -29,7 +32,7 @@ non terminal MultiplicativeExpression, UnaryExpression, Data;
 terminal NAME, ENVIRONMENT, PARTICIPANT, PART,		//Keywords
 		 SIMULATION, GLOBAL, STEP, ACTION, END,
 		 IF, ELSE, WHILE, RETURN, INT, FLOAT, ATTRIBUTES,
-		 DEF, REQUIRED;
+		 DEF, REQUIRED, BOOLEAN, TRUE, FALSE;
 		 
 terminal NUM_STEPS, NUM_PARTS, NUM_ACTIONS,			//System Variables
 		 RANDI, RANDF, ME;  				
@@ -44,6 +47,7 @@ terminal LBRC, RBRC, SEMI, LPREN, RPREN, COMMA,		//Punctuation
 
 //solves the if-else ambiguity
 precedence left ELSE;
+
 
 //////////////////////
 //GRAMMAR
@@ -65,7 +69,8 @@ EnvironmentFile ::= ENVIRONMENT Meta:m Interface:i Step:s Actions:a
 																   n.pushOp(s);
 																   n.pushOp(a);
 																   RESULT = n;
-																:}; 
+																:}
+					| error ENVIRONMENT {: Yylex.displayError("Missing required component or malformed environment file."); :}; 
 
 ParticipantFile ::= PARTICIPANT Meta:m Step:s
 																{: ASTNode n = new ASTNode(sym.PARTICIPANT); 
@@ -74,7 +79,7 @@ ParticipantFile ::= PARTICIPANT Meta:m Step:s
 																   RESULT = n;
 																:}; 
 																
-ParticipantFiles ::= ParticipantFile:p ParticipantFiles:pf  
+ParticipantFiles ::= ParticipantFile:p ParticipantFiles:pf
 																{: ASTNode n = new ASTNode(null); 
 																   n.pushOp(p);
 																   n.pushOp(pf);
@@ -84,20 +89,22 @@ ParticipantFiles ::= ParticipantFile:p ParticipantFiles:pf
 					
 					
 					
-SimulationFile ::= SIMULATION Meta:m EnvironmentConfig:ec ParticipantConfigList:ecl End 
-					
+SimulationFile ::= SIMULATION Meta:m EnvironmentConfig:ec ParticipantConfigList:pcl End 	
 																{: ASTNode n = new ASTNode(sym.SIMULATION); 
 																		   n.pushOp(m);
 																		   n.pushOp(ec);
-																		   n.pushOp(ecl);
+																		   n.pushOp(pcl);
 																		   RESULT = n;
 																System.out.println("Parsed simulation file: " + m); 
-																:};
+																:}
+					| error RBRC{: Yylex.displayError("Missing required component."); :};
 
 
 //===========================================================================
 //File Level
-Meta ::= NAME STRING:s SEMI {: RESULT = s; :};
+Meta ::= NAME STRING:s SEMI {: RESULT = s; :}
+			| error SEMI {: Yylex.displayError("Malformed meta statement."); :};
+			
 Interface ::= Environmental_vars:e Participant_vars:p
 																{: ASTNode n = new ASTNode(null); 
 																   n.pushOp(e);
@@ -119,16 +126,15 @@ Participant_vars ::= ATTRIBUTES LBRC AttributeDeclarationList:l RBRC
 
 
 //Environment and Participant File Specific
-//colin
-Step ::= DEF REQUIRED STEP LPREN RPREN Block:b {: RESULT = b; :};
+Step ::= DEF REQUIRED STEP LPREN RPREN Block:b 					{: RESULT = b; :};
 Actions ::= Action:a Actions:al 
 																{: ASTNode n = new ASTNode(null); 
 																   n.pushOp(a);
 																   n.pushOp(al);
 																   RESULT = n;
 																:}
-						| /*empty*/; 
-//colin not sure if operator is necessary, maybe RESULT = Block
+			| /*empty*/; 
+
 Action ::= DEF ACTION ID LPREN ArgList:al RPREN Block:b
 																{: ASTNode n = new ASTNode(sym.ID); 
 																   n.pushOp(al);
@@ -139,7 +145,8 @@ Action ::= DEF ACTION ID LPREN ArgList:al RPREN Block:b
 																{: ASTNode n = new ASTNode(sym.ID); 
 																   n.pushOp(b);
 																   RESULT = n;
-																:}; 
+																:}
+		 | error Block {: Yylex.displayError("Malformed action."); :}; 
 
 ArgList ::= Arg:a COMMA ArgList:l 
 																{: ASTNode n = new ASTNode(null); 
@@ -148,19 +155,26 @@ ArgList ::= Arg:a COMMA ArgList:l
 																   RESULT = n;
 																:} 
 		| Arg:a
-																{: RESULT = a;
-																:}; 
+																{: 
+																	ASTNode n = new ASTNode(null);
+																	n.pushOp(a);
+																	RESULT = n;
+																:};
+		 
 Arg ::= DataType:d ID
 																{: ASTNode n = new ASTNode(sym.ID); 
 																   n.pushOp(d);
 																   RESULT = n;
-																:}; 
+																:}
+		| error ID {: Yylex.displayError("Missing data type or identifier in prototype."); :};
+		 
 //Simulation File Specific
-EnvironmentConfig ::= ENVIRONMENT STRING:s LBRC AssignmentList:l RBRC {: Yylex.files.addFirst((String)s); 
+EnvironmentConfig ::= ENVIRONMENT STRING:s LBRC AssignmentList:l RBRC 
+																{: Yylex.files.addFirst((String)s); 
 																		ASTNode n = new ASTNode(s);
 																		n.pushOp(l);
 																		RESULT = n;
-																	:};
+																:};
 
 ParticipantConfigList ::= ParticipantConfigs:p {: RESULT = p; :}
 					| /* empty */;
@@ -171,7 +185,11 @@ ParticipantConfigs ::= ParticipantConfig:c ParticipantConfigs:cs
 																   n.pushOp(cs);
 																   RESULT = n;
 																:}
-                    | ParticipantConfig:c {: RESULT = c; :};
+                    | ParticipantConfig:c 						
+                    											{: ASTNode n = new ASTNode(null);
+																   n.pushOp(c);
+																   RESULT = n;
+																:};
 
 ParticipantConfig ::= PARTICIPANT STRING:s ID LBRC AssignmentList:l RBRC {: Yylex.files.addLast((String)s); 
 																			ASTNode n = new ASTNode(sym.PARTICIPANT);
@@ -179,11 +197,11 @@ ParticipantConfig ::= PARTICIPANT STRING:s ID LBRC AssignmentList:l RBRC {: Yyle
 																			n.pushOp(l);
 																			RESULT = n;
 																		:}
-                   | PARTICIPANT STRING:s ID {: Yylex.files.addLast((String)s); 
-                   								ASTNode n = new ASTNode(sym.PARTICIPANT);
-                   								n.pushOp(sym.ID);
-                   								RESULT = n;
-                   							:} SEMI; //I think the action just gets moved to the end anyway
+                   | PARTICIPANT STRING:s ID SEMI						{: Yylex.files.addLast((String)s); 
+							                   								ASTNode n = new ASTNode(sym.PARTICIPANT);
+							                   								n.pushOp(sym.ID);
+							                   								RESULT = n;
+							                   							:};  
 
 AssignmentList ::= Assignment:a SEMI AssignmentList:l 
 																{: ASTNode n = new ASTNode(null);
@@ -197,7 +215,8 @@ End ::= DEF REQUIRED END LPREN RPREN Block:b
 																{: ASTNode n = new ASTNode(sym.END);
 																   n.pushOp(b);
 																   RESULT = n;
-																:};
+																:}
+		| error Block {: Yylex.displayError("Malformed end function."); :};
 
 //===========================================================================
 //Block Level
@@ -223,34 +242,35 @@ Statement ::= Block:b
            | ElseStatement:e
 																{: RESULT = e;
 																:}
-           | WHILE LPREN BooleanExpression:b RPREN Statement:s
+           | WHILE LPREN Expression:e RPREN Statement:s
 																{: ASTNode n = new ASTNode(sym.WHILE);
-																	n.pushOp(b);
+																	n.pushOp(e);
 																	n.pushOp(s);
 																	RESULT = n;
 																:}
-           | RETURN BooleanExpression:ne SEMI
+           | RETURN Expression:e SEMI
 																{: ASTNode n = new ASTNode(sym.RETURN);
-																	n.pushOp(ne);
+																	n.pushOp(e);
 																	RESULT = n;
-																:}
-           | BooleanExpression:ne SEMI
-																{: RESULT = ne;
 																:}
            | Declaration:d SEMI
 																{: RESULT = d;
-																:};
-           
-IfStatement ::= IF LPREN BooleanExpression:b RPREN Statement:s
+																:}
+		   | Assignment:a										
+           														{: RESULT = a;
+																:}
+		   | error ENVIRONMENT {: Yylex.displayError("Malformed statement"); :};
+																
+IfStatement ::= IF LPREN Expression:e RPREN Statement:s
 																{: ASTNode n = new ASTNode(sym.IF);
-																	n.pushOp(b);
+																	n.pushOp(e);
 																	n.pushOp(s);
 																	RESULT = n;
 																:};
 
-ElseStatement ::= IF LPREN BooleanExpression:b RPREN Statement:s1 ELSE Statement:s2
-																{: ASTNode n = new ASTNode(sym.IF);
-																	n.pushOp(b);
+ElseStatement ::= IF LPREN Expression:e RPREN Statement:s1 ELSE Statement:s2
+																{: ASTNode n = new ASTNode(sym.ELSE);
+																	n.pushOp(e);
 																	n.pushOp(s1);
 																	n.pushOp(s2);
 																	RESULT = n;
@@ -272,12 +292,15 @@ AttributeDeclaration ::= Declaration:d Constraint:c
 																	RESULT = n;
 																:}
 			| Declaration:d
-																{: RESULT = d;
+																{: ASTNode n = new ASTNode(null);
+																	n.pushOp(d);
+																	RESULT = n;
 																:};
 
-Constraint ::= LBRC ArithmeticExpression:ae RBRC
-																{: RESULT = ae;
-																:};
+Constraint ::= LBRC Expression:e RBRC
+																{: RESULT = e;
+																:}
+			  | error RBRC {: Yylex.displayError("Malformed constraint.  Make sure statements return boolean value."); :};
 
 Declaration ::= DataType:d IdList:i
 																{: ASTNode n = new ASTNode(null);
@@ -302,107 +325,104 @@ DataType ::= INT
 																:}
 			| FLOAT
 																{: RESULT = sym.FLOAT;
+																:}																
+			| BOOLEAN											
+																{: RESULT = sym.BOOLEAN;
 																:};
+																
 
 //ASSIGNMENT
-Assignment ::= ID TIMESEQ NumericalExpression:ne
+Assignment ::= ID TIMESEQ Expression:e
 																{: ASTNode n = new ASTNode(sym.TIMESEQ);
 																	n.pushOp(sym.ID);
-																	n.pushOp(ne);
+																	n.pushOp(e);
 																	RESULT = n;
 																:}
-            | ID DIVIDEEQ NumericalExpression:ne
+            | ID DIVIDEEQ Expression:e
 																{: ASTNode n = new ASTNode(sym.DIVIDEEQ);
 																	n.pushOp(sym.ID);
-																	n.pushOp(ne);
+																	n.pushOp(e);
 																	RESULT = n;
 																:}
-            | ID MINUSEQ NumericalExpression:ne
+            | ID MINUSEQ Expression:e
 																{: ASTNode n = new ASTNode(sym.MINUSEQ);
 																	n.pushOp(sym.ID);
-																	n.pushOp(ne);
+																	n.pushOp(e);
 																	RESULT = n;
 																:}
-            | ID PLUSEQ NumericalExpression:ne
+            | ID PLUSEQ Expression:e
 																{: ASTNode n = new ASTNode(sym.PLUSEQ);
 																	n.pushOp(sym.ID);
-																	n.pushOp(ne);
+																	n.pushOp(e);
 																	RESULT = n;
 																:}
-            | ID MODEQ NumericalExpression:ne
+            | ID MODEQ Expression:e
 																{: ASTNode n = new ASTNode(sym.MODEQ);
 																	n.pushOp(sym.ID);
-																	n.pushOp(ne);
+																	n.pushOp(e);
 																	RESULT = n;
 																:}
-            | ID EQ NumericalExpression:ne
-																{: ASTNode n = new ASTNode(sym.EQ);
+            | ID EQ Expression:e
+            													{: ASTNode n = new ASTNode(sym.EQ);
 																	n.pushOp(sym.ID);
-																	n.pushOp(ne);
+																	n.pushOp(e);
 																	RESULT = n;
-																:};
+																:}
+																										
+			| error EQ {: Yylex.displayError("Malformed assignment statement."); :};
 
 //FUNCTION CALLS
-FunctionCall ::= ID LPREN NumericalExpressionList:l RPREN  
-																{: ASTNode n = new ASTNode(sym.ID);
+FunctionCall ::= ID LPREN ExpressionList:l RPREN  
+																{: ASTNode n = new ASTNode(astsym.FUNCTION_CALL);
 																	n.pushOp(l);
 																	RESULT = n;
 																:}
 				| ID LPREN RPREN  
 																{: RESULT = sym.ID;
 																:}
-				| DOLLAR SystemPartRef:spr DOT STEP LPREN NumericalExpressionList:nel RPREN
-																{: ASTNode n = new ASTNode(spr);
-																	n.pushOp(nel);
-																	n.pushOp(sym.DOLLAR);
-																	n.pushOp(sym.DOT);
-																	n.pushOp(sym.STEP);
-																	RESULT = n;
-																:}
 				| DOLLAR SystemPartRef:s DOT STEP LPREN RPREN  
-																{: ASTNode n = new ASTNode(s);
-																	n.pushOp(sym.DOLLAR);
-																	n.pushOp(sym.DOT);
-																	n.pushOp(sym.STEP);
+																{: ASTNode n = new ASTNode(astsym.STEP_CALL);
+																	n.pushOp(s);
 																	RESULT = n;
 																:}
-				| DOLLAR ACTION LSBRK Index:i RSBRK LPREN NumericalExpressionList:l RPREN 
+				| DOLLAR ACTION LSBRK NUMBER:i RSBRK LPREN ExpressionList:l RPREN 
 																{: ASTNode n = new ASTNode(sym.ACTION);
 																	n.pushOp(i);
 																	n.pushOp(l);
-																	n.pushOp(sym.DOLLAR);
 																	RESULT = n;
 																:}
-				| DOLLAR ACTION LSBRK Index:i RSBRK LPREN RPREN
+				| DOLLAR ACTION LSBRK NUMBER:i RSBRK LPREN RPREN
 																{: ASTNode n = new ASTNode(sym.ACTION);
 																	n.pushOp(i);
-																	n.pushOp(sym.DOLLAR);
-																	RESULT = n;
-																:};
-
-NumericalExpressionList ::= NumericalExpression:ne COMMA NumericalExpressionList:nel
-																{: ASTNode n = new ASTNode(null);
-																    n.pushOp(ne);
-																	n.pushOp(nel);
 																	RESULT = n;
 																:}
-				| NumericalExpression:ne
-																{: RESULT = ne;
+				| error RPREN {: Yylex.displayError("Malformed function call."); :};
+
+ExpressionList ::= Expression:e COMMA ExpressionList:el
+																{: ASTNode n = new ASTNode(null);
+																    n.pushOp(e);
+																	n.pushOp(el);
+																	RESULT = n;
+																:}
+				| Expression:e
+																{: RESULT = e;
 																:};
 
-//EXPRESSIONS	
-BooleanExpression ::= OrExpression:o
-																{: RESULT = o;
+//EXPRESSIONS
+Expression	::= OrExpression:o									{: RESULT = o;
 																:};
+				   
+				   
 OrExpression ::= OrExpression:o OR AndExpression:a
 																{: ASTNode n = new ASTNode(sym.OR);
 																    n.pushOp(o);
 																	n.pushOp(a);
 																	RESULT = n;
 																:}
-    | AndExpression:a
-																{: RESULT = a;
+    
+    | AndExpression:a											{: RESULT = a;
 																:};
+
 AndExpression ::= AndExpression:a AND EqualityExpression:e
 																{: ASTNode n = new ASTNode(sym.AND);
 																	n.pushOp(a);
@@ -425,48 +445,33 @@ EqualityExpression ::= EqualityExpression:e EQEQ RelationalExpression:r
 																	n.pushOp(r);
 																	RESULT = n;
 																:}
-                   | RelationalExpression:r
-																{: RESULT = r;
-																:};
+                   | RelationalExpression:r						{: RESULT = r;:};
 
-RelationalExpression ::= AdditiveExpression:al LT AdditiveExpression:ar
+RelationalExpression ::= RelationalExpression:al LT AdditiveExpression:ae
 																{: ASTNode n = new ASTNode(sym.LT);
 																	n.pushOp(al);
-																	n.pushOp(ar);
+																	n.pushOp(ae);
 																	RESULT = n;
 																:}
-                      | AdditiveExpression:al GT AdditiveExpression:ar
+                      | RelationalExpression:al GT AdditiveExpression:ae
 																{: ASTNode n = new ASTNode(sym.GT);
 																	n.pushOp(al);
-																	n.pushOp(ar);
+																	n.pushOp(ae);
 																	RESULT = n;
 																:}
-                      | AdditiveExpression:al LTEQ AdditiveExpression:ar
+                      | RelationalExpression:al LTEQ AdditiveExpression:ae
 																{: ASTNode n = new ASTNode(sym.LTEQ);
 																	n.pushOp(al);
-																	n.pushOp(ar);
+																	n.pushOp(ae);
 																	RESULT = n;
 																:}
-                      | AdditiveExpression:al GTEQ AdditiveExpression:ar
+                      | RelationalExpression:al GTEQ AdditiveExpression:ae
 																{: ASTNode n = new ASTNode(sym.GTEQ);
 																	n.pushOp(al);
-																	n.pushOp(ar);
+																	n.pushOp(ae);
 																	RESULT = n;
 																:}
-                      | NumericalExpression:ne
-																{: RESULT = ne;
-																:};
-
-NumericalExpression ::= Assignment:a
-																{: RESULT = a;
-																:}
-            | ArithmeticExpression:a
-																{: RESULT = a;
-																:};
-
-ArithmeticExpression ::= AdditiveExpression:a
-																{: RESULT = a;
-																:};
+					  | AdditiveExpression:ae					{: RESULT = ae;:};
 
 AdditiveExpression ::= AdditiveExpression:a PLUS MultiplicativeExpression:m
 																{: ASTNode n = new ASTNode(sym.PLUS);
@@ -502,9 +507,8 @@ MultiplicativeExpression ::= MultiplicativeExpression:m TIMES UnaryExpression:u
 																	n.pushOp(u);
 																	RESULT = n;
 																:}
-                         | UnaryExpression:u
-																{: RESULT = u;
-																:};
+                         
+                         | UnaryExpression:u					{: RESULT = u;:};
 
 UnaryExpression ::= NOT UnaryExpression:u
 																{: ASTNode n = new ASTNode(sym.NOT);
@@ -512,29 +516,17 @@ UnaryExpression ::= NOT UnaryExpression:u
 																	RESULT = n;
 																:}
 
-                | LPREN NumericalExpression:ne RPREN 
-																{: RESULT = ne;
-																:}
-                | Data:d
-																{: RESULT = d;
-																:};
+                | LPREN Expression:e RPREN 						{: RESULT = e;:}
+                | Data:d										{: RESULT = d;:};
 
 //VARIABLES AND DATA
-Data ::= ID 
-																{: RESULT = sym.ID;
-																:}
-			| SystemVar:s 
-																{: RESULT = s;
-																:}
-			| NUMBER 
-																{: RESULT = sym.NUMBER;
-																:}
-			| DECIMAL 
-																{: RESULT = sym.DECIMAL;
-																:}
-			| FunctionCall:f
-																{: RESULT = f;
-																:};
+Data ::= ID 													{: RESULT = sym.ID;:}
+			| SystemVar:s										{: RESULT = s;:}
+			| NUMBER 											{: RESULT = sym.NUMBER;:}
+			| DECIMAL 											{: RESULT = sym.DECIMAL;:}
+			| FunctionCall:f									{: RESULT = f;:}
+			| TRUE												{: RESULT = new ASTNode(sym.TRUE); :}
+            | FALSE												{: RESULT = new ASTNode(sym.FALSE); :};
 
 SystemVar ::= DOLLAR SystemVarName:s 
 																{: RESULT = s;
@@ -569,7 +561,7 @@ SystemVarName ::= NUM_STEPS
 																{: RESULT = sym.RANDF;
 																:};
 
-SystemPartRef ::= PART LSBRK Index:i RSBRK 
+SystemPartRef ::= PART LSBRK NUMBER:i RSBRK 
 																{: ASTNode n = new ASTNode(sym.PART);
 																	n.pushOp(i);
 																	RESULT = n;
@@ -577,10 +569,3 @@ SystemPartRef ::= PART LSBRK Index:i RSBRK
 		| ME
 																{: RESULT = sym.ME;
 																:};
-
-Index ::= ID 
-																{: RESULT = sym.ID;
-																:}
-		| NUMBER
-																{: RESULT = sym.NUMBER;
-																:};	
