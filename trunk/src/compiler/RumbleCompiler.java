@@ -3,6 +3,8 @@ package compiler;
  * Main class for Rumble.  Displays help info and takes in arguments for processing.
  */
 import compiler.settings.*;
+import codegeneration.*;
+
 import java.io.*;
 
 import compiler.semantics.*;
@@ -48,7 +50,12 @@ public class RumbleCompiler {
 			
 			try {
 				Analyzer analyzer = new Analyzer(new parser(scanner));
-				analyzer.analyze();
+				ASTNode root = analyzer.analyze();
+				
+				//generate code
+				CodeGenerator generator = new CodeGenerator(root);
+				generator.go();
+				
 				System.out.println("Compilation completed successfully!");
 			}
 			catch (Exception e){
