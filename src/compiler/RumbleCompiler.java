@@ -15,6 +15,7 @@ public class RumbleCompiler {
 	public static void main(String[] args) {
 		String simulationFile = "";
 		boolean debug = false, verbose = false;
+		String outputPath = "";
 		
 		//loop through args
 		for (int i = 0; i < args.length; i++){
@@ -22,7 +23,8 @@ public class RumbleCompiler {
 				for (int j = 1; j < args[i].length(); j++){
 					switch (args[i].charAt(j)){
 						case 'v': verbose = true; break;
-						case 'd': debug = true; break;
+						case 'd': verbose = true; debug = true; break;
+						case 'o': outputPath = args[++i]; break;
 					}
 				}
 			}
@@ -38,7 +40,7 @@ public class RumbleCompiler {
 			Yylex scanner = new Yylex(new FileInputStream(file));
 			
 			//Initialize the Settings class
-			Settings.init(verbose, debug);
+			Settings.init(verbose, debug, outputPath);
 			
 			//alert the scanner as to the current working directory
 			if (file.getParent() != null)
