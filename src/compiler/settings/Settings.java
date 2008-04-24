@@ -10,9 +10,10 @@ public class Settings {
 	   public static String currentWorkingDirectory;
 	   public static boolean verbose;
 	   public static boolean debug;
+	   public static String outputPath;
 	   
 	   
-	   public static void init(boolean verbose, boolean debug) {
+	   public static void init(boolean verbose, boolean debug, String outputPath) {
 	      // Exists only to defeat instantiation.
 		   
 		   Settings.actionTable = new ActionTable();
@@ -21,6 +22,7 @@ public class Settings {
 		   
 		   Settings.verbose = verbose;
 		   Settings.debug = debug;
+		   Settings.outputPath = outputPath;
 	   }
 
 
