@@ -36,7 +36,7 @@ public class RumbleCompiler {
 			//Begin tokenization process
 			File file = new File (simulationFile);
 			Yylex scanner = new Yylex(new FileInputStream(file));
-
+			
 			//Initialize the Settings class
 			Settings.init(verbose, debug);
 			
@@ -46,7 +46,7 @@ public class RumbleCompiler {
 			
 			try {
 				Analyzer analyzer = new Analyzer(new parser(scanner));
-				analyzer.analyzeAndValidate();
+				analyzer.analyze();
 				System.out.println("Compilation completed successfully!");
 			}
 			catch (Exception e){
