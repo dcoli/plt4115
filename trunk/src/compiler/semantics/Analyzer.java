@@ -10,7 +10,7 @@ public class Analyzer {
 		parser = p;
 	}
 	
-	public void analyzeAndValidate() throws Exception{
+	public ASTNode analyze() throws Exception{
 		if (Settings.isVerbose())
 			System.out.println("analyzing...");
 		
@@ -26,6 +26,8 @@ public class Analyzer {
 		validateSimulation(root.getDescriptor());
 		validateEnvironment(root.getOp(0));
 		validateParticipants(root.getOp(1));
+		
+		return root;
 	}
 
 	public void validateSimulation(Object o){
