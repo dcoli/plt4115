@@ -21,7 +21,7 @@ Block						DONE
 Action						NO
 ArgList						NO
 Arg							NO
-DataType					PENDING
+DataType					DONE
 AssignmentList				DONE
 Assignment					DONE
 LValueData					DONE
@@ -29,9 +29,9 @@ Lines						DONE
 Statement					PENDING
 IfStatement					DONE
 ElseStatement				DONE
-Declaration					NO
+Declaration					DONE
 Constraint					NO
-IdList						PENDING
+IdList						DONE
 FunctionCall				DONE
 Expression					DONE
 ExpressionList				DONE
