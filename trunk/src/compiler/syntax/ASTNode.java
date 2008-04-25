@@ -1,7 +1,5 @@
 package compiler.syntax;
 
-import java.util.LinkedList;
-
 public class ASTNode {
 	private Object descriptor;
 	private Object[] opList;
@@ -27,5 +25,9 @@ public class ASTNode {
 	
 	public void setLineNumber(int i){
 		lineNumber = i;
+	}
+	
+	public int getLineNumber() {
+		return this.lineNumber;
 	}
 }
