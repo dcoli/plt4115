@@ -2,6 +2,7 @@ package codegeneration;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java_cup.runtime.Symbol;
 
 import compiler.syntax.*;
 import compiler.settings.*;
@@ -31,6 +32,7 @@ public class CodeGenerator {
 			String envFile = (String)environmentConfig.getDescriptor();
 			
 			pw = new PrintWriter(new FileOutputStream(Settings.outputPath + "/Environment.java"));
+			pw.println("package rumble.runtime;");
 			pw.println("import java.util.*;");
 			pw.println("public class Environment {");
 			
@@ -166,6 +168,8 @@ public class CodeGenerator {
 			break;
 		}
 	
+		// sb.append(";\n"); // we think this line is necessary but aren't positive -- N&D
+		
 		return sb.toString();
 	}
 	
@@ -249,11 +253,9 @@ public class CodeGenerator {
 			case sym.NUMBER:
 				return ((Integer)data.getOp(0)).toString();
 			case astsym.SYSTEM_VAR:
-				generateSystemVar((ASTNode)data.getOp(0));
-				break;
+				return generateSystemVar((ASTNode)data.getOp(0));
 			case astsym.FUNCTION_CALL:
-				generateFunctionCall((ASTNode)data.getOp(0));
-				break;
+				return generateFunctionCall((ASTNode)data.getOp(0));
 			case sym.DECIMAL:
 				return ((Float)data.getOp(0)).toString();
 			case sym.ID:
@@ -265,6 +267,126 @@ public class CodeGenerator {
 		}
 		return "";
 	}
-		
 	
+	public String generateIfStatement(ASTNode s) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("if (" + generateExpression((ASTNode)s.getOp(0)) + ") ");
+		sb.append(generateStatement((ASTNode)s.getOp(1)));
+		
+		return sb.toString();
+	}
+	
+	public String generateElseStatement(ASTNode s) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("if (" + generateExpression((ASTNode)s.getOp(0)) + ") ");
+		sb.append(generateStatement((ASTNode)s.getOp(1)));
+		sb.append("else " + generateStatement((ASTNode)s.getOp(2)));
+		
+		return sb.toString();
+	}
+	
+	public String generateStatement(ASTNode s) {		
+		switch ((Integer)s.getDescriptor()) {
+			case sym.BLOCK:
+				return generateBlockStatement(s);
+			case sym.IF:
+				return generateIfStatement(s);
+			case sym.ELSE:
+				return generateElseStatement(s);
+			case sym.WHILE:
+				return generateWhileStatement(s);
+			case sym.RETURN:
+				return generateReturnStatement(s);
+			//case sym.FUNCALL: // We need to add FUNCALL and ASSIGNMENT constants to the grammar.
+			//	return generateFunctionCall(s); 
+			//case sym.ASSIGNMENT:
+			//	return generateAssignment(s);
+			case sym.DECLARATION:
+				return generateDeclaration(s);
+		}
+		
+		return ""; // just to make Eclipse shut up about not returning a string...
+	}
+	
+	public String generateDeclaration(ASTNode d) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(generateDataType((Integer)d.getOp(0)) + " " + generateIDList((ASTNode)d.getOp(1)));
+		
+		return sb.toString();
+	}
+	
+	public String generateDataType(Integer dt) {
+		
+		switch (dt) {
+		case sym.INT:
+			return "int ";
+		case sym.FLOAT:
+			return "float ";
+		case sym.BOOLEAN:
+			return "boolean ";
+		case sym.PARTICIPANT:
+			return "participant ";
+		}
+		
+		return "";
+	}
+	
+	public String generateIDList(ASTNode list) {
+		StringBuilder sb = new StringBuilder();
+		
+		if (list == null)
+			return "";
+		
+		sb.append(generateID((ASTNode)list.getOp(0)));
+		String s = generateIDList((ASTNode)list.getOp(1));
+		if (!s.equals(""))
+			sb.append(", ");
+		sb.append(s);
+		
+		return sb.toString();
+	}
+	
+	public String generateID(ASTNode i) {
+		return (String)(((Symbol)i.getOp(0)).value);
+	}
+	
+	public String generateWhileStatement(ASTNode s) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("while (" + generateExpression((ASTNode)s.getOp(0)) + ") ");
+		sb.append(generateStatement((ASTNode)s.getOp(1)));
+		
+		return sb.toString();
+	}
+	
+	public String generateReturnStatement(ASTNode s) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("return " + generateExpression((ASTNode)s.getOp(0)) + ";\n");
+		
+		return sb.toString();
+	}
+	
+	public String generateBlockStatement(ASTNode b) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("{\n" + generateLines((ASTNode)b.getOp(0)) + "}\n");
+		
+		return sb.toString();
+	}
+	
+	public String generateLines(ASTNode l) {
+		StringBuilder sb = new StringBuilder();
+		
+		if (l == null) // base case
+			return "";
+		
+		sb.append(generateStatement((ASTNode)l.getOp(0)) + "\n");
+		sb.append(generateLines((ASTNode)l.getOp(1)));
+		
+		return sb.toString();
+	}
 }
