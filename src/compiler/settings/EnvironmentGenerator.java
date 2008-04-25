@@ -1,15 +1,18 @@
 package compiler.settings;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class EnvironmentGenerator extends Generator {
 
 	private String name;
 	private String CLS = "Environment";
 	private String PKG = "rumble.runtime";
-
+	private ArrayList<String[]> rumVarsArray = null;
+	
 	public EnvironmentGenerator (String name, ArrayList rumVarsArray) {
 		this.name = name;
+		this.rumVarsArray = rumVarsArray;
 		makes();
 		closeFile();
 	}
@@ -22,20 +25,23 @@ public class EnvironmentGenerator extends Generator {
 		setStandardVar("num_steps","0");
 		print("// custom globals\n\n");
 		setRumVar("days","0");
+		makeCloseBracket();
 		makeRumVarGetAndSet("days", "int");
 		makeToString("days");
+		makeStep(rumVarsArray);
+		makeEnd(rumVarsArray,"10");
 		makeFooter();
 	}
 	
 	private void decStandardVars () {
-		String str = "\tString NAME = \"" + this.name + "\"\n";
+		String str = "\tString NAME = \"" + this.name + "\";\n";
 		str += "\tprivate int num_steps";
 		str += ";\n\n";
 		print(str);
 	}
 
 	private void setStandardVar(String name, String value) {
-		print("\tthis."+name+" = " + value +";+n");
+		print("\tthis."+name+" = " + value +";\n");
 	}
 	
 	private void decRumVar (String type, String name, String value) {
@@ -66,20 +72,34 @@ public class EnvironmentGenerator extends Generator {
 	private void makeToString(String name) {
 		String str = "public String toString() {\n";
 		str += "\treturn \"{\\n\\tenvironment : \\\"\" + this.NAME + \"\\\",\\n\\t"+name+" : \" + this.rumVar_days + \",\\n}\\n\";\n";
-		str += "}";
+		str += "}\n\n";
 		print(str);
 	}
 
-/*	private void makeStep(ArrayList rumVarsArray)
-	public void step() {
-		// standard rumble stuff
-		this.num_steps++;
+	private void makeStep(ArrayList rumVarsArray) {
+		String str = "public void step() {\n";
+		str += "\t// standard rumble stuff\n";
+		str += "\tthis.num_steps++;\n";
 		
-		// everything else
-		this.setRumVar_days(this.getRumVar_days() + 1);
+		str += "\t// everything else\n";
+		
+//colin: THIS PART WILL NEED TO INHERIT MORE INFORMATION FROM THE AST NODE, LIKE STEP INCREMENT VALUE, ETC. RUMVARSARRAY IS CREATED IN GENERATOR.JAVA
+		Iterator<RumbleVariable> ri = rumVarsArray.iterator();
+	    while ( ri.hasNext() ){
+	    	String thename = ri.next().name;
+	    	str += "\tthis.setRumVar_" + thename + "(this.getRumVar_" + thename + "() + 1);\n";
+	    }
+		str += "}\n\n";
+	    print(str);
 	}
 	
-	public boolean end() {
-		return this.getRumVar_days() == 10;
+	private void makeEnd(ArrayList rumVarsArray, String endValue) {
+		String str = "public boolean end() {\n";
+		Iterator<RumbleVariable> ri = rumVarsArray.iterator();
+	    while ( ri.hasNext() ){
+			str += "\treturn this.getRumVar_" + ri.next().name + "() == "+endValue+";\n";
+		}
+		str += "}\n\n";
+	    print(str);
 	}
-*/}
+}
