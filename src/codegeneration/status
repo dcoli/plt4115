@@ -26,9 +26,9 @@ AssignmentList				DONE
 Assignment					DONE
 LValueData					DONE
 Lines						NO
-Statement					NO
-IfStatement					NO
-ElseStatement				NO
+Statement					PENDING
+IfStatement					DONE
+ElseStatement				DONE
 Declaration					NO
 Constraint					NO
 IdList						NO
