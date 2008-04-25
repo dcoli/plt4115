@@ -1,22 +1,23 @@
 package compiler.syntax;
 
+import java.util.LinkedList;
+
 public class ASTNode {
 	private Object descriptor;
-	private Object[] opList;
+	private LinkedList<Object> opList;
 	private int lineNumber;
-	private int opCount = 0;
 	
 	public ASTNode (Object descriptor){
 		this.descriptor = descriptor;
-		opList = new Object[4];
+		opList = new LinkedList<Object>();
 	}
 	
 	public void pushOp(Object o){
-		opList[opCount++] = o;
+		opList.add(o);
 	}
 	
 	public Object getOp(int i){
-		return opList[i];
+		return opList.get(i);
 	}
 	
 	public Object getDescriptor(){
@@ -24,7 +25,7 @@ public class ASTNode {
 	}
 	
 	public void setLineNumber(int i){
-		lineNumber = i;
+		this.lineNumber = i;
 	}
 	
 	public int getLineNumber() {
