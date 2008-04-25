@@ -17,7 +17,7 @@ Environmental_vars			PENDING
 Participant_vars			NO
 AttributeDeclaration		NO
 AttributeDeclarationList	NO
-Block						NO
+Block						PENDING
 Action						NO
 ArgList						NO
 Arg							NO
@@ -25,7 +25,7 @@ DataType					NO
 AssignmentList				DONE
 Assignment					DONE
 LValueData					DONE
-Lines						NO
+Lines						PENDING
 Statement					PENDING
 IfStatement					DONE
 ElseStatement				DONE
