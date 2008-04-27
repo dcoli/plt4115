@@ -127,7 +127,12 @@ Participant_vars ::= ATTRIBUTES LBRC AttributeDeclarationList:l RBRC
 
 
 //Environment and Participant File Specific
-Step ::= DEF REQUIRED STEP LPREN RPREN Block:b 					{: RESULT = b; :};
+Step ::= DEF REQUIRED STEP LPREN RPREN Block:b 					{: ASTNode n = new ASTNode(sym.STEP);
+																	n.pushOp(sym.DEF);
+																	n.pushOp(sym.REQUIRED);
+																	n.pushOp(b);
+																	RESULT = n;
+																:};
 Actions ::= Action:a Actions:al 
 																{: ASTNode n = new ASTNode(null); 
 																   n.pushOp(a);
