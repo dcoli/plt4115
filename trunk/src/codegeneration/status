@@ -18,9 +18,9 @@ Participant_vars			NO
 AttributeDeclaration		NO
 AttributeDeclarationList	NO
 Block						DONE
-Action						Pending
+Action						NO
 ArgList						NO
-Arg							NO
+Arg							PENDING
 DataType					DONE
 AssignmentList				DONE
 Assignment					DONE
