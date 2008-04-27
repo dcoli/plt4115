@@ -103,8 +103,8 @@ SimulationFile ::= SIMULATION Meta:m EnvironmentConfig:ec ParticipantConfigList:
 
 //===========================================================================
 //File Level
-Meta ::= NAME STRING:s SEMI {: RESULT = s; :}
-			| error SEMI {: Yylex.displayError("Malformed meta statement."); :};
+Meta ::= NAME STRING:s SEMI 									{: RESULT = s; :}
+			| error SEMI 										{: Yylex.displayError("Malformed meta statement."); :};
 			
 Interface ::= Environmental_vars:e Participant_vars:p
 																{: ASTNode n = new ASTNode(null); 
@@ -142,7 +142,8 @@ Actions ::= Action:a Actions:al
 			| /*empty*/; 
 
 Action ::= DEF ACTION ID LPREN ArgList:al RPREN Block:b
-																{: ASTNode n = new ASTNode(sym.ID); 
+																{: ASTNode n = new ASTNode(sym.ACTION);
+																   n.pushOp(sym.ID); 
 																   n.pushOp(al);
 																   n.pushOp(b);
 																   RESULT = n;
@@ -168,7 +169,8 @@ ArgList ::= Arg:a COMMA ArgList:l
 																:};
 		 
 Arg ::= DataType:d ID
-																{: ASTNode n = new ASTNode(sym.ID); 
+																{: ASTNode n = new ASTNode(d);//sym.int,sym.float,etc.
+																   n.pushOp(sym.ID); 
 																   n.pushOp(d);
 																   RESULT = n;
 																:}
