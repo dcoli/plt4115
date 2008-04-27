@@ -18,7 +18,7 @@ Participant_vars			NO
 AttributeDeclaration		NO
 AttributeDeclarationList	NO
 Block						DONE
-Action						NO
+Action						Pending
 ArgList						NO
 Arg							NO
 DataType					DONE
