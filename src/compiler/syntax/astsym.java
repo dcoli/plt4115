@@ -7,5 +7,9 @@ public class astsym {
   public static final int SYSTEM_VAR_NAME = 106;
   public static final int SYSTEM_PART_REF = 107;
   public static final int SYSTEM_GLOBAL = 108;
+  public static final int CONSTRAINT = 109;
+  public static final int DECLARATION = 110;
+  public static final int IDLIST = 111;
+  public static final int BLOCK = 112;
 }
 
