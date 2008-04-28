@@ -289,7 +289,7 @@ public class CodeGenerator {
 	
 	public String generateStatement(ASTNode s) {		
 		switch ((Integer)s.getDescriptor()) {
-			case sym.BLOCK:
+			case astsym.BLOCK:
 				return generateBlockStatement(s);
 			case sym.IF:
 				return generateIfStatement(s);
@@ -299,11 +299,17 @@ public class CodeGenerator {
 				return generateWhileStatement(s);
 			case sym.RETURN:
 				return generateReturnStatement(s);
-			//case sym.FUNCALL: // We need to add FUNCALL and ASSIGNMENT constants to the grammar.
-			//	return generateFunctionCall(s); 
-			//case sym.ASSIGNMENT:
-			//	return generateAssignment(s);
-			case sym.DECLARATION:
+			case astsym.FUNCTION_CALL:
+			case astsym.STEP_CALL:
+				return generateFunctionCall(s); 
+			case sym.TIMESEQ:
+			case sym.DIVIDEEQ:
+			case sym.MINUSEQ:
+			case sym.PLUSEQ:
+			case sym.MODEQ:
+			case sym.EQ:
+				return generateAssignment(s);
+			case astsym.DECLARATION:
 				return generateDeclaration(s);
 		}
 		
