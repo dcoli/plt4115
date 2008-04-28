@@ -26,7 +26,7 @@ AssignmentList				DONE
 Assignment					DONE
 LValueData					DONE
 Lines						DONE
-Statement					PENDING
+Statement					DONE
 IfStatement					DONE
 ElseStatement				DONE
 Declaration					DONE
