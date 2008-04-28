@@ -32,8 +32,7 @@ non terminal MultiplicativeExpression, UnaryExpression, Data;
 terminal NAME, ENVIRONMENT, PARTICIPANT, PART,		//Keywords
 		 SIMULATION, GLOBAL, STEP, ACTION, END,
 		 IF, ELSE, WHILE, RETURN, INT, FLOAT, ATTRIBUTES,
-		 DEF, REQUIRED, BOOLEAN, TRUE, FALSE, BLOCK, DECLARATION,
-		 IDLIST;
+		 DEF, REQUIRED, BOOLEAN, TRUE, FALSE;
 		 
 terminal NUM_STEPS, NUM_PARTS, NUM_ACTIONS,			//System Variables
 		 RANDI, RANDF, ME;  				
@@ -230,7 +229,7 @@ End ::= DEF REQUIRED END LPREN RPREN Block:b
 //Block Level
 
 Block ::= LBRC Lines:l RBRC
-																{: ASTNode n = new ASTNode(sym.BLOCK);
+																{: ASTNode n = new ASTNode(astsym.BLOCK);
 																	n.pushOp(l)
 																	RESULT = n;
 																:};
@@ -305,12 +304,14 @@ AttributeDeclaration ::= Declaration:d Constraint:c
 																:};
 
 Constraint ::= LBRC Expression:e RBRC
-																{: RESULT = e;
+																{:  ASTNode n = new ASTNode(astsym.CONSTRAINT);
+																	n.pushOp(e);
+																	RESULT = n;
 																:}
 			  | error RBRC {: Yylex.displayError("Malformed constraint.  Make sure statements return boolean value."); :};
 
 Declaration ::= DataType:d IdList:i
-																{: ASTNode n = new ASTNode(sym.DECLARATION);
+																{: ASTNode n = new ASTNode(astsym.DECLARATION);
 																	n.pushOp(d);
 																	n.pushOp(i);
 																	RESULT = n;
@@ -318,7 +319,7 @@ Declaration ::= DataType:d IdList:i
 
 //finish this
 IdList ::= ID:i COMMA IdList:l 
-																{: ASTNode n = new ASTNode(sym.IDLIST);
+																{: ASTNode n = new ASTNode(astsym.IDLIST);
 																	n.pushOp(i);
 																	n.pushOp(l);
 																	RESULT = n;
