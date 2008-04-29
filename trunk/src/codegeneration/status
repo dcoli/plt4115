@@ -12,7 +12,7 @@ EnvironmentConfig			PENDING
 ParticipantConfigList		NO
 ParticipantConfigs			NO
 ParticipantConfig			NO
-End							NO
+End							PENDING
 Environmental_vars			PENDING
 Participant_vars			NO
 AttributeDeclaration		NO
