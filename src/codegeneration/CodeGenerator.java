@@ -395,4 +395,53 @@ public class CodeGenerator {
 		
 		return sb.toString();
 	}
+	
+	public String generateActions(ASTNode al) {
+		StringBuilder sb = new StringBuilder();
+		
+		if (al == null)
+			return "";
+		
+		sb.append(generateAction((ASTNode)al.getOp(0)) + "\n\n");
+		sb.append(generateActions((ASTNode)al.getOp(1)));
+		
+		return sb.toString();
+	}
+	
+	public String generateAction(ASTNode a) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("public void rumAction_" + ((Symbol)a.getOp(0)).value);
+		sb.append("(");
+		
+		if (((Integer)((ASTNode)a.getOp(1)).getDescriptor()) != sym.BLOCK) {
+			sb.append(generateArgList((ASTNode)a.getOp(1)));
+		}
+		sb.append(")");
+		
+		sb.append(generateBlockStatement((ASTNode)a.getOp(2)));
+		
+		return sb.toString();
+	}
+	
+	public String generateArgList(ASTNode a) {
+		StringBuilder sb = new StringBuilder();
+		
+		if (((Integer)a.getDescriptor()).equals(astsym.ARG))
+			return sb.append(generateArg(a)).toString();
+		
+		sb.append(generateArg((ASTNode)a.getOp(0)) + ", ");
+		sb.append(generateArgList((ASTNode)a.getOp(1)));
+		
+		return sb.toString();
+	}
+	
+	public String generateArg(ASTNode a) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(generateDataType((Integer)a.getOp(0)));
+		sb.append(" " + ((Symbol)a.getOp(1)).value);
+		
+		return sb.toString();
+	}
 }

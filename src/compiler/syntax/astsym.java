@@ -11,5 +11,8 @@ public class astsym {
   public static final int DECLARATION = 110;
   public static final int IDLIST = 111;
   public static final int BLOCK = 112;
+  public static final int ACTIONS = 113;
+  public static final int ARG = 114;
+  public static final int ARGLIST = 115;
 }
 

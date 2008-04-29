@@ -19,8 +19,8 @@ AttributeDeclaration		NO
 AttributeDeclarationList	NO
 Block						DONE
 Action						DONE
-ArgList						PENDING - david/nick
-Arg							PENDING - colin
+ArgList						DONE
+Arg							DONE
 DataType					DONE
 AssignmentList				DONE
 Assignment					DONE
