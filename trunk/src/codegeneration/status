@@ -5,7 +5,7 @@ EnvironmentFile				PENDING
 Meta						DONE
 Interface					PENDING
 Step						PENDING
-Actions						NO
+Actions						PENDING
 ParticipantFiles			PENDING
 ParticipantFile				NO
 EnvironmentConfig			PENDING
@@ -18,7 +18,7 @@ Participant_vars			NO
 AttributeDeclaration		NO
 AttributeDeclarationList	NO
 Block						DONE
-Action						NO
+Action						PENDING
 ArgList						NO
 Arg							PENDING - colin
 DataType					DONE
