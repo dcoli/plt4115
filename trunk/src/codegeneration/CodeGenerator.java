@@ -13,6 +13,9 @@ public class CodeGenerator {
 	private int currentLocation = 0;
 	private PrintWriter pw;
 	
+	public static final String RUMVAR = "rumVar_";
+	public static final String RUMACT = "rumAction_";
+	
 	public CodeGenerator(ASTNode root){
 		this.root = root;
 	}
@@ -176,7 +179,7 @@ public class CodeGenerator {
 	public String generateLValueData(ASTNode a){
 		switch ((Integer)a.getDescriptor()){
 			case sym.ID:
-				return (String)a.getOp(0);
+				return CodeGenerator.RUMVAR + (String)a.getOp(0);
 			case astsym.SYSTEM_VAR:
 				return generateSystemVar((ASTNode)a.getOp(0));
 		}	
@@ -223,7 +226,7 @@ public class CodeGenerator {
 		StringBuilder sb = new StringBuilder();
 		switch ((Integer)functionCall.getDescriptor()){
 			case sym.ID:
-				sb.append((String)functionCall.getOp(0));
+				sb.append(CodeGenerator.RUMACT + (String)functionCall.getOp(0));
 				if (functionCall.getOp(1) != null)
 					sb.append("(this," + generateExpressionList((ASTNode)functionCall.getOp(1)) + ")");
 				else
@@ -259,7 +262,7 @@ public class CodeGenerator {
 			case sym.DECIMAL:
 				return ((Float)data.getOp(0)).toString();
 			case sym.ID:
-				return (String)data.getOp(0);
+				return CodeGenerator.RUMVAR + (String)data.getOp(0);
 			case sym.TRUE:
 				return "true";
 			case sym.FALSE:
@@ -356,7 +359,7 @@ public class CodeGenerator {
 	}
 	
 	public String generateID(ASTNode i) {
-		return (String)(((Symbol)i.getOp(0)).value);
+		return CodeGenerator.RUMVAR + (String)(((Symbol)i.getOp(0)).value);
 	}
 	
 	public String generateWhileStatement(ASTNode s) {
@@ -411,7 +414,7 @@ public class CodeGenerator {
 	public String generateAction(ASTNode a) {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("public void rumAction_" + ((Symbol)a.getOp(0)).value);
+		sb.append("public void " + CodeGenerator.RUMACT + ((Symbol)a.getOp(0)).value);
 		sb.append("(");
 		
 		if (((Integer)((ASTNode)a.getOp(1)).getDescriptor()) != astsym.BLOCK) {
