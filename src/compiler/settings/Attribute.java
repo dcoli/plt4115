@@ -33,6 +33,18 @@ public class Attribute {
 	public int getType() {
 		return type;
 	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setConstraint(String constraint) {
+		this.constraint = constraint;
+	}
+
+	public void setType(int type) {
+		this.type = type;
+	}
 	
 	
 }

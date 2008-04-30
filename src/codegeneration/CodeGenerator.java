@@ -448,29 +448,46 @@ public class CodeGenerator {
 		return sb.toString();
 	}
 	
-	public String generateAttributeDeclarationList(ASTNode adl) {
+	public String generateAttributeDeclarationList(ASTNode adl, int attType) {
 		StringBuilder sb = new StringBuilder();
 		
 		if (adl == null)
 			return "";
 		
-		sb.append(generateAttributeDeclaration((ASTNode)adl.getOp(0)));
-		sb.append(generateAttributeDeclarationList((ASTNode)adl.getOp(1)));
+		sb.append(generateAttributeDeclaration((ASTNode)adl.getOp(0), attType));
+		sb.append(generateAttributeDeclarationList((ASTNode)adl.getOp(1), attType));
 		
 		return sb.toString();
 	}
 	
-	public String generateAttributeDeclaration(ASTNode ad) {
+	public String generateAttributeDeclaration(ASTNode ad, int attType) {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("protected" + generateDeclaration((ASTNode)ad.getOp(0)));
-		loadConstraint((ASTNode)ad.getOp(1));
+		
+		saveAttribute(ad, attType);
 		
 		return sb.toString();
 	}
 	
-	// add actual constraint loading here
-	public void loadConstraint(ASTNode c) {
+	// This will put the declaration in the settings structure
+	public void saveAttribute(ASTNode dec, int attType) {
+		
+		int type = ((Integer)dec.getOp(0)).intValue();
+		
+		//This gets an IdList and then extracts the first ID.
+		//Validation should make sure that only one ID exists for this declaration.
+		String id = (String)((ASTNode)dec.getOp(1)).getOp(0);
+		
+		String constraint = "true";
+		if (dec.getNumberOfOperands() == 2)
+			constraint = generateExpression((ASTNode)dec.getOp(1));
+		
+		if (attType == sym.GLOBAL)
+			Settings.persistGlobalDeclaration(id, constraint, type);
+		else if (attType == sym.ATTRIBUTES)
+			Settings.persistAttributeDeclaration(id, constraint, type);
+		
 		
 	}
 }
