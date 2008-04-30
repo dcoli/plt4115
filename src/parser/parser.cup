@@ -302,9 +302,8 @@ AttributeDeclaration ::= Declaration:d Constraint:c
 																:};
 
 Constraint ::= LBRC Expression:e RBRC
-																{:  ASTNode n = new ASTNode(astsym.CONSTRAINT);
-																	n.pushOp(e);
-																	RESULT = n;
+																{:  
+																	RESULT = e;
 																:}
 			  | error RBRC {: Yylex.displayError("Malformed constraint.  Make sure statements return boolean value."); :};
 
