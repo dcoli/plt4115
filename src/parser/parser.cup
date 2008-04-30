@@ -127,8 +127,6 @@ Participant_vars ::= ATTRIBUTES LBRC AttributeDeclarationList:l RBRC
 
 //Environment and Participant File Specific
 Step ::= DEF REQUIRED STEP LPREN RPREN Block:b 					{: ASTNode n = new ASTNode(sym.STEP);
-																	n.pushOp(sym.DEF);
-																	n.pushOp(sym.REQUIRED);
 																	n.pushOp(b);
 																	RESULT = n;
 																:};
@@ -198,15 +196,15 @@ ParticipantConfigs ::= ParticipantConfig:c ParticipantConfigs:cs
 																   RESULT = n;
 																:};
 
-ParticipantConfig ::= PARTICIPANT STRING:s ID LBRC AssignmentList:l RBRC {: Yylex.files.addLast((String)s); 
+ParticipantConfig ::= PARTICIPANT STRING:s ID:i LBRC AssignmentList:l RBRC {: Yylex.files.addLast((String)s); 
 																			ASTNode n = new ASTNode(sym.PARTICIPANT);
-																			n.pushOp(sym.ID);
+																			n.pushOp(i);
 																			n.pushOp(l);
 																			RESULT = n;
 																		:}
-                   | PARTICIPANT STRING:s ID SEMI						{: Yylex.files.addLast((String)s); 
+                   | PARTICIPANT STRING:s ID:i SEMI						{: Yylex.files.addLast((String)s); 
 							                   								ASTNode n = new ASTNode(sym.PARTICIPANT);
-							                   								n.pushOp(sym.ID);
+							                   								n.pushOp(i);
 							                   								RESULT = n;
 							                   							:};  
 
