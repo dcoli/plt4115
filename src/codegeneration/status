@@ -15,8 +15,8 @@ ParticipantConfig			NO
 End							PENDING
 Environmental_vars			PENDING
 Participant_vars			NO
-AttributeDeclaration		NO
-AttributeDeclarationList	NO
+AttributeDeclaration		DONE - Needs loadConstraint
+AttributeDeclarationList	DONE
 Block						DONE
 Action						DONE
 ArgList						DONE
