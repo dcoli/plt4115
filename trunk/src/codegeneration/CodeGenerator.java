@@ -28,6 +28,7 @@ public class CodeGenerator {
 		
 	}
 	
+
 	public void writeEnvironmentFile(ASTNode simulationNode, ASTNode environmentNode){
 		try{
 			//Get environment filename
@@ -59,12 +60,17 @@ public class CodeGenerator {
 			pw.println("\tpublic static int getNumParts(){\n\t\treturn participants.size();\n\t}");
 			
 			pw.println("\tpublic static String ENVIRONMENT_NAME = \"" + environmentNode.getOp(0) + "\";");
-			pw.println("\tpublic static String SIMULATION_NAME = \"" + simulationNode.getOp(0) + "\";");
+			pw.println("\tpublic static String SIMULATION_NAME = \"" + simulationNode.getOp(0) + "\";");//meta op
 			
 			HashMap globalValues = assignmentListToHash((ASTNode)environmentConfig.getOp(0));
 			
 //			pw.println(generateInterface((ASTNode)environmentConfig.getOp(1)));
 			
+// other props of simulation node
+//			   n.pushOp(ec);env config op 1
+//			   n.pushOp(pcl);part config list op 2
+			pw.println(generateEnd((ASTNode)simulationNode.getOp(3))); //end op
+
 			pw.println("}");
 			pw.close();
 		}
