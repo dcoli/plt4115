@@ -40,4 +40,8 @@ public class ASTNode {
 	public int getLineNumber() {
 		return this.lineNumber;
 	}
+	
+	public int getNumberOfOperands(){
+		return opList.size();
+	}
 }

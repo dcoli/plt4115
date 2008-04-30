@@ -31,13 +31,40 @@ public class Settings {
 	   Settings.debug = debug;
 	   Settings.outputPath = outputPath;
    }
-
    
-
+   public static void persistAttributeDeclaration(String id, String constraint, int type){
+	   id = codegeneration.CodeGenerator.RUMVAR + id;
+	   if (attributes.containsKey(id)){
+		   Attribute a = attributes.get(id);
+		   a.setType(type);
+		   a.setConstraint(constraint);
+	   }
+	   else attributes.put(id, new Attribute(id, constraint, null, type));
+   }
+   
+   public static void persistGlobalDeclaration(String id, String constraint, int type){
+	   id = codegeneration.CodeGenerator.RUMVAR + id; 
+	   if (globals.containsKey(id)){
+		   Attribute a = globals.get(id);
+		   a.setType(type);
+		   a.setConstraint(constraint);
+	   }
+	   else globals.put(id, new Attribute(id, null, constraint, type));
+   }
+   
+   public static void persistGlobalInitialization(String id, String value){
+	   id = codegeneration.CodeGenerator.RUMVAR + id;
+	   globals.put(id, new Attribute(id, value, null, 0));
+   }
+   
+   public static void persistAttributeInitialization(String id, String value){
+	   id = codegeneration.CodeGenerator.RUMVAR + id;
+	   attributes.put(id, new Attribute(id, value, null, 0));
+   }
+   
 	public static String getCurrentWorkingDirectory() {
 		return currentWorkingDirectory;
 	}
-
 
 	public static void setCurrentWorkingDirectory(String currentWorkingDirectory) {
 		Settings.currentWorkingDirectory = currentWorkingDirectory;
@@ -62,4 +89,4 @@ public class Settings {
 	public static void setDebug(boolean debug) {
 		Settings.debug = debug;
 	}
-	}
+}
