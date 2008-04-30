@@ -414,7 +414,7 @@ public class CodeGenerator {
 		sb.append("public void rumAction_" + ((Symbol)a.getOp(0)).value);
 		sb.append("(");
 		
-		if (((Integer)((ASTNode)a.getOp(1)).getDescriptor()) != sym.BLOCK) {
+		if (((Integer)((ASTNode)a.getOp(1)).getDescriptor()) != astsym.BLOCK) {
 			sb.append(generateArgList((ASTNode)a.getOp(1)));
 		}
 		sb.append(")");
