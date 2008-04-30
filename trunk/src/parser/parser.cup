@@ -15,7 +15,7 @@ parser code {:
 //NON TERMINALS
 non terminal S, EnvironmentFile, Meta, Interface, Step, Actions;
 non terminal ParticipantFiles, ParticipantFile;
-non terminal SimulationFile, EnvironmentConfig, ParticipantConfigList, ParticipantConfigs, ParticipantConfig, End;
+non terminal SimulationFile, EnvironmentConfig, ParticipantConfigList, ParticipantConfig, End;
 non terminal Environmental_vars, Participant_vars, AttributeDeclaration, AttributeDeclarationList;
 non terminal Block, Action, ArgList, Arg, DataType;
 non terminal AssignmentList, Assignment, LValueData;
@@ -181,20 +181,13 @@ EnvironmentConfig ::= ENVIRONMENT STRING:s LBRC AssignmentList:l RBRC
 																		RESULT = n;
 																:};
 
-ParticipantConfigList ::= ParticipantConfigs:p {: RESULT = p; :}
-					| /* empty */;
-
-ParticipantConfigs ::= ParticipantConfig:c ParticipantConfigs:cs 
+ParticipantConfigList ::= ParticipantConfig:c ParticipantConfigList:cs 
 																{: ASTNode n = new ASTNode(null);
 																   n.pushOp(c);
 																   n.pushOp(cs);
 																   RESULT = n;
 																:}
-                    | ParticipantConfig:c 						
-                    											{: ASTNode n = new ASTNode(null);
-																   n.pushOp(c);
-																   RESULT = n;
-																:};
+                    | /*empty*/;
 
 ParticipantConfig ::= PARTICIPANT STRING:s ID:i LBRC AssignmentList:l RBRC {: Yylex.files.addLast((String)s); 
 																			ASTNode n = new ASTNode(sym.PARTICIPANT);
