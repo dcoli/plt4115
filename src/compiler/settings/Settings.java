@@ -1,30 +1,38 @@
 package compiler.settings;
 
+import java.util.HashMap;
+
 public class Settings {
 	   
-	   public static ActionTable actionTable;
-	   public static ParticipantTable participantTable;
-	   public static SymbolTable symbolTable;
+   public static ActionTable actionTable;
+   public static ParticipantTable participantTable;
+   public static SymbolTable symbolTable;
+   
+   public static HashMap<String, Attribute> attributes;
+   public static HashMap<String, Attribute> globals;
+   
+   
+   /* COMPILER SETTINGS AND PATHS */
+   public static String currentWorkingDirectory;
+   public static boolean verbose;
+   public static boolean debug;
+   public static String outputPath;
+   
+   
+   public static void init(boolean verbose, boolean debug, String outputPath) {
+      // Exists only to defeat instantiation.
 	   
-	   /* COMPILER SETTINGS AND PATHS */
-	   public static String currentWorkingDirectory;
-	   public static boolean verbose;
-	   public static boolean debug;
-	   public static String outputPath;
-	   
-	   
-	   public static void init(boolean verbose, boolean debug, String outputPath) {
-	      // Exists only to defeat instantiation.
-		   
-		   Settings.actionTable = new ActionTable();
-		   Settings.participantTable = new ParticipantTable();
-		   Settings.symbolTable = new SymbolTable();
-		   
-		   Settings.verbose = verbose;
-		   Settings.debug = debug;
-		   Settings.outputPath = outputPath;
-	   }
+	   Settings.actionTable = new ActionTable();
+	   Settings.participantTable = new ParticipantTable();
+	   Settings.symbolTable = new SymbolTable();
+	   Settings.globals = new HashMap();
+	   Settings.attributes = new HashMap();
+	   Settings.verbose = verbose;
+	   Settings.debug = debug;
+	   Settings.outputPath = outputPath;
+   }
 
+   
 
 	public static String getCurrentWorkingDirectory() {
 		return currentWorkingDirectory;
