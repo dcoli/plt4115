@@ -444,4 +444,30 @@ public class CodeGenerator {
 		
 		return sb.toString();
 	}
+	
+	public String generateAttributeDeclarationList(ASTNode adl) {
+		StringBuilder sb = new StringBuilder();
+		
+		if (adl == null)
+			return "";
+		
+		sb.append(generateAttributeDeclaration((ASTNode)adl.getOp(0)));
+		sb.append(generateAttributeDeclarationList((ASTNode)adl.getOp(1)));
+		
+		return sb.toString();
+	}
+	
+	public String generateAttributeDeclaration(ASTNode ad) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(generateDeclaration((ASTNode)ad.getOp(0)));
+		loadConstraint((ASTNode)ad.getOp(1));
+		
+		return sb.toString();
+	}
+	
+	// add actual constraint loading here
+	public void loadConstraint(ASTNode c) {
+		
+	}
 }
