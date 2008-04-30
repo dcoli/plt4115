@@ -490,4 +490,15 @@ public class CodeGenerator {
 		
 		
 	}
+
+	public String generateEnd(ASTNode a) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("public void end()");
+		
+		sb.append(generateBlockStatement((ASTNode)a.getOp(0)));
+		
+		return sb.toString();
+	}
+
 }
