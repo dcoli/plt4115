@@ -460,7 +460,7 @@ public class CodeGenerator {
 	public String generateAttributeDeclaration(ASTNode ad) {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(generateDeclaration((ASTNode)ad.getOp(0)));
+		sb.append("protected" + generateDeclaration((ASTNode)ad.getOp(0)));
 		loadConstraint((ASTNode)ad.getOp(1));
 		
 		return sb.toString();
