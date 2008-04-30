@@ -230,7 +230,7 @@ End ::= DEF REQUIRED END LPREN RPREN Block:b
 
 Block ::= LBRC Lines:l RBRC
 																{: ASTNode n = new ASTNode(astsym.BLOCK);
-																	n.pushOp(l)
+																	n.pushOp(l);
 																	RESULT = n;
 																:};
 
