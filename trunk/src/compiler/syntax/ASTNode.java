@@ -17,7 +17,16 @@ public class ASTNode {
 	}
 	
 	public Object getOp(int i){
-		return opList.get(i);
+		Object o;
+		
+		try {
+			o = opList.get(i);
+		}
+		catch (IndexOutOfBoundsException e) {
+			o = null;
+		}
+		
+		return o;
 	}
 	
 	public Object getDescriptor(){
