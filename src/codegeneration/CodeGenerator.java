@@ -1,7 +1,13 @@
 package codegeneration;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+
+import java.util.Iterator;
+
 import java_cup.runtime.Symbol;
 
 import compiler.syntax.*;
@@ -11,31 +17,39 @@ public class CodeGenerator {
 	
 	private ASTNode root;
 	private int currentLocation = 0;
-	private PrintWriter pw;
 	
 	public static final String RUMVAR = "rumVar_";
 	public static final String RUMACT = "rumAction_";
+	public static final String PACKAGE_STRUCTURE = "/rumble/runtime/";
 	
 	public CodeGenerator(ASTNode root){
 		this.root = root;
 	}
 	
 	public void go(){
-		writeEnvironmentFile((ASTNode)root.getDescriptor(), (ASTNode)root.getOp(0));
 		
-		if (root.getOp(1) != null)
-			writeParticipantFiles((ASTNode)root.getDescriptor(), (ASTNode)root.getOp(1));
+		//create packages if they're not there already
+		(new File(Settings.outputPath + PACKAGE_STRUCTURE)).mkdirs();
+		
+		ASTNode simulationRoot = (ASTNode)root.getDescriptor();
+		
+		
+		PrintWriter environmentFileWriter = 
+			writeEnvironmentFile((String)simulationRoot.getOp(0), 
+								 (ASTNode)simulationRoot.getOp(1), 
+								 (ASTNode)root.getOp(0));
+		
+		environmentFileWriter.close();
+		
 		
 	}
 	
-
-	public void writeEnvironmentFile(ASTNode simulationNode, ASTNode environmentNode){
+	public PrintWriter writeEnvironmentFile(String simulationName, ASTNode environmentConfig, ASTNode environmentFileNode){
 		try{
 			//Get environment filename
-			ASTNode environmentConfig = (ASTNode)simulationNode.getOp(1);
 			String envFile = (String)environmentConfig.getDescriptor();
 			
-			pw = new PrintWriter(new FileOutputStream(Settings.outputPath + "/Environment.java"));
+			PrintWriter pw = new PrintWriter(new FileOutputStream(Settings.outputPath + PACKAGE_STRUCTURE + "Environment.java"));
 			pw.println("package rumble.runtime;");
 			pw.println("import java.util.*;");
 			pw.println("public class Environment {");
@@ -44,44 +58,157 @@ public class CodeGenerator {
 			pw.println("\tprivate static Random rand;");
 			pw.println("\tprivate static int numSteps;");
 			pw.println("\tprivate static int numActions;");
-			pw.println("\tprivate static ArrayList<Participant> participants;");
+			pw.println("\tprivate static ArrayList<AbstractParticipant> participants;");
 			
 			//constructor
 			pw.println("\tpublic Environment(){");
 			pw.println("\t\trand = new Random();");
-			pw.println("\t\tparticipants = new ArrayList();");
+			pw.println("\t\tEnvironment.participants = new ArrayList();");
 			
 			pw.println("\t}");
 			
 			pw.println("\tpublic static int randi(){\n\t\treturn rand.nextInt();\n\t}");
-			pw.println("\tpublic static int randf(){\n\t\treturn rand.nextFloat();\n\t}");
+			pw.println("\tpublic static float randf(){\n\t\treturn rand.nextFloat();\n\t}");
 			pw.println("\tpublic static int getNumSteps(){\n\t\treturn numSteps;\n\t}");
 			pw.println("\tpublic static int getNumActions(){\n\t\treturn numActions;\n\t}");
 			pw.println("\tpublic static int getNumParts(){\n\t\treturn participants.size();\n\t}");
 			
-			pw.println("\tpublic static String ENVIRONMENT_NAME = \"" + environmentNode.getOp(0) + "\";");
-			pw.println("\tpublic static String SIMULATION_NAME = \"" + simulationNode.getOp(0) + "\";");//meta op
+			pw.println("\tpublic static String ENVIRONMENT_NAME = \"" + environmentFileNode.getOp(0) + "\";");
+			pw.println("\tpublic static String SIMULATION_NAME = \"" + simulationName + "\";");//meta op
 			
-			HashMap globalValues = assignmentListToHash((ASTNode)environmentConfig.getOp(0));
+			//HashMap globalValues = assignmentListToHash((ASTNode)environmentConfig.getOp(0));
 			
-//			pw.println(generateInterface((ASTNode)environmentConfig.getOp(1)));
+			writeAbstractParticipant((ASTNode)environmentFileNode.getOp(1));
 			
-// other props of simulation node
-//			   n.pushOp(ec);env config op 1
-//			   n.pushOp(pcl);part config list op 2
-			pw.println(generateEnd((ASTNode)simulationNode.getOp(3))); //end op
+			return pw;
 
-			pw.println("}");
-			pw.close();
 		}
 		catch(Exception e){
 			e.printStackTrace();
 			System.err.println("Could not write environment file.");
+			return null;
 		}
 	}
 	
+	
+	public void writeAbstractParticipant(ASTNode interfaceNode){
+		try{
+			
+			PrintWriter abstractParticipantWriter = 
+				new PrintWriter(Settings.outputPath + PACKAGE_STRUCTURE + "AbstractParticipant.java");
+			
+			abstractParticipantWriter.println("package rumble.runtime;");
+			abstractParticipantWriter.println("import rumble.runtime.Environment;");
+
+			abstractParticipantWriter.println("public abstract class AbstractParticipant extends Object");
+			abstractParticipantWriter.println("{");
+			abstractParticipantWriter.println("\t// SRS");
+			abstractParticipantWriter.println("\tprotected String name;");
+			abstractParticipantWriter.println("\tprotected Environment env;");
+				
+			abstractParticipantWriter.println("\t// custom attributes");
+
+			LinkedList<Attribute> attributes = makeAttributeList((ASTNode)interfaceNode.getOp(1));
+			
+			for (Iterator<Attribute> iter = attributes.iterator(); iter.hasNext();){
+				Attribute attribute = iter.next();
+				abstractParticipantWriter.println("\tprivate " 
+						+ generateDataType(attribute.getType()) + " " + attribute.getId() + ";");
+			}
+
+			
+			//CONSTRUCTOR
+			abstractParticipantWriter.print("\tpublic AbstractParticipant(");
+			for (Iterator<Attribute> iter = attributes.iterator(); iter.hasNext();){
+				Attribute attribute = iter.next();
+				abstractParticipantWriter.print(generateDataType(attribute.getType()) + " " + attribute.getId());
+				if (iter.hasNext())
+					abstractParticipantWriter.print(", ");
+			}
+			abstractParticipantWriter.println("){");
+			
+			for (Iterator<Attribute> iter = attributes.iterator(); iter.hasNext();){
+				Attribute attribute = iter.next();
+				abstractParticipantWriter.println("\t\tset" + attribute.getId() + "(" + attribute.getId() + ");");
+			}
+			
+			abstractParticipantWriter.println("\t}");
+			//END CONSTRUCTOR
+			
+			
+			//GETTERS AND SETTERS
+			for (Iterator<Attribute> iter = attributes.iterator(); iter.hasNext();){
+				Attribute attribute = iter.next();
+				
+				//the getter
+				abstractParticipantWriter.println("\tpublic " + generateDataType(attribute.getType()) 
+													+ " get" + attribute.getId() + "() {\n\t\t return this." + 
+													attribute.getId() + ";\n\t}");
+
+				//the setter
+				abstractParticipantWriter.println("\tpublic boolean set" + attribute.getId() + "(" + 
+						generateDataType(attribute.getType()) + " value) {");
+					abstractParticipantWriter.println("\t\t if (" + attribute.getConstraint() + 
+							") {\n\t\t\tthis." + attribute.getId() + " = value;\n\t\t\treturn true;\n\t\t}");
+					
+				abstractParticipantWriter.println("\t\telse return false;\n\t}");
+
+				
+			}			
+			
+			//toString
+			abstractParticipantWriter.println("\t public String toString(){");
+			abstractParticipantWriter.println("\t\treturn \"\\t\\t{\\n\\t\\t\\tparticipant : \\\"\" + this.name");
+			for (Iterator<Attribute> iter = attributes.iterator(); iter.hasNext();){
+				Attribute attribute = iter.next();
+				abstractParticipantWriter.println("\t\t\t" + "+ \"\\\",\\n\\t\\t\\t" +
+						attribute.getId().substring(RUMVAR.length()) + " : \" + this." + attribute.getId());
+			}
+ 			abstractParticipantWriter.println("\t\t+ \"\\n\\t\\t},\\n\";");
+			abstractParticipantWriter.println("\t }");
+			//end toString
+			
+			//step function
+			abstractParticipantWriter.println("\tpublic abstract void step();\n\n");
+			
+			abstractParticipantWriter.println("}");
+			abstractParticipantWriter.close();
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			System.err.println("Could not write AbstractParticipant file.");			
+		}
+		
+	}
 	public void writeParticipantFiles(ASTNode simulationNode, ASTNode participantFileList){
 		
+	}
+	
+	public LinkedList makeAttributeList(ASTNode participantVarsNode){
+		if (participantVarsNode == null) 
+			return new LinkedList();
+		else {
+			ASTNode attributeDeclarationList = (ASTNode)participantVarsNode.getOp(0);
+			LinkedList<Attribute> list = new LinkedList();
+			
+			while(attributeDeclarationList != null){
+				ASTNode attributeDeclaration = (ASTNode)attributeDeclarationList.getOp(0);
+					ASTNode declaration = (ASTNode)attributeDeclaration.getOp(0);
+					
+					//There should only be one id in the list
+					String id = RUMVAR + (String)((ASTNode)declaration.getOp(1)).getOp(0);
+					String constraint = "true"; 
+					
+					//if there's a constraint
+					if (attributeDeclaration.getNumberOfOperands() == 2)
+						constraint = generateExpression((ASTNode)attributeDeclaration.getOp(1));
+					
+				Attribute attribute = new Attribute(id, null, constraint, (Integer)declaration.getOp(0));
+				list.addLast(attribute);
+				attributeDeclarationList = (ASTNode)attributeDeclarationList.getOp(1);
+			}
+			return list;	
+		}
 	}
 	
 	public HashMap assignmentListToHash(ASTNode assignmentList){
@@ -101,7 +228,7 @@ public class CodeGenerator {
 		if (e == null) return "";
 		
 		StringBuilder sb = new StringBuilder();
-		switch ((Integer)e.getDescriptor()){
+		switch (((Integer)e.getDescriptor()).intValue()){
 			case sym.OR:
 				sb.append(generateExpression((ASTNode)e.getOp(0)) + " || " + generateExpression((ASTNode)e.getOp(1)));
 			break;
@@ -156,7 +283,7 @@ public class CodeGenerator {
 		
 	public String generateAssignment(ASTNode a){
 		StringBuilder sb = new StringBuilder();
-		switch ((Integer)a.getDescriptor()){
+		switch (((Integer)a.getDescriptor()).intValue()){
 			case sym.TIMESEQ:
 				sb.append(generateLValueData((ASTNode)a.getOp(0)) + " *= " + generateExpression((ASTNode)a.getOp(1)));
 			break;
@@ -183,7 +310,7 @@ public class CodeGenerator {
 	}
 	
 	public String generateLValueData(ASTNode a){
-		switch ((Integer)a.getDescriptor()){
+		switch (((Integer)a.getDescriptor()).intValue()){
 			case sym.ID:
 				return CodeGenerator.RUMVAR + (String)a.getOp(0);
 			case astsym.SYSTEM_VAR:
@@ -193,7 +320,7 @@ public class CodeGenerator {
 	}
 	
 	public String generateSystemVar(ASTNode systemVar){
-		switch ((Integer)systemVar.getDescriptor()){
+		switch (((Integer)systemVar.getDescriptor()).intValue()){
 			case astsym.SYSTEM_VAR_NAME:
 				return generateSystemVarName((Integer)systemVar.getOp(0));
 			case astsym.SYSTEM_PART_REF:
@@ -203,7 +330,7 @@ public class CodeGenerator {
 	}
 	
 	public String generateSystemVarName(Integer type){
-		switch (type){
+		switch (type.intValue()){
 			case sym.NUM_PARTS:
 				return "Environment.getNumParts()";
 			case sym.NUM_STEPS:
@@ -219,7 +346,7 @@ public class CodeGenerator {
 	}
 	
 	public String generateSystemPartRef(ASTNode pr){
-		switch ((Integer)pr.getDescriptor()){
+		switch (((Integer)pr.getDescriptor()).intValue()){
 			case sym.PART:
 				return "Environment.participants.get(" + ((Integer)pr.getOp(0)).toString() + ")";
 			case sym.ME:
@@ -230,7 +357,7 @@ public class CodeGenerator {
 	
 	public String generateFunctionCall(ASTNode functionCall){
 		StringBuilder sb = new StringBuilder();
-		switch ((Integer)functionCall.getDescriptor()){
+		switch (((Integer)functionCall.getDescriptor()).intValue()){
 			case sym.ID:
 				sb.append(CodeGenerator.RUMACT + (String)functionCall.getOp(0));
 				if (functionCall.getOp(1) != null)
@@ -258,7 +385,7 @@ public class CodeGenerator {
 	
 	
 	public String generateData(ASTNode data){
-		switch ((Integer)data.getDescriptor()){
+		switch (((Integer)data.getDescriptor()).intValue()){
 			case sym.NUMBER:
 				return ((Integer)data.getOp(0)).toString();
 			case astsym.SYSTEM_VAR:
@@ -297,7 +424,7 @@ public class CodeGenerator {
 	}
 	
 	public String generateStatement(ASTNode s) {		
-		switch ((Integer)s.getDescriptor()) {
+		switch (((Integer)s.getDescriptor()).intValue()) {
 			case astsym.BLOCK:
 				return generateBlockStatement(s);
 			case sym.IF:

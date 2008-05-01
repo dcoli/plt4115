@@ -17,18 +17,16 @@ public class RumbleCompiler {
 	public static void main(String[] args) {
 		String simulationFile = "";
 		boolean debug = false, verbose = false;
-		String outputPath = "";
+		String outputPath = null;
 		
 		//loop through args
 		for (int i = 0; i < args.length; i++){
 			if (args[i].startsWith("-")){
-				for (int j = 1; j < args[i].length(); j++){
-					switch (args[i].charAt(j)){
+				switch (args[i].charAt(1)){
 						case 'v': verbose = true; break;
 						case 'd': verbose = true; debug = true; break;
 						case 'o': outputPath = args[++i]; break;
-					}
-				}
+				}				
 			}
 			else simulationFile = args[i];
 		}
@@ -47,6 +45,9 @@ public class RumbleCompiler {
 			//alert the scanner as to the current working directory
 			if (file.getParent() != null)
 				Settings.setCurrentWorkingDirectory(file.getParent() + "/");
+			
+			if (outputPath == null)
+				Settings.setOutputPath(Settings.getCurrentWorkingDirectory());
 			
 			try {
 				Analyzer analyzer = new Analyzer(new parser(scanner));
@@ -72,7 +73,8 @@ public class RumbleCompiler {
 		System.out.println("==============RUMBLE SIMULATION INTERPRETER==============");
 		System.out.println("To run type: java Rumble [options] [simulation file (*.rus)]");
 		System.out.println("\n-v\t\t\tVerbose Mode");
-		System.out.println("\n-v\t\t\tCompiler Debugging Mode");
+		System.out.println("\n-d\t\t\tCompiler Debugging Mode");
+		System.out.println("\n-o [output path]\t\t\tCompiler Debugging Mode");
 		System.out.println("=========================================================");
 		System.exit(0);
 	}

@@ -1,6 +1,7 @@
 package compiler.settings;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class Settings {
 	   
@@ -78,6 +79,10 @@ public class Settings {
 
 	public static void setVerbose(boolean verbose) {
 		Settings.verbose = verbose;
+	}
+
+	public static void setOutputPath(String path) {
+		Settings.outputPath = path;
 	}
 
 
