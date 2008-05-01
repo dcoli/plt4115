@@ -11,9 +11,6 @@ public class Analyzer {
 	}
 	
 	public ASTNode analyze() throws Exception{
-		if (Settings.isVerbose())
-			System.out.println("analyzing...");
-		
 		java_cup.runtime.Symbol s;
 		
 		if (Settings.isDebug())
@@ -22,6 +19,9 @@ public class Analyzer {
 			s = parser.parse();		
 		
 		ASTNode root = (ASTNode)s.value;
+		
+		if (Settings.isVerbose())
+			System.out.println("Validating code...");
 		
 		validateSimulation(root.getDescriptor());
 		validateEnvironment(root.getOp(0));
