@@ -9,13 +9,6 @@ parser code {:
 		this(scanner);
 		scanner.nextFile = rusFile;
 	}
-	
-	public void determineNeedToParse(String participantFilePath){
-		if (!Settings.participantFiles.containsKey(participantFilePath)){
-			Yylex.files.addLast(participantFilePath);
-			Settings.participantFiles.put(participantFilePath, participantFilePath);
-		}
-	}
 :}
 
 
@@ -80,7 +73,7 @@ EnvironmentFile ::= ENVIRONMENT Meta:m Interface:i Step:s Actions:a
 					| error ENVIRONMENT {: Yylex.displayError("Missing required component or malformed environment file."); :}; 
 
 ParticipantFile ::= PARTICIPANT Meta:m Step:s
-																{: ASTNode n = new ASTNode(sym.PARTICIPANT); 
+																{: ASTNode n = new ASTNode(Yylex.baseFile); 
 																   n.pushOp(m);
 																   n.pushOp(s);
 																   RESULT = n;
@@ -197,14 +190,16 @@ ParticipantConfigList ::= ParticipantConfig:c ParticipantConfigList:cs
 																:}
                     | /*empty*/;
 
-ParticipantConfig ::= PARTICIPANT STRING:s ID:i LBRC AssignmentList:l RBRC {: determineNeedToParse((String)s); 
+ParticipantConfig ::= PARTICIPANT STRING:s ID:i LBRC AssignmentList:l RBRC {: Yylex.determineNeedToParse((String)s); 
 																			ASTNode n = new ASTNode(sym.PARTICIPANT);
+																			n.pushOp(s);
 																			n.pushOp(i);
 																			n.pushOp(l);
 																			RESULT = n;
 																		:}
-                   | PARTICIPANT STRING:s ID:i SEMI						{: determineNeedToParse((String)s); 
+                   | PARTICIPANT STRING:s ID:i SEMI						{: Yylex.determineNeedToParse((String)s); 
 							                   								ASTNode n = new ASTNode(sym.PARTICIPANT);
+							                   								n.pushOp(s);
 							                   								n.pushOp(i);
 							                   								RESULT = n;
 							                   							:};  
