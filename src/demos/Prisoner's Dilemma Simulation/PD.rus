@@ -3,16 +3,16 @@ simulation name "20-round Prisoner's Dilemma simulation";
 environment "PD.rue" {}
 
 participant "selfish_prisoner.rup" prisoner1 {
-    points = 0; // all vars are initialized to 0, so this is unnecessary, right?
-	last_action = -1;
+    points = 0;
+    last_action = -1;
 }
 
 participant "dumb_prisoner.rup" prisoner2 {
     points = 0;
-	last_action = -1;
+    last_action = -1;
 }
 
 def required end () {
-	// run simulation for 20 rounds
-   	return $num_steps == 20;
+    // run simulation for 20 rounds
+    return $num_steps == 20;
 }
