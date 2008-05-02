@@ -127,10 +127,8 @@ Participant_vars ::= ATTRIBUTES LBRC AttributeDeclarationList:l RBRC
 
 
 //Environment and Participant File Specific
-Step ::= DEF REQUIRED STEP LPREN RPREN Block:b 					{: ASTNode n = new ASTNode(sym.STEP);
-																	n.pushOp(b);
-																	RESULT = n;
-																:};
+Step ::= DEF REQUIRED STEP LPREN RPREN Block:b 					{: RESULT = b; :};
+
 Actions ::= Action:a Actions:al 
 																{: ASTNode n = new ASTNode(null); 
 																   n.pushOp(a);
@@ -212,11 +210,7 @@ AssignmentList ::= Assignment:a SEMI AssignmentList:l
 																:}
 					| /*empty*/;
 
-End ::= DEF REQUIRED END LPREN RPREN Block:b
-																{: ASTNode n = new ASTNode(sym.END);
-																   n.pushOp(b);
-																   RESULT = n;
-																:}
+End ::= DEF REQUIRED END LPREN RPREN Block:b					{: RESULT = b;:}
 		| error Block {: Yylex.displayError("Malformed end function."); :};
 
 //===========================================================================
@@ -382,19 +376,22 @@ LValueData ::= ID:i 												{: ASTNode n = new ASTNode(sym.ID);
 
 //FUNCTION CALLS
 FunctionCall ::= ID:i LPREN ExpressionList:l RPREN
-																{: ASTNode n = new ASTNode(sym.ID);
+																{: ASTNode n = new ASTNode(astsym.FUNCTION_CALL);
+																	n.pushOp(sym.ID);
 																	n.pushOp(i);
 																	n.pushOp(l);
 																	RESULT = n;
 																:}
 				| ID:i LPREN RPREN  
-																{: ASTNode n = new ASTNode(sym.ID);
+																{: ASTNode n = new ASTNode(astsym.FUNCTION_CALL);
+																   n.pushOp(sym.ID);
 																   n.pushOp(i);
 																   RESULT = n;
 																:}
 				
 				| DOLLAR SystemPartRef:s DOT STEP LPREN RPREN  
-																{: ASTNode n = new ASTNode(astsym.STEP_CALL);
+																{: ASTNode n = new ASTNode(astsym.FUNCTION_CALL);
+																    n.pushOp(astsym.STEP_CALL);
 																	n.pushOp(s);
 																	RESULT = n;
 																:}
