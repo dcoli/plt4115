@@ -16,8 +16,7 @@ import compiler.settings.*;
 public class CodeGenerator {
 	
 	private ASTNode root;
-	private int currentLocation = 0;
-	
+
 	public static final String RUMVAR = "rumVar_";
 	public static final String RUMACTION = "rumAction_";
 	public static final String PACKAGE_STRUCTURE = "/rumble/runtime/";
@@ -30,17 +29,15 @@ public class CodeGenerator {
 		
 		//create packages if they're not there already
 		(new File(Settings.outputPath + PACKAGE_STRUCTURE)).mkdirs();
-		
-		ASTNode simulationRoot = (ASTNode)root.getDescriptor();
 		 
-		writeEnvironmentFile(simulationRoot);
-		writeParticipantFiles((ASTNode)simulationRoot.getOp(1));
+		writeEnvironmentFile(root);
+		//writeParticipantFiles((ASTNode)simulationRoot.getOp(1));
 		
 	}
 	
-	public void writeEnvironmentFile(ASTNode simulationRoot){
-		ASTNode simulationFileNode = (ASTNode)simulationRoot.getDescriptor(); 
-		ASTNode environmentConfig = (ASTNode)simulationRoot.getOp(1);
+	public void writeEnvironmentFile(ASTNode root){
+		ASTNode simulationFileNode = (ASTNode)root.getDescriptor(); 
+		ASTNode environmentConfig = (ASTNode)simulationFileNode.getOp(1);
 		ASTNode environmentFileNode = (ASTNode)root.getOp(0);
 		
 		try{
@@ -130,9 +127,20 @@ public class CodeGenerator {
 			pw.println("\tpublic Environment(){");
 			pw.println("\t\trand = new Random();");
 			
-			
 			//initialize globals
-			ASTNode globalBlock = (ASTNode)environmentConfig.getOp(0);
+			ASTNode globalBlock = (ASTNode)environmentConfig.getOp(1);
+			StringBuilder result = new StringBuilder("\t\tAbstractParticipant newParticipant;");
+			
+			while(globalBlock != null){
+				ASTNode assignment = (ASTNode)globalBlock.getOp(0);
+				
+				result.append("\t\tset" + 
+								generateLValueData((ASTNode)assignment.getOp(0)) + 
+								"(" + generateExpression((ASTNode)assignment.getOp(1)) + ");\n");			
+				
+				globalBlock = (ASTNode)globalBlock.getOp(1);
+			}
+			
 			
 			//initialize participants
 			pw.println("\t\tEnvironment.participants = new ArrayList();");
@@ -182,6 +190,7 @@ public class CodeGenerator {
 			abstractParticipantWriter.println("{");
 			abstractParticipantWriter.println("\t// SRS");
 			abstractParticipantWriter.println("\tprotected String name;");
+			abstractParticipantWriter.println("\tprotected String id;");
 			abstractParticipantWriter.println("\tprotected Environment env;");
 				
 			abstractParticipantWriter.println("\t// custom attributes");
@@ -198,10 +207,10 @@ public class CodeGenerator {
 			//CONSTRUCTOR
 			
 			//default 
-			abstractParticipantWriter.println("\tpublic AbstractParticipant(){}\n");
+			abstractParticipantWriter.println("\tpublic AbstractParticipant(String id){ this.id = id; }\n");
 			
 			//constructor with attributes
-			abstractParticipantWriter.print("\tpublic AbstractParticipant(");
+			abstractParticipantWriter.print("\tpublic AbstractParticipant(String id, ");
 			for (Iterator<Attribute> iter = attributes.iterator(); iter.hasNext();){
 				Attribute attribute = iter.next();
 				abstractParticipantWriter.print(generateDataType(attribute.getType()) + " " + attribute.getId());
@@ -214,6 +223,8 @@ public class CodeGenerator {
 				Attribute attribute = iter.next();
 				abstractParticipantWriter.println("\t\tset" + attribute.getId() + "(" + attribute.getId() + ");");
 			}
+			
+			abstractParticipantWriter.println("\t\tthis.id = id;");
 			
 			abstractParticipantWriter.println("\t}");
 			//END CONSTRUCTOR
@@ -241,7 +252,7 @@ public class CodeGenerator {
 			
 			//toString
 			abstractParticipantWriter.println("\t public String toString(){");
-			abstractParticipantWriter.println("\t\treturn \"\\t\\t{\\n\\t\\t\\tparticipant : \\\"\" + this.name");
+			abstractParticipantWriter.println("\t\treturn \"\\t\\t{\\n\\t\\t\\tparticipant : \\\"\" + this.id");
 			for (Iterator<Attribute> iter = attributes.iterator(); iter.hasNext();){
 				Attribute attribute = iter.next();
 				abstractParticipantWriter.println("\t\t\t" + "+ \"\\\",\\n\\t\\t\\t" +
@@ -267,20 +278,67 @@ public class CodeGenerator {
 	public String generateParticipantInitializations(ASTNode participantConfigList){
 		StringBuilder result = new StringBuilder("\t\tAbstractParticipant newParticipant;");
 		
+		while(participantConfigList != null){
+			//get the assignment statement
+			ASTNode participantConfig = (ASTNode)participantConfigList.getOp(0);
+			String participantFileName = ((String)participantConfig.getOp(0));
+			String participantType = participantFileName.substring(0, participantFileName.indexOf('.'));
+			
+			result.append("\t\t\n\nnewParticipant = new " + participantType + "(" + participantConfigList.getOp(1) + ");\n");
+			
+			if (participantConfig.getNumberOfOperands() == 3){
+				ASTNode assignmentList = (ASTNode)participantConfigList.getOp(2);
+				
+				while(assignmentList != null){
+					ASTNode assignment = (ASTNode)assignmentList.getOp(0);
+					
+					result.append("\t\tnewParticipant.set" + 
+									generateLValueData((ASTNode)assignment.getOp(0)) + 
+									"(" + generateExpression((ASTNode)assignment.getOp(1)) + ");\n");			
+					
+					assignmentList = (ASTNode)assignmentList.getOp(1);
+				}
+			}
+			
+			result.append("Environment.participants.add(newParticipant);\n\n");
+			
+			participantConfigList = (ASTNode)participantConfigList.getOp(1);
+		}
+		
 		return result.toString();
 	}
 	
-	//Returns a list of all class initializations that need to occur in the environment file
 	public void writeParticipantFiles(ASTNode participantFileList){
-		//iterate through participantFileNodes
-			//call writeParticipant 
-		
+		while(participantFileList != null){
+			writeParticipant((ASTNode)participantFileList.getOp(0));			
+			participantFileList = (ASTNode)participantFileList.getOp(1);
+		}
 	}
 	
 	//returns an initialzation string of a participant instance
-	public void writeParticipant(ASTNode participantConfig) 
+	public void writeParticipant(ASTNode participant) 
 	{
-		StringBuilder result = new StringBuilder();
+		try {
+			PrintWriter pw = 
+				new PrintWriter(Settings.outputPath + PACKAGE_STRUCTURE + participant.getDescriptor() + ".java");
+			
+			pw.println("package rumble.runtime;");
+			pw.println("import java.util.*;");
+			pw.println("public class " + participant.getDescriptor() + " extends AbstractParticipant {");
+			pw.println("\tprotected String name = " + participant.getOp(0));
+			
+			//step function
+			pw.println("\tpublic void step();\n\n");
+				pw.println(generateBlockStatement((ASTNode)participant.getOp(1)));
+			pw.println("}");
+			//end step function
+			
+			
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			System.out.println("Could not write participant file: " + participant.getDescriptor());
+		}
 	}
 	
 	
@@ -310,19 +368,6 @@ public class CodeGenerator {
 			}
 			return list;	
 		}
-	}
-	
-	public HashMap assignmentListToHash(ASTNode assignmentList){
-		HashMap h = new HashMap();
-		
-		while(assignmentList != null){
-			//get the assignment statement
-			ASTNode assignment = (ASTNode)assignmentList.getOp(0);
-			h.put(generateLValueData((ASTNode)assignment.getOp(0)), generateExpression((ASTNode)assignment.getOp(1)));
-			assignmentList = (ASTNode)assignmentList.getOp(1);
-		}
-		
-		return h;
 	}
 	
 	public String generateExpression(ASTNode e){

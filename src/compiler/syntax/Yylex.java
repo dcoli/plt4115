@@ -19,8 +19,15 @@ public class Yylex implements java_cup.runtime.Scanner {
 	public static LinkedList<String> files;
 	public static int currentLine;
 	public static String nextFile;
+	public static String baseFile;
 	public static void displayError(String message){
 		System.err.println("Error in " + nextFile + ", line " + currentLine + ": " + message);
+	}
+	public static void determineNeedToParse(String participantFilePath){
+		if (!Settings.participantFiles.containsKey(participantFilePath)){
+			Yylex.files.addLast(participantFilePath);
+			Settings.participantFiles.put(participantFilePath, participantFilePath);
+		}
 	}
 	private java.io.BufferedReader yy_reader;
 	private int yy_buffer_index;
@@ -467,10 +474,12 @@ if (files.size() == 0)
   return new Symbol(sym.EOF);
 else {
 	yy_reader.close();
-	nextFile = Settings.getCurrentWorkingDirectory() + (String)files.removeFirst();
+	baseFile = (String)files.removeFirst();
+	nextFile = Settings.getCurrentWorkingDirectory() + baseFile;
+	baseFile = baseFile.substring(0, baseFile.indexOf('.'));
 	yy_reader = new BufferedReader(new InputStreamReader(new FileInputStream(nextFile)));
 	currentLine = 1;
-	System.out.println("Now tokenizing " + nextFile);
+	System.out.println("Now tokenizing " + baseFile);
 }
 			}
 			if (YY_F != yy_next_state) {
