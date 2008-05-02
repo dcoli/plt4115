@@ -12,6 +12,8 @@ public class Settings {
    public static HashMap<String, Attribute> attributes;
    public static HashMap<String, Attribute> globals;
    
+   public static HashMap<String, String> participantFiles;
+   
    
    /* COMPILER SETTINGS AND PATHS */
    public static String currentWorkingDirectory;
@@ -28,6 +30,7 @@ public class Settings {
 	   Settings.symbolTable = new SymbolTable();
 	   Settings.globals = new HashMap();
 	   Settings.attributes = new HashMap();
+	   Settings.participantFiles = new HashMap();
 	   Settings.verbose = verbose;
 	   Settings.debug = debug;
 	   Settings.outputPath = outputPath;
