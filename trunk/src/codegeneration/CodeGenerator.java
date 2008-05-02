@@ -78,7 +78,7 @@ public class CodeGenerator {
 			
 			for (Iterator<Attribute> iter = globals.iterator(); iter.hasNext();){
 				Attribute global = iter.next();
-				pw.println("\tprivate " 
+				pw.println("\tprivate static " 
 						+ generateDataType(global.getType()) + " " + global.getId() + ";");
 			}
 
@@ -87,15 +87,15 @@ public class CodeGenerator {
 				Attribute global = iter.next();
 				
 				//the getter
-				pw.println("\tpublic " + generateDataType(global.getType()) 
-													+ " get" + global.getId() + "() {\n\t\t return this." + 
+				pw.println("\tpublic static " + generateDataType(global.getType()) 
+													+ " get" + global.getId() + "() {\n\t\t return " + 
 													global.getId() + ";\n\t}");
 
 				//the setter
-				pw.println("\tpublic boolean set" + global.getId() + "(" + 
+				pw.println("\tpublic static boolean set" + global.getId() + "(" + 
 						generateDataType(global.getType()) + " value) {");
 						pw.println("\t\t if (" + global.getConstraint() + 
-							") {\n\t\t\tthis." + global.getId() + " = value;\n\t\t\treturn true;\n\t\t}");
+							") {\n\t\t\tEnvironment." + global.getId() + " = value;\n\t\t\treturn true;\n\t\t}");
 					
 				pw.println("\t\telse return false;\n\t}");
 
@@ -118,9 +118,8 @@ public class CodeGenerator {
 			
 			
 			//step function
-			pw.println("\tpublic void step();\n\n");
+			pw.println("\tpublic void step()");
 				pw.println(generateBlockStatement((ASTNode)environmentFileNode.getOp(2)));
-			pw.println("}");
 			//end step function
 			
 			//CONSTRUCTOR
@@ -151,9 +150,9 @@ public class CodeGenerator {
 			
 			
 			//end function
-			pw.println("\tpublic boolean end();\n\n");
-				pw.println(generateBlockStatement((ASTNode)simulationFileNode.getOp(3)));
-			pw.println("}");
+			pw.print("\tpublic boolean end()");
+			pw.println(generateBlockStatement((ASTNode)simulationFileNode.getOp(3)));
+				
 			//end end function
 			
 			//write actions
@@ -210,12 +209,11 @@ public class CodeGenerator {
 			abstractParticipantWriter.println("\tpublic AbstractParticipant(String id){ this.id = id; }\n");
 			
 			//constructor with attributes
-			abstractParticipantWriter.print("\tpublic AbstractParticipant(String id, ");
+			/*abstractParticipantWriter.print("\tpublic AbstractParticipant(String id");
 			for (Iterator<Attribute> iter = attributes.iterator(); iter.hasNext();){
 				Attribute attribute = iter.next();
-				abstractParticipantWriter.print(generateDataType(attribute.getType()) + " " + attribute.getId());
-				if (iter.hasNext())
-					abstractParticipantWriter.print(", ");
+				abstractParticipantWriter.print(", ");
+				abstractParticipantWriter.print(generateDataType(attribute.getType()) + " " + attribute.getId());	
 			}
 			abstractParticipantWriter.println("){");
 			
@@ -226,7 +224,7 @@ public class CodeGenerator {
 			
 			abstractParticipantWriter.println("\t\tthis.id = id;");
 			
-			abstractParticipantWriter.println("\t}");
+			abstractParticipantWriter.println("\t}");*/
 			//END CONSTRUCTOR
 			
 			
@@ -424,7 +422,7 @@ public class CodeGenerator {
 				sb.append(generateData(e));
 		}
 		
-		return "";
+		return sb.toString();
 	}
 		
 	public String generateAssignment(ASTNode a){
@@ -471,6 +469,8 @@ public class CodeGenerator {
 				return generateSystemVarName((Integer)systemVar.getOp(0));
 			case astsym.SYSTEM_PART_REF:
 				return generateSystemPartRef((ASTNode)systemVar.getOp(0)) + "." + (String)systemVar.getOp(1); 
+			case astsym.SYSTEM_GLOBAL:
+				return "Environment." + CodeGenerator.RUMVAR + (String)systemVar.getOp(0);
 		}
 		return "";
 	}
@@ -503,16 +503,29 @@ public class CodeGenerator {
 	
 	public String generateFunctionCall(ASTNode functionCall){
 		StringBuilder sb = new StringBuilder();
-		switch (((Integer)functionCall.getDescriptor()).intValue()){
+		switch (((Integer)functionCall.getOp(0)).intValue()){
 			case sym.ID:
-				sb.append(CodeGenerator.RUMACTION + (String)functionCall.getOp(0));
-				if (functionCall.getOp(1) != null)
-					sb.append("(this," + generateExpressionList((ASTNode)functionCall.getOp(1)) + ")");
+				if(functionCall.getOp(1).equals("set")){
+					//we've got a set call !
+					ASTNode operandList = (ASTNode)functionCall.getOp(2);
+					String operand1 = generateExpression((ASTNode)operandList.getOp(0));
+					ASTNode operand2Node = (ASTNode)((ASTNode)operandList.getOp(1)).getOp(0); 
+					
+					if (operand1.startsWith("Environment.")) 
+						return "Environment.set" + operand1.replace("Environment.", "") + "(" +	generateExpression(operand2Node) + ")";
+					else 
+						return "set" + operand1 + "(" +	generateExpression(operand2Node) + ")";
+					
+				}
+				else
+					sb.append(CodeGenerator.RUMACTION + (String)functionCall.getOp(1));
+				if (functionCall.getOp(2) != null)
+					sb.append("(this," + generateExpressionList((ASTNode)functionCall.getOp(2)) + ")");
 				else
 					sb.append("(this)");
 			break;
 			case astsym.STEP_CALL:
-				sb.append(generateSystemPartRef((ASTNode)functionCall.getOp(0)) + ".step()");
+				sb.append(generateSystemPartRef((ASTNode)functionCall.getOp(1)) + ".step()");
 			break;
 		}
 		
@@ -583,7 +596,7 @@ public class CodeGenerator {
 				return generateReturnStatement(s);
 			case astsym.FUNCTION_CALL:
 			case astsym.STEP_CALL:
-				return generateFunctionCall(s); 
+				return generateFunctionCall(s) + ";"; 
 			case sym.TIMESEQ:
 			case sym.DIVIDEEQ:
 			case sym.MINUSEQ:
@@ -661,7 +674,7 @@ public class CodeGenerator {
 	public String generateBlockStatement(ASTNode b) {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("{\n" + generateLines((ASTNode)b.getOp(0)) + "}\n");
+		sb.append(" {\n" + generateLines((ASTNode)b.getOp(0)) + "}\n");
 		
 		return sb.toString();
 	}
@@ -742,7 +755,7 @@ public class CodeGenerator {
 	public String generateAttributeDeclaration(ASTNode ad, int attType) {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("protected" + generateDeclaration((ASTNode)ad.getOp(0)));
+		sb.append("protected " + generateDeclaration((ASTNode)ad.getOp(0)));
 		
 		saveAttribute(ad, attType);
 		
@@ -770,14 +783,5 @@ public class CodeGenerator {
 		
 	}
 
-	public String generateEnd(ASTNode a) {
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("public boolean end()");
-		
-		sb.append(generateBlockStatement((ASTNode)a.getOp(0)));
-		
-		return sb.toString();
-	}
 
 }
