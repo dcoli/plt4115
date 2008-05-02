@@ -2,7 +2,7 @@
 environment name "The Prisoner's Dilemma";
 
 attributes {
-	int points {point >= 0};
+	int points {points >= 0};
 	
 	// can be -1 (no prev action), 0 (defected), or 1 (cooperated)
 	int last_action {(last_action >= -1) && (last_action <= 1)};
