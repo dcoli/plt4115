@@ -27,8 +27,9 @@ public class Environment
 	}
 	
 	public String toString() {
-		return "{\n\tenvironment : \"" + this.NAME +
-				"\",\n\tdays : " + this.rumVar_days + ",\n}\n";
+		return "{\n\tenvironment : \"" + this.NAME 
+				+ "\",\n\tdays : " + this.rumVar_days 
+				+ ",\n}\n";
 	}
 	
 	public void step() {

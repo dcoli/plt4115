@@ -9,6 +9,13 @@ parser code {:
 		this(scanner);
 		scanner.nextFile = rusFile;
 	}
+	
+	public void determineNeedToParse(String participantFilePath){
+		if (!Settings.participantFiles.containsKey(participantFilePath)){
+			Yylex.files.addLast(participantFilePath);
+			Settings.participantFiles.put(participantFilePath, participantFilePath);
+		}
+	}
 :}
 
 
@@ -89,11 +96,12 @@ ParticipantFiles ::= ParticipantFile:p ParticipantFiles:pf
 					
 					
 					
-SimulationFile ::= SIMULATION Meta:m EnvironmentConfig:ec ParticipantConfigList:pcl End 	
+SimulationFile ::= SIMULATION Meta:m EnvironmentConfig:ec ParticipantConfigList:pcl End:e 	
 																{: ASTNode n = new ASTNode(sym.SIMULATION); 
 																		   n.pushOp(m);
 																		   n.pushOp(ec);
 																		   n.pushOp(pcl);
+																		   n.pushOp(e);
 																		   RESULT = n;
 																System.out.println("Parsed simulation file: " + m); 
 																:}
@@ -189,13 +197,13 @@ ParticipantConfigList ::= ParticipantConfig:c ParticipantConfigList:cs
 																:}
                     | /*empty*/;
 
-ParticipantConfig ::= PARTICIPANT STRING:s ID:i LBRC AssignmentList:l RBRC {: Yylex.files.addLast((String)s); 
+ParticipantConfig ::= PARTICIPANT STRING:s ID:i LBRC AssignmentList:l RBRC {: determineNeedToParse((String)s); 
 																			ASTNode n = new ASTNode(sym.PARTICIPANT);
 																			n.pushOp(i);
 																			n.pushOp(l);
 																			RESULT = n;
 																		:}
-                   | PARTICIPANT STRING:s ID:i SEMI						{: Yylex.files.addLast((String)s); 
+                   | PARTICIPANT STRING:s ID:i SEMI						{: determineNeedToParse((String)s); 
 							                   								ASTNode n = new ASTNode(sym.PARTICIPANT);
 							                   								n.pushOp(i);
 							                   								RESULT = n;
