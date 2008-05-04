@@ -721,7 +721,7 @@ public class CodeGenerator {
 	
 	public String generateArgList(ASTNode a) {
 		StringBuilder sb = new StringBuilder();
-		
+				
 		if (((Integer)a.getDescriptor()).equals(astsym.ARG))
 			return sb.append(generateArg(a)).toString();
 		
