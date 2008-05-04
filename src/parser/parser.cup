@@ -137,15 +137,14 @@ Actions ::= Action:a Actions:al
 																:}
 			| /*empty*/; 
 
-Action ::= DEF ACTION ID LPREN ArgList:al RPREN Block:b
-																{: ASTNode n = new ASTNode(sym.ACTION);
-																   n.pushOp(sym.ID); 
+Action ::= DEF ACTION ID:i LPREN ArgList:al RPREN Block:b
+																{: ASTNode n = new ASTNode(i);
 																   n.pushOp(al);
 																   n.pushOp(b);
 																   RESULT = n;
 																:} 
-		 | DEF ACTION ID LPREN RPREN Block:b
-																{: ASTNode n = new ASTNode(sym.ID); 
+		 | DEF ACTION ID:i LPREN RPREN Block:b
+																{: ASTNode n = new ASTNode(i); 
 																   n.pushOp(b);
 																   RESULT = n;
 																:}

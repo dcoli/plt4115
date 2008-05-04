@@ -1,6 +1,5 @@
 package rumble.runtime;
 //import rumble.runtime.Environment;
-import rumble.runtime.Environment;
 
 public class Runtime
 {
