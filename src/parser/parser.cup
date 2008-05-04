@@ -152,22 +152,20 @@ Action ::= DEF ACTION ID LPREN ArgList:al RPREN Block:b
 		 | error Block {: Yylex.displayError("Malformed action."); :}; 
 
 ArgList ::= Arg:a COMMA ArgList:l 
-																{: ASTNode n = new ASTNode(null); 
+																{: ASTNode n = new ASTNode(astsym.ARGLIST); 
 																   n.pushOp(a);
 																   n.pushOp(l);
 																   RESULT = n;
 																:} 
 		| Arg:a
 																{: 
-																	ASTNode n = new ASTNode(null);
-																	n.pushOp(a);
-																	RESULT = n;
+																	RESULT = a;
 																:};
 		 
-Arg ::= DataType:d ID
-																{: ASTNode n = new ASTNode(d);//sym.int,sym.float,etc.
-																   n.pushOp(sym.ID); 
-																   n.pushOp(d);
+Arg ::= DataType:d ID:i
+																{: ASTNode n = new ASTNode(astsym.ARG);
+																   n.pushOp(d); 
+																   n.pushOp(i);
 																   RESULT = n;
 																:}
 		| error ID {: Yylex.displayError("Missing data type or identifier in prototype."); :};
