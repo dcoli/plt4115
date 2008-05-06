@@ -11,6 +11,8 @@ import java.io.*;
 %{
 	public static LinkedList<String> files;
 	public static int currentLine;
+	public static int currentFileTokenized;
+	public static int currentFileParsed;
 	public static String nextFile;
 	public static String baseFile;
 	
@@ -32,11 +34,11 @@ import java.io.*;
 %init} 
 
 %eofval{
-if (files.size() == 0)
+if (files.size() == currentFileTokenized)
   return new Symbol(sym.EOF);
 else {
 	yy_reader.close();
-	baseFile = (String)files.removeFirst();
+	baseFile = (String)files.get(currentFileTokenized++);
 	nextFile = Settings.getCurrentWorkingDirectory() + baseFile;
 	baseFile = baseFile.substring(0, baseFile.indexOf('.'));
 	

@@ -18,6 +18,8 @@ public class Yylex implements java_cup.runtime.Scanner {
 
 	public static LinkedList<String> files;
 	public static int currentLine;
+	public static int currentFileTokenized;
+	public static int currentFileParsed;
 	public static String nextFile;
 	public static String baseFile;
 	public static void displayError(String message){
@@ -470,11 +472,11 @@ public class Yylex implements java_cup.runtime.Scanner {
 			yy_next_state = yy_nxt[yy_rmap[yy_state]][yy_cmap[yy_lookahead]];
 			if (YY_EOF == yy_lookahead && true == yy_initial) {
 
-if (files.size() == 0)
+if (files.size() == currentFileTokenized)
   return new Symbol(sym.EOF);
 else {
 	yy_reader.close();
-	baseFile = (String)files.removeFirst();
+	baseFile = (String)files.get(currentFileTokenized++);
 	nextFile = Settings.getCurrentWorkingDirectory() + baseFile;
 	baseFile = baseFile.substring(0, baseFile.indexOf('.'));
 	yy_reader = new BufferedReader(new InputStreamReader(new FileInputStream(nextFile)));

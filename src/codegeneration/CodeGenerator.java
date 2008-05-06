@@ -27,6 +27,8 @@ public class CodeGenerator {
 	public static final String RUMVAR = "rumVar_";
 	public static final String RUMACTION = "rumAction_";
 	public static final String PACKAGE_STRUCTURE = "/rumble/runtime/";
+	public static final String PARTICIPANT_CLASS_NAME = "participant";
+	
 	private static int blockLevel = 0;
 	
 	public static void debugGeneration(String message){
@@ -72,7 +74,7 @@ public class CodeGenerator {
 			pw.println("\tprivate static Random rand;");
 			pw.println("\tprivate static int numSteps;");
 			pw.println("\tprivate static int numActions;");
-			pw.println("\tprivate static ArrayList<AbstractParticipant> participants;");
+			pw.println("\tprivate static ArrayList<" + PARTICIPANT_CLASS_NAME + "> participants;");
 			
 			pw.println("\tpublic static int randi(){\n\t\treturn rand.nextInt();\n\t}");
 			pw.println("\tpublic static float randf(){\n\t\treturn rand.nextFloat();\n\t}");
@@ -122,11 +124,26 @@ public class CodeGenerator {
 			}
 			//END WRITE GLOBALS			
 			
+			//participantStrings
+			pw.println("\tpublic String participantStrings() {");
+					pw.println("\t\tStringBuilder sb = new StringBuilder();");
+				
+					pw.println("\t\tsb.append(\"\\tparticpants :\\n\\t[\\n\");");
+				
+					pw.println("\t\tfor (participant p : this.participants)");
+					pw.println("\t\t\tsb.append(p);");
+				
+				
+					pw.println("\t\tsb.append(\"\\t],\\n\");");
+					pw.println("\treturn sb.toString();");
+			pw.println("\t}");			
+			//end participantStrings()
+			
 			//toString
 			pw.println("\t public String toString(){");
 			
-			pw.println("\t\treturn \"{\\n\\tenvironment : \\\"\" + this.ENVIRONMENT_NAME");
-			pw.println("\t\t\t" + "+ \"\\\",\\n\\tsimulation : \" + this.SIMULATION_NAME");
+			pw.println("\t\treturn \"{\\n\\tenvironment : \\\"\" + this.ENVIRONMENT_NAME + \"\\\",\\n\" + participantStrings()");
+			pw.println("\t\t\t" + "+ \"\\n\\tsimulation : \" + this.SIMULATION_NAME");
 			for (Iterator<Attribute> iter = globals.iterator(); iter.hasNext();){
 				Attribute global = iter.next();
 				pw.println("\t\t\t" + "+ \"\\\",\\n\\t" +
@@ -150,7 +167,7 @@ public class CodeGenerator {
 			
 			//initialize globals
 			ASTNode globalBlock = (ASTNode)environmentConfig.getOp(1);
-			StringBuilder result = new StringBuilder("\t\tAbstractParticipant newParticipant;");
+			StringBuilder result = new StringBuilder("\t\t" + PARTICIPANT_CLASS_NAME + " newParticipant;");
 			
 			while(globalBlock != null){
 				ASTNode assignment = (ASTNode)globalBlock.getOp(0);
@@ -207,12 +224,12 @@ public class CodeGenerator {
 			debugGeneration("\nWriting abstract participant file.");
 			
 			PrintWriter abstractParticipantWriter = 
-				new PrintWriter(Settings.outputPath + PACKAGE_STRUCTURE + "AbstractParticipant.java");
+				new PrintWriter(Settings.outputPath + PACKAGE_STRUCTURE + PARTICIPANT_CLASS_NAME + ".java");
 			
 			abstractParticipantWriter.println("package rumble.runtime;");
 			abstractParticipantWriter.println("import rumble.runtime.Environment;");
 
-			abstractParticipantWriter.println("public abstract class AbstractParticipant extends Object");
+			abstractParticipantWriter.println("public abstract class " + PARTICIPANT_CLASS_NAME + " extends Object");
 			abstractParticipantWriter.println("{");
 			abstractParticipantWriter.println("\t// SRS");
 			abstractParticipantWriter.println("\tprotected String name;");
@@ -232,25 +249,7 @@ public class CodeGenerator {
 			//CONSTRUCTOR
 			
 			//default 
-			abstractParticipantWriter.println("\tpublic AbstractParticipant(String id){ this.id = id; }\n");
-			
-			//constructor with attributes
-			/*abstractParticipantWriter.print("\tpublic AbstractParticipant(String id");
-			for (Iterator<Attribute> iter = attributes.iterator(); iter.hasNext();){
-				Attribute attribute = iter.next();
-				abstractParticipantWriter.print(", ");
-				abstractParticipantWriter.print(generateDataType(attribute.getType()) + " " + attribute.getId());	
-			}
-			abstractParticipantWriter.println("){");
-			
-			for (Iterator<Attribute> iter = attributes.iterator(); iter.hasNext();){
-				Attribute attribute = iter.next();
-				abstractParticipantWriter.println("\t\tset" + attribute.getId() + "(" + attribute.getId() + ");");
-			}
-			
-			abstractParticipantWriter.println("\t\tthis.id = id;");
-			
-			abstractParticipantWriter.println("\t}");*/
+			abstractParticipantWriter.println("\tpublic " + PARTICIPANT_CLASS_NAME + " (String id){ this.id = id; }\n");
 			//END CONSTRUCTOR
 			
 			
@@ -297,13 +296,13 @@ public class CodeGenerator {
 		}
 		catch(Exception e){
 			e.printStackTrace();
-			System.err.println("Could not write AbstractParticipant file.");			
+			System.err.println("Could not write abstract participant class.");			
 		}
 		
 	}
 	
 	public String generateParticipantInitializations(ASTNode participantConfigList){
-		StringBuilder result = new StringBuilder("\t\tAbstractParticipant newParticipant;");
+		StringBuilder result = new StringBuilder("\t\t " + PARTICIPANT_CLASS_NAME + " newParticipant;");
 		
 		while(participantConfigList != null){
 			//get the assignment statement
@@ -353,7 +352,7 @@ public class CodeGenerator {
 			
 			pw.println("package rumble.runtime;");
 			pw.println("import java.util.*;");
-			pw.println("public class " + participant.getDescriptor() + " extends AbstractParticipant {");
+			pw.println("public class " + participant.getDescriptor() + " extends " + PARTICIPANT_CLASS_NAME + " {");
 			pw.println("public " + participant.getDescriptor() + "(String id){ super(id); }");
 			pw.println("\tprotected String name = \"" + participant.getOp(0) + "\";");
 			
@@ -436,7 +435,10 @@ public class CodeGenerator {
 				sb.append(generateExpression((ASTNode)e.getOp(0)) + " + " + generateExpression((ASTNode)e.getOp(1)));
 			break;
 			case sym.MINUS:
-				sb.append(generateExpression((ASTNode)e.getOp(0)) + " - " + generateExpression((ASTNode)e.getOp(1)));
+				if (e.getNumberOfOperands() == 2)
+					sb.append(generateExpression((ASTNode)e.getOp(0)) + " - " + generateExpression((ASTNode)e.getOp(1)));
+				else
+					sb.append(" -" + generateExpression((ASTNode)e.getOp(0)));
 			break;
 			case sym.TIMES:
 				sb.append(generateExpression((ASTNode)e.getOp(0)) + " * " + generateExpression((ASTNode)e.getOp(1)));
@@ -483,8 +485,8 @@ public class CodeGenerator {
 				sb.append(generateLValueData((ASTNode)a.getOp(0)) + " = " + generateExpression((ASTNode)a.getOp(1)));
 			break;
 		}
-	
-		// sb.append(";\n"); // we think this line is necessary but aren't positive -- N&D
+		
+		sb.append(";\n");
 		
 		return sb.toString();
 	}
@@ -508,9 +510,9 @@ public class CodeGenerator {
 			case astsym.SYSTEM_VAR_NAME:
 				return generateSystemVarName((Integer)systemVar.getOp(0));
 			case astsym.SYSTEM_PART_REF:
-				return generateSystemPartRef((ASTNode)systemVar.getOp(0)) + "." + (String)systemVar.getOp(1); 
+				return generateSystemPartRef((ASTNode)systemVar.getOp(0)) + ".get" + RUMVAR + (String)systemVar.getOp(1) + "()"; 
 			case astsym.SYSTEM_GLOBAL:
-				return "Environment." + CodeGenerator.RUMVAR + (String)systemVar.getOp(0);
+				return "Environment.get" + RUMVAR + (String)systemVar.getOp(0) + "()";
 		}
 		return "";
 	}
@@ -555,13 +557,18 @@ public class CodeGenerator {
 				if(functionCall.getOp(1).equals("set")){
 					//we've got a set call !
 					ASTNode operandList = (ASTNode)functionCall.getOp(2);
-					String operand1 = generateExpression((ASTNode)operandList.getOp(0));
+					ASTNode operand1Node = (ASTNode)((ASTNode)operandList.getOp(0)).getOp(0);
 					ASTNode operand2Node = (ASTNode)((ASTNode)operandList.getOp(1)).getOp(0); 
 					
-					if (operand1.startsWith("Environment.")) 
-						return "Environment.set" + operand1.replace("Environment.", "") + "(" +	generateExpression(operand2Node) + ")";
-					else 
-						return "set" + operand1 + "(" +	generateExpression(operand2Node) + ")";
+					if ((Integer)operand1Node.getDescriptor() == astsym.SYSTEM_PART_REF){
+						if ((Integer)((ASTNode)operand1Node.getOp(0)).getDescriptor() == sym.PART )
+							return "Environment.participants.get(" + (Integer)((ASTNode)operand1Node.getOp(0)).getOp(0) + ").set" + RUMVAR + (String)operand1Node.getOp(1) + "(" +	generateExpression(operand2Node) + ")";
+						else if ((Integer)((ASTNode)operand1Node.getOp(0)).getDescriptor() == sym.ME)
+							return "doer.set" + RUMVAR + (String)operand1Node.getOp(1) + "(" +	generateExpression(operand2Node) + ")";
+					}
+					else if ((Integer)operand1Node.getDescriptor() == astsym.SYSTEM_GLOBAL) 
+						return "Environment.set" + RUMVAR + (String)operand1Node.getOp(0) + "(" +	generateExpression(operand2Node) + ")";
+					
 					
 				}
 				else
@@ -789,13 +796,13 @@ public class CodeGenerator {
 		String addLine = "System.out.println(\"{\\n\\taction : \\\"'\" + doer.getId() + \"' did '" + a.getDescriptor() + "'\\\",\\n}\\n\");";
 		
 		if (a.getNumberOfOperands() == 2) {
-			sb.append("(AbstractParticipant doer, ");
+			sb.append("(" + PARTICIPANT_CLASS_NAME + " doer, ");
 			sb.append(generateArgList((ASTNode)a.getOp(0)));
 			sb.append(")");
 			sb.append(generateBlockStatement((ASTNode)a.getOp(1), addLine, ""));
 		}
 		else {
-			sb.append("(AbstractParticipant doer)");
+			sb.append("(" + PARTICIPANT_CLASS_NAME + " doer)");
 			sb.append(generateBlockStatement((ASTNode)a.getOp(0), addLine, ""));	
 		}
 		
