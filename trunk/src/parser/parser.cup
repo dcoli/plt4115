@@ -63,7 +63,9 @@ S ::= SimulationFile:s EnvironmentFile:ef ParticipantFiles:pf
 																:}; 
 
 EnvironmentFile ::= ENVIRONMENT Meta:m Interface:i Step:s Actions:a 
-																{: ASTNode n = new ASTNode(sym.ENVIRONMENT); 
+																{: 
+																Yylex.currentFileParsed++;
+																ASTNode n = new ASTNode(sym.ENVIRONMENT); 
 																   n.pushOp(m);
 																   n.pushOp(i);
 																   n.pushOp(s);
@@ -73,7 +75,10 @@ EnvironmentFile ::= ENVIRONMENT Meta:m Interface:i Step:s Actions:a
 					| error ENVIRONMENT {: Yylex.displayError("Missing required component or malformed environment file."); :}; 
 
 ParticipantFile ::= PARTICIPANT Meta:m Step:s
-																{: ASTNode n = new ASTNode(Yylex.baseFile); 
+																{:
+																String filename = (String)Yylex.files.get(Yylex.currentFileParsed++);
+																filename = filename.substring(0, filename.indexOf('.'));
+																ASTNode n = new ASTNode(filename); 
 																   n.pushOp(m);
 																   n.pushOp(s);
 																   RESULT = n;
@@ -249,7 +254,7 @@ Statement ::= Block:b
 																:}
            | Declaration:d SEMI									{: RESULT = d;:}
 		   | FunctionCall:f SEMI								{: RESULT = f;:}
-		   | Assignment:a										{: RESULT = a;:}
+		   | Assignment:a SEMI										{: RESULT = a;:}
 		   | error ENVIRONMENT {: Yylex.displayError("Malformed statement"); :};
 																
 IfStatement ::= IF LPREN Expression:e RPREN Statement:s
@@ -364,7 +369,7 @@ LValueData ::= ID:i 												{: ASTNode n = new ASTNode(sym.ID);
 															n.pushOp(i);
 															RESULT = n;
 														:}
-	    | SystemVar:s											{: ASTNode n = new ASTNode(astsym.SYSTEM_VAR);
+	    | SystemVar:s									{: ASTNode n = new ASTNode(astsym.SYSTEM_VAR);
 															n.pushOp(s);
 															RESULT = n;
 														:};
@@ -509,6 +514,12 @@ MultiplicativeExpression ::= MultiplicativeExpression:m TIMES UnaryExpression:u
 
 UnaryExpression ::= NOT UnaryExpression:u
 																{: ASTNode n = new ASTNode(sym.NOT);
+																	n.pushOp(u);
+																	RESULT = n;
+																:}
+																
+				| MINUS UnaryExpression:u
+																{: ASTNode n = new ASTNode(sym.MINUS);
 																	n.pushOp(u);
 																	RESULT = n;
 																:}

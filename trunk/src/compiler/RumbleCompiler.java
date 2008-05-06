@@ -61,6 +61,7 @@ public class RumbleCompiler {
 			}
 			catch (Exception e){
 				System.out.println("Compile time error: " + e.getMessage());
+				e.printStackTrace();
 			}
 		}
 		catch (Exception e){
