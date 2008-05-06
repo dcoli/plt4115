@@ -110,6 +110,7 @@ public class CodeGenerator {
 			pw.println("\tprivate static Random rand;");
 			pw.println("\tprivate static int numSteps;");
 			pw.println("\tprivate static int numActions;");
+			pw.println("\tpublic static String lastParticipantId;");
 			pw.println("\tprivate static ArrayList<" + PARTICIPANT_CLASS_NAME
 					+ "> participants;");
 
@@ -201,6 +202,16 @@ public class CodeGenerator {
 			pw.println("\t\t+ \",\\n}\\n\";");
 			pw.println("\t }");
 			// end toString
+
+			// getLastParticipant
+			pw.println("\tpublic static int getLastParticipant(){");
+			pw.println("\t\tif (lastParticipantId == null) return 0;");
+			pw.println("\t\t\tfor (int i = 0; i < participants.size(); i++)");
+			pw.println("\t\t\t\tif (participants.get(i).getId().equals(lastParticipantId))");
+			pw.println("\t\treturn i;");
+
+			pw.println("\t\treturn 0;");
+			pw.println("\t}");
 
 			debugGeneration("\nWriting environment step function.");
 			place = IN_ENVIRONMENT_STEP;
@@ -325,13 +336,18 @@ public class CodeGenerator {
 				abstractParticipantWriter.println("\tpublic boolean set"
 						+ attribute.getId() + "("
 						+ generateDataType(attribute.getType()) + " value) {");
+				abstractParticipantWriter.println("\t\t" + generateDataType(attribute.getType())
+						+ " oldValue = " + attribute.getId() + ";");
+
 				abstractParticipantWriter.println("\t\t if ("
 						+ attribute.getConstraint() + ") {\n\t\t\tthis."
 						+ attribute.getId()
 						+ " = value;\n\t\t\treturn true;\n\t\t}");
 
-				abstractParticipantWriter
-						.println("\t\telse return false;\n\t}");
+				abstractParticipantWriter.println("\t\t" + attribute.getId()
+						+ " = oldValue;");
+
+				abstractParticipantWriter.println("\t\treturn false;\n\t}");
 
 			}
 
@@ -437,7 +453,8 @@ public class CodeGenerator {
 			// step function
 			place = IN_PARTICIPANT_STEP;
 			pw.println("\tpublic void step()");
-			pw.println(generateBlockStatement((ASTNode) participant.getOp(1)));
+			pw.println(generateBlockStatement((ASTNode) participant.getOp(1),
+					"\nEnvironment.lastParticipantId = this.id;\n", ""));
 			pw.println("}");
 			// end step function
 			pw.close();
