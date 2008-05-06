@@ -35,7 +35,7 @@ terminal NAME, ENVIRONMENT, PARTICIPANT, PART,		//Keywords
 		 DEF, REQUIRED, BOOLEAN, TRUE, FALSE;
 		 
 terminal NUM_STEPS, NUM_PARTS, NUM_ACTIONS,			//System Variables
-		 RANDI, RANDF, ME;  				
+		 RANDI, RANDF, ME, LAST_PART;  				
 
 terminal STRING, NUMBER, DECIMAL, ID;				//Constants
 
@@ -581,6 +581,9 @@ SystemVarName ::= NUM_STEPS
 																:}
         |    NUM_ACTIONS
 																{: RESULT = sym.NUM_ACTIONS;
+																:}
+		|    LAST_PART
+																{: RESULT = sym.LAST_PART;
 																:}
         |    RANDI
 																{: RESULT = sym.RANDI;

@@ -75,6 +75,7 @@ else {
 
 "num_steps" { return new Symbol(sym.NUM_STEPS); }
 "num_parts" { return new Symbol(sym.NUM_PARTS); }
+"last_part" { return new Symbol(sym.LAST_PART); }
 "num_actions" { return new Symbol(sym.NUM_ACTIONS); }
 "randi" { return new Symbol(sym.RANDI); }
 "randf" { return new Symbol(sym.RANDF); }
