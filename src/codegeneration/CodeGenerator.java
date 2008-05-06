@@ -652,6 +652,8 @@ public class CodeGenerator {
 			return "Environment.randi()";
 		case sym.RANDF:
 			return "Environment.randf()";
+		case sym.LAST_PART:
+			return "Environment.getLastParticpant()";
 		}
 		return "";
 	}
