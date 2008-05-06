@@ -19,7 +19,7 @@ public class Settings {
    public static String currentWorkingDirectory;
    public static boolean verbose;
    public static boolean debug;
-   public static String outputPath;
+   public static String outputPath = ".";
    
    
    public static void init(boolean verbose, boolean debug, String outputPath) {
