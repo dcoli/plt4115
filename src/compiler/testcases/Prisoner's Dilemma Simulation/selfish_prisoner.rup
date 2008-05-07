@@ -1,7 +1,0 @@
-// A "selfish" prisoner -- i.e., he never chooses to cooperate
-
-participant name "Greedy Bastard";
-
-def required step() {
-    defect();
-}
