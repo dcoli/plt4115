@@ -59,9 +59,36 @@ public class CodeGenerator {
 		writeEnvironmentFile(root);
 		writeParticipantFiles((ASTNode) root.getOp(1));
 		writeRuntimeFile();
+		
+		writeManifest();
 
 	}
 
+	
+	public void writeCompileScript(){
+		try {
+			PrintWriter pw = new PrintWriter(new FileOutputStream(
+					Settings.outputPath + "/make.sh"));
+			pw.println("javac rumble/runtime/*.java\njar cmf rumble/runtime/mainClass.txt Rumble.jar rumble/runtime/*.class\n");
+			pw.close();
+
+		} catch (Exception e) {
+			System.out.println("Could not write manifest file.");
+		}
+		
+	}
+	public void writeManifest() {
+		try {
+			PrintWriter pw = new PrintWriter(new FileOutputStream(
+					Settings.outputPath + PACKAGE_STRUCTURE + "mainClass.txt"));
+			pw.println("Main-Class: rumble.runtime.Runtime\n");
+			pw.close();
+
+		} catch (Exception e) {
+			System.out.println("Could not write manifest file.");
+		}
+	}
+	
 	public void writeRuntimeFile() {
 		try {
 			PrintWriter pw = new PrintWriter(new FileOutputStream(
