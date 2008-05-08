@@ -58,6 +58,12 @@ public class RumbleCompiler {
 				generator.go();
 				
 				System.out.println("Compilation completed successfully!");
+				System.out.println("Jarring output....");
+				
+				Runtime.getRuntime().exec("javac rumble/runtime/*.java", null, new File(Settings.outputPath + "/"));
+				Runtime.getRuntime().exec("jar cmf rumble/runtime/mainClass.txt Rumble.jar rumble/runtime/*.class", null, new File(Settings.outputPath + "/"));
+				
+				
 			}
 			catch (Exception e){
 				System.out.println("Compile time error: " + e.getMessage());
