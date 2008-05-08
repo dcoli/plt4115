@@ -60,8 +60,7 @@ public class RumbleCompiler {
 				System.out.println("Compilation completed successfully!");
 				System.out.println("Jarring output....");
 				
-				Runtime.getRuntime().exec("javac rumble/runtime/*.java", null, new File(Settings.outputPath + "/"));
-				Runtime.getRuntime().exec("jar cmf rumble/runtime/mainClass.txt Rumble.jar rumble/runtime/*.class", null, new File(Settings.outputPath + "/"));
+				Runtime.getRuntime().exec("sh make.sh", null, new File(Settings.outputPath + "/"));
 				
 				
 			}
