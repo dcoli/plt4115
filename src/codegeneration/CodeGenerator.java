@@ -61,6 +61,7 @@ public class CodeGenerator {
 		writeRuntimeFile();
 		
 		writeManifest();
+		writeCompileScript();
 
 	}
 
