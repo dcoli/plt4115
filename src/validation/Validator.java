@@ -60,8 +60,21 @@ public class Validator {
 //		writeParticipantFiles((ASTNode) root.getOp(1));
 //		writeRuntimeFile();
 
+		checkNot(root);
 	}
 
+	public boolean checkNot( ASTNode root ) {
+		ASTNode endnode = (ASTNode) root.getOp(3);
+		ASTNode linesNode = (ASTNode) endnode.getOp(0);
+		ASTNode statementNode = (ASTNode) linesNode.getOp(0);
+		switch ((Integer)statementNode.getDescriptor()) {
+		case sym.RETURN:
+//			ASTNode returnNode = statementNode.getOp(0);
+			ASTNode expressionNode = (ASTNode) statementNode.getOp(0);
+		
+		return true;
+	}
+	
 	public void checkEnvironmentFile(ASTNode root) {
 		ASTNode simulationFileNode = (ASTNode) root.getDescriptor();
 		ASTNode environmentConfig = (ASTNode) simulationFileNode.getOp(1);
@@ -76,8 +89,8 @@ public class Validator {
 //			// =========================================================================================
 //
 //			/* WRTING ABSTRACT PARTICIPANT NOW */
-//			ASTNode interfaceNode = (ASTNode) environmentFileNode.getOp(1);
-//			writeAbstractParticipant(interfaceNode);
+			ASTNode interfaceNode = (ASTNode) environmentFileNode.getOp(1);
+			writeAbstractParticipant(interfaceNode);
 //
 //			// =========================================================================================
 //
@@ -248,13 +261,12 @@ public class Validator {
 			LinkedList<Attribute> attributes = makeAttributeList((ASTNode) interfaceNode
 					.getOp(1));
 
-//			for (Iterator<Attribute> iter = attributes.iterator(); iter
-//					.hasNext();) {
-//				Attribute attribute = iter.next();
-//				abstractParticipantWriter.println("\tprivate "
-//						+ generateDataType(attribute.getType()) + " "
-//						+ attribute.getId() + ";");
-//			}
+			for (Iterator<Attribute> iter = attributes.iterator(); iter
+					.hasNext();) {
+				Attribute attribute = iter.next();
+				System.out.println(generateDataType(attribute.getType()));
+				System.out.println(" was " + attribute.getId());
+			}
 //
 //			// CONSTRUCTOR
 //
@@ -779,17 +791,17 @@ public class Validator {
 	public String generateDataType(Integer dt) {
 		debugGeneration("Checking datatype.");
 
-//		switch (dt) {
-//		case sym.INT:
-//			return "int ";
-//		case sym.FLOAT:
-//			return "float ";
-//		case sym.BOOLEAN:
-//			return "boolean ";
-//		case sym.PARTICIPANT:
-//			return "participant ";
-//		}
-//
+		switch (dt) {
+		case sym.INT:
+			return "int ";
+		case sym.FLOAT:
+			return "float ";
+		case sym.BOOLEAN:
+			return "boolean ";
+		case sym.PARTICIPANT:
+			return "participant ";
+		}
+
 		return "";
 	}
 
