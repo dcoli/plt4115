@@ -1004,7 +1004,7 @@ public class CodeGenerator {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(generateDataType((Integer) a.getOp(0)));
-		sb.append(" " + ((Symbol) a.getOp(1)).value);
+		sb.append(((Symbol) a.getOp(1)).value);
 
 		return sb.toString();
 	}
