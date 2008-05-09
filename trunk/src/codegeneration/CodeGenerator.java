@@ -206,7 +206,7 @@ public class CodeGenerator {
 
 			pw.println("\t\tsb.append(\"\\tparticpants :\\n\\t[\\n\");");
 
-			pw.println("\t\tfor (participant p : this.participants)");
+			pw.println("\t\tfor (" + PARTICIPANT_CLASS_NAME + " p : this.participants)");
 			pw.println("\t\t\tsb.append(p);");
 
 			pw.println("\t\tsb.append(\"\\t],\\n\");");
@@ -863,7 +863,9 @@ public class CodeGenerator {
 		case sym.BOOLEAN:
 			return "boolean ";
 		case sym.PARTICIPANT:
-			return "participant ";
+			return PARTICIPANT_CLASS_NAME + " ";
+		case sym.STRING:
+			return "String ";
 		}
 
 		return "";
