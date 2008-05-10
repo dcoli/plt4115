@@ -80,6 +80,28 @@ public class Validator {
 //		allsWell = false;
 	}
 	
+	private void validateEnvironmentFile( ASTNode node ) {
+		emessage += "environment\n";
+//		allsWell = false;
+	}
+
+	private void valPartFile(ASTNode partFileNode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void validatePartFilesNode (ASTNode node) {
+		emessage += "partFiles\n";
+		if ( node != null && node.getNumberOfOperands() > 0) {
+			ASTNode partFileNode = (ASTNode) node.getOp(0);
+			valPartFile (partFileNode);
+			if (node.getNumberOfOperands() > 1) {
+				ASTNode partFilesNode1 = (ASTNode) node.getOp(1);
+				validatePartFilesNode (partFilesNode1);
+			}
+		}
+	}
+	
 	private void validateSimulationFile (ASTNode node) {
 		String metaName = (String) node.getOp(0);
 		emessage += metaName + "\n";
@@ -92,7 +114,66 @@ public class Validator {
 		emessage += "simulation\n";
 //		allsWell = false;
 	}
+	
+	private void valInterface (ASTNode node) {
+		ASTNode envVarsNode = (ASTNode) node.getOp(0);
+		valEnvVars (envVarsNode);
+		ASTNode partVarsNode = (ASTNode) node.getOp(1);
+		valPartVars (partVarsNode);
+	}
 
+	private void valEnvVars(ASTNode envVarsNode) {
+		// TODO Auto-generated method stub
+		if ( envVarsNode != null ) {
+			ASTNode attDecListNode = (ASTNode) envVarsNode.getOp(0);
+			valAttDecList (attDecListNode);
+		}
+	}
+
+	private void valStep (ASTNode stepNode) {
+		validateBlock (stepNode);
+	}
+	
+	private void valActions (ASTNode actionsNode) {
+		if ( actionsNode != null) {
+			ASTNode actionNode = (ASTNode) actionsNode.getOp(0);
+			valAction (actionNode);
+			if ( actionsNode.getNumberOfOperands() > 1 ) {
+				ASTNode actionsNode1 = (ASTNode) actionsNode.getOp(1);
+				valActions (actionsNode1);
+			}
+		}
+	}
+	
+	private void valAction(ASTNode actionNode) {
+		// TODO Auto-generated method stub
+		if (actionNode.getNumberOfOperands() > 1) {
+			ASTNode argListNode = (ASTNode) actionNode.getOp(0);
+			valArgList (argListNode);
+			ASTNode blockNode = (ASTNode) actionNode.getOp(1);
+			validateBlock (blockNode);
+		}
+		else if (actionNode.getNumberOfOperands() == 1) {
+			ASTNode blockNode = (ASTNode) actionNode.getOp(1);
+			validateBlock (blockNode);
+		}
+	}
+
+	private void valArgList(ASTNode argListNode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void valAttDecList(ASTNode attDecListNode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void valPartVars(ASTNode partVarsNode) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	private void validatePartConfigList (ASTNode node) {
 		// TODO Auto-generated method stub
 		if ( node != null && node.getNumberOfOperands() > 0) {
@@ -108,14 +189,14 @@ public class Validator {
 
 	private void validatePartConfig (ASTNode partConfigNode) {
 		// TODO Auto-generated method stub
-		String partName = (String) partConfigNode.getOp(0);
-		emessage += partName + "\n";
-		ASTNode idNode = (ASTNode) partConfigNode.getOp(1);
-		validateId (idNode);	
-		if (partConfigNode.getNumberOfOperands() == 3) {
-			ASTNode assListNode = (ASTNode) partConfigNode.getOp(2);
-			validateAssList (assListNode);	
-		}
+//		String partName = (String) partConfigNode.getOp(0);
+//		emessage += partName + "\n";
+//		ASTNode idNode = (ASTNode) partConfigNode.getOp(1);
+//		validateId (idNode);	
+//		if (partConfigNode.getNumberOfOperands() == 3) {
+//			ASTNode assListNode = (ASTNode) partConfigNode.getOp(2);
+//			validateAssList (assListNode);	
+//		}
 	}
 
 	private void validateId(ASTNode idNode) {
@@ -129,29 +210,7 @@ public class Validator {
 //		validateLines(endNode);
 	}
 
-	private void validateEnvironmentFile( ASTNode node ) {
-		emessage += "environment\n";
-//		allsWell = false;
-	}
-
 	
-	private void validatePartFilesNode (ASTNode node) {
-		emessage += "partFiles\n";
-		if ( node != null && node.getNumberOfOperands() > 0) {
-			ASTNode partFileNode = (ASTNode) node.getOp(0);
-			valPartFile (partFileNode);
-			if (node.getNumberOfOperands() > 1) {
-				ASTNode partFilesNode1 = (ASTNode) node.getOp(1);
-				validatePartFilesNode (partFilesNode1);
-			}
-		}
-	}
-	
-	private void valPartFile(ASTNode partFileNode) {
-		// TODO Auto-generated method stub
-		
-	}
-
 	private void validateEnvConfig (ASTNode node) {
 		String envConfigName = (String) node.getDescriptor();
 		ASTNode assListNode = (ASTNode) node.getOp(0);
@@ -175,22 +234,31 @@ public class Validator {
 
 	private void validateAss(ASTNode assNode) {
 		// TODO Auto-generated method stub
-		if ( assNode != null && assNode.getNumberOfOperands() > 1 ) {
-			ASTNode lValNode = (ASTNode) assNode.getOp(0);
-			ASTNode expNode = (ASTNode) assNode.getOp(1);
-			switch ((Integer) assNode.getDescriptor()) {
-			case (sym.TIMESEQ): valLVal( lValNode); valExp (expNode); break;
-			case (sym.DIVIDEEQ): valLVal( lValNode); valExp (expNode); break;
-			case (sym.MINUSEQ): valLVal( lValNode); valExp (expNode); break;
-			case (sym.DIVIDEEQ): valLVal( lValNode); valExp (expNode); break;
-			case (sym.DIVIDEEQ): valLVal( lValNode); valExp (expNode); break;
-			case (sym.DIVIDEEQ): valLVal( lValNode); valExp (expNode); break;
-			case (sym.DIVIDEEQ): valLVal( lValNode); valExp (expNode); break;
-			case (sym.DIVIDEEQ): valLVal( lValNode); valExp (expNode); break;
+		if (assNode != null)
+			if ( assNode.getNumberOfOperands() > 1 ) {
+				ASTNode lValNode = (ASTNode) assNode.getOp(0);
+				ASTNode expNode = (ASTNode) assNode.getOp(1);
+				switch ((Integer) assNode.getDescriptor()) {
+				case (sym.TIMESEQ): valLVal( lValNode); valExp (expNode); break;
+				case (sym.DIVIDEEQ): valLVal( lValNode); valExp (expNode); break;
+				case (sym.MINUSEQ): valLVal( lValNode); valExp (expNode); break;
+				case (sym.PLUSEQ): valLVal( lValNode); valExp (expNode); break;
+				case (sym.MODEQ): valLVal( lValNode); valExp (expNode); break;
+				case (sym.EQ): valLVal( lValNode); valExp (expNode); break;
+				}
 			}
-			
+			else if ( assNode.getNumberOfOperands() == 1 ) {
+				if ((Integer) assNode.getDescriptor() == astsym.SYSTEM_VAR) {
+					ASTNode sysVarNode = (ASTNode) assNode.getOp(0);
+					valSysVar (sysVarNode);
+			}
 		}
-		emessage += (Integer) assNode.getDescriptor();
+		emessage += "assignment type: " + (Integer) assNode.getDescriptor() + "\n";
+	}
+
+	private void valSysVar(ASTNode sysVarNode) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private void valExp(ASTNode expNode) {
@@ -232,7 +300,7 @@ public class Validator {
 		}
 		//declaration
 		
-		allsWell = false;
+//		allsWell = false;
 	}
 //		emessage += "statement sucks\n";
 //		allsWell = false;
