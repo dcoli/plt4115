@@ -50,4 +50,18 @@ public class ASTNode {
 	public int getNumberOfOperands(){
 		return numOps;
 	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("ASTNode: Descriptor = " + descriptor.toString());
+		sb.append("\nOpList:");
+		for (int i = 0; i < 4; i++) {
+			Object o = opList[i];
+			if (o != null)
+				sb.append("\n" + o.toString());
+		}
+		
+		return sb.toString();
+	}
 }
