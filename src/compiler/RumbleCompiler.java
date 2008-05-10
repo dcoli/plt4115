@@ -4,6 +4,7 @@ package compiler;
  */
 import compiler.settings.*;
 import codegeneration.*;
+import validation.*;
 
 import java.io.*;
 
@@ -54,6 +55,9 @@ public class RumbleCompiler {
 				ASTNode root = analyzer.analyze();
 				
 				//generate code
+				Validator validator = new Validator(root);
+				if (!validator.go()) throw new Exception("Problems in your Rumble code.");
+				
 				CodeGenerator generator = new CodeGenerator(root);
 				generator.go();
 				
@@ -65,6 +69,7 @@ public class RumbleCompiler {
 				
 			}
 			catch (Exception e){
+				System.out.println("giving up.");
 				System.out.println("Compile time error: " + e.getMessage());
 				e.printStackTrace();
 			}
