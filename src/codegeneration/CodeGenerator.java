@@ -389,9 +389,9 @@ public class CodeGenerator {
 				abstractParticipantWriter.println("\t\t\t"
 						+ "+ \"\\\",\\n\\t\\t\\t"
 						+ attribute.getId().substring(RUMVAR.length())
-						+ " : \" + this." + attribute.getId());
+						+ " : \\\"\" + this." + attribute.getId());
 			}
-			abstractParticipantWriter.println("\t\t+ \"\\n\\t\\t},\\n\";");
+			abstractParticipantWriter.println("\t\t+ \"\\\"\\n\\t\\t},\\n\";");
 			abstractParticipantWriter.println("\t }");
 			// end toString
 
