@@ -59,7 +59,7 @@ public class Validator {
 
 		// create packages if they're not there already
 //		(new File(Settings.outputPath + PACKAGE_STRUCTURE)).mkdirs();
-		validateSimulation(root);
+		validateStart(root);
 		if (allsWell) System.out.println("Validated.");
 		else System.out.println(emessage);
 		return allsWell;
@@ -69,20 +69,140 @@ public class Validator {
 //		checkNot(root);
 	}
 
-	private void validateSimulation (ASTNode root) {
-		ASTNode simulationNode = (ASTNode) root.getDescriptor();
-		ASTNode endNode = (ASTNode) simulationNode.getOp(3);
-		validateEnd(endNode);
-		emessage += "simulation sucks\n";
+	private void validateStart (ASTNode root) {
+		ASTNode simulationFileNode = (ASTNode) root.getDescriptor();
+		validateSimulationFile(simulationFileNode);
+		ASTNode environmentFileNode = (ASTNode) root.getOp(0);
+		validateEnvironmentFile(environmentFileNode);
+		ASTNode participantFilesNode = (ASTNode) root.getOp(1);
+		validatePartFilesNode(participantFilesNode);
+		emessage += "emessage works\n";
 //		allsWell = false;
 	}
 	
+	private void validateSimulationFile (ASTNode node) {
+		String metaName = (String) node.getOp(0);
+		emessage += metaName + "\n";
+		ASTNode envConfigNode = (ASTNode) node.getOp(1);
+		validateEnvConfig(envConfigNode);
+		ASTNode partConfigListNode = (ASTNode) node.getOp(2);
+		validatePartConfigList (partConfigListNode);
+		ASTNode endNode = (ASTNode) node.getOp(3);
+		validateEnd(endNode);
+		emessage += "simulation\n";
+//		allsWell = false;
+	}
+
+	private void validatePartConfigList (ASTNode node) {
+		// TODO Auto-generated method stub
+		if ( node != null && node.getNumberOfOperands() > 0) {
+			ASTNode partConfigNode = (ASTNode) node.getOp(0);
+			validatePartConfig(partConfigNode);
+			if (node.getNumberOfOperands() > 1) {
+				ASTNode partConfigListNode = (ASTNode) node.getOp(1);
+				validatePartConfigList (partConfigListNode);
+			}
+		}
+		emessage += "partconfiglist\n";
+	}
+
+	private void validatePartConfig (ASTNode partConfigNode) {
+		// TODO Auto-generated method stub
+		String partName = (String) partConfigNode.getOp(0);
+		emessage += partName + "\n";
+		ASTNode idNode = (ASTNode) partConfigNode.getOp(1);
+		validateId (idNode);	
+		if (partConfigNode.getNumberOfOperands() == 3) {
+			ASTNode assListNode = (ASTNode) partConfigNode.getOp(2);
+			validateAssList (assListNode);	
+		}
+	}
+
+	private void validateId(ASTNode idNode) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	private void validateEnd (ASTNode node) {
 		ASTNode blockNode = (ASTNode) node.getOp(0);
-		validateBlock(blockNode);
+		validateBlock (blockNode);
 //		validateLines(endNode);
 	}
+
+	private void validateEnvironmentFile( ASTNode node ) {
+		emessage += "environment\n";
+//		allsWell = false;
+	}
+
 	
+	private void validatePartFilesNode (ASTNode node) {
+		emessage += "partFiles\n";
+		if ( node != null && node.getNumberOfOperands() > 0) {
+			ASTNode partFileNode = (ASTNode) node.getOp(0);
+			valPartFile (partFileNode);
+			if (node.getNumberOfOperands() > 1) {
+				ASTNode partFilesNode1 = (ASTNode) node.getOp(1);
+				validatePartFilesNode (partFilesNode1);
+			}
+		}
+	}
+	
+	private void valPartFile(ASTNode partFileNode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void validateEnvConfig (ASTNode node) {
+		String envConfigName = (String) node.getDescriptor();
+		ASTNode assListNode = (ASTNode) node.getOp(0);
+		validateAssList(assListNode);
+		emessage += "simulation sucks\n";
+//		allsWell = false;
+	}
+
+	
+	private void validateAssList(ASTNode assListNode) {
+		// TODO Auto-generated method stub
+		if ( assListNode != null && assListNode.getNumberOfOperands() > 0) {
+			ASTNode assNode = (ASTNode) assListNode.getOp(0);
+			validateAss (assNode);
+			if (assListNode.getNumberOfOperands() > 1) {
+				ASTNode assListNode1 = (ASTNode) assListNode.getOp(1);
+				validateAssList (assListNode1);
+			}
+		}
+	}
+
+	private void validateAss(ASTNode assNode) {
+		// TODO Auto-generated method stub
+		if ( assNode != null && assNode.getNumberOfOperands() > 1 ) {
+			ASTNode lValNode = (ASTNode) assNode.getOp(0);
+			ASTNode expNode = (ASTNode) assNode.getOp(1);
+			switch ((Integer) assNode.getDescriptor()) {
+			case (sym.TIMESEQ): valLVal( lValNode); valExp (expNode); break;
+			case (sym.DIVIDEEQ): valLVal( lValNode); valExp (expNode); break;
+			case (sym.MINUSEQ): valLVal( lValNode); valExp (expNode); break;
+			case (sym.DIVIDEEQ): valLVal( lValNode); valExp (expNode); break;
+			case (sym.DIVIDEEQ): valLVal( lValNode); valExp (expNode); break;
+			case (sym.DIVIDEEQ): valLVal( lValNode); valExp (expNode); break;
+			case (sym.DIVIDEEQ): valLVal( lValNode); valExp (expNode); break;
+			case (sym.DIVIDEEQ): valLVal( lValNode); valExp (expNode); break;
+			}
+			
+		}
+		emessage += (Integer) assNode.getDescriptor();
+	}
+
+	private void valExp(ASTNode expNode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void valLVal(ASTNode valNode) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	private void validateBlock (ASTNode node) {
 		ASTNode linesNode = (ASTNode) node.getOp(0);
 		validateLines(linesNode);
@@ -102,12 +222,20 @@ public class Validator {
 		switch ((Integer) node.getDescriptor()) {
 		case sym.IF: emessage+="twas an If statement\n";
 		break;
+		case sym.ELSE: emessage+="twas a ELSE\n";
+		break;
+		case sym.WHILE: emessage+="twas a WHILE\n";
+		break;
 		case sym.RETURN: emessage+="twas a return\n";
 		break;
+		case astsym.DECLARATION: emessage+="twas a declaration\n";
 		}
+		//declaration
+		
+		allsWell = false;
+	}
 //		emessage += "statement sucks\n";
 //		allsWell = false;
-	}
 	
 	
 //	private boolean checkNot( ASTNode root ) {
