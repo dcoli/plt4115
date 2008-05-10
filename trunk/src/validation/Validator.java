@@ -18,7 +18,11 @@ public class Validator {
 
 	private ASTNode root;
 
-	private static int place;
+	public static String emessage = "";
+	
+	private static boolean allsWell = true;
+	
+	/*	private static int place;
 
 	public static final int IN_ENVIRONMENT_STEP = 1;
 
@@ -35,9 +39,9 @@ public class Validator {
 	public static final String PACKAGE_STRUCTURE = "/rumble/runtime/";
 
 	public static final String PARTICIPANT_CLASS_NAME = "participant";
-
+*/
 	private static int blockLevel = 0;
-
+	
 	public static void debugGeneration(String message) {
 		if (Settings.debug) {
 			for (int i = 0; i < blockLevel; i++)
@@ -51,29 +55,79 @@ public class Validator {
 		this.root = root;
 	}
 
-	public void go() {
+	public boolean go() {
 
 		// create packages if they're not there already
 //		(new File(Settings.outputPath + PACKAGE_STRUCTURE)).mkdirs();
-
-		checkEnvironmentFile(root);
+		validateSimulation(root);
+		if (allsWell) System.out.println("Validated.");
+		else System.out.println(emessage);
+		return allsWell;
+//		checkEnvironmentFile(root);
 //		writeParticipantFiles((ASTNode) root.getOp(1));
 //		writeRuntimeFile();
-
-		checkNot(root);
+//		checkNot(root);
 	}
 
-	public boolean checkNot( ASTNode root ) {
-		ASTNode endnode = (ASTNode) root.getOp(3);
-		ASTNode linesNode = (ASTNode) endnode.getOp(0);
-		ASTNode statementNode = (ASTNode) linesNode.getOp(0);
-		switch ((Integer)statementNode.getDescriptor()) {
-		case sym.RETURN:
-//			ASTNode returnNode = statementNode.getOp(0);
-			ASTNode expressionNode = (ASTNode) statementNode.getOp(0);
-		
-		return true;
+	private void validateSimulation (ASTNode root) {
+		ASTNode simulationNode = (ASTNode) root.getDescriptor();
+		ASTNode endNode = (ASTNode) simulationNode.getOp(3);
+		validateEnd(endNode);
+		emessage += "simulation sucks\n";
+//		allsWell = false;
 	}
+	
+	private void validateEnd (ASTNode node) {
+		ASTNode blockNode = (ASTNode) node.getOp(0);
+		validateBlock(blockNode);
+//		validateLines(endNode);
+	}
+	
+	private void validateBlock (ASTNode node) {
+		ASTNode linesNode = (ASTNode) node.getOp(0);
+		validateLines(linesNode);
+//		emessage += "block sucks\n";
+//		allsWell = false;
+	}
+
+	private void validateLines (ASTNode node) {
+		ASTNode statementNode = (ASTNode) node.getOp(0);
+		validateStatement(statementNode);
+		if (node.getNumberOfOperands() > 1)
+			validateLines((ASTNode) node.getOp(1));
+	}
+
+	private void validateStatement (ASTNode node) {
+//		System.out.println("got here.");
+		switch ((Integer) node.getDescriptor()) {
+		case sym.IF: emessage+="twas an If statement\n";
+		break;
+		case sym.RETURN: emessage+="twas a return\n";
+		break;
+		}
+//		emessage += "statement sucks\n";
+//		allsWell = false;
+	}
+	
+	
+//	private boolean checkNot( ASTNode root ) {
+//		System.out.println(simulationNode.getDescriptor());
+//		System.out.println(simulationNode.getNumberOfOperands());
+//		ASTNode endnode = (ASTNode) simulationNode.getOp(3);
+//		System.out.println(endnode.getDescriptor());
+//		ASTNode blockNode = endnode;
+//		System.out.println(blockNode.getDescriptor());
+//		ASTNode linesNode = (ASTNode) blockNode.getOp(0);
+//		ASTNode statementNode = (ASTNode) linesNode.getOp(0);
+//		switch ((Integer)statementNode.getDescriptor()) {
+//		case sym.RETURN:
+////			ASTNode returnNode = statementNode.getOp(0);
+//			ASTNode expressionNode = (ASTNode) statementNode.getOp(0);
+//			System.out.println("found a return");
+//		}
+//		
+//		return true;
+//	}
 	
 	public void checkEnvironmentFile(ASTNode root) {
 		ASTNode simulationFileNode = (ASTNode) root.getDescriptor();
