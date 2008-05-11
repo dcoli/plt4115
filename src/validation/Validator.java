@@ -101,7 +101,7 @@ public class Validator {
 		ASTNode partConfigListNode = (ASTNode) node.getOp(2);
 		validatePartConfigList (partConfigListNode);
 		ASTNode endNode = (ASTNode) node.getOp(3);
-		validateEnd(endNode);
+		valEnd(endNode);
 //		allsWell = false;
 		blockLevel--;
 	}
@@ -120,7 +120,7 @@ public class Validator {
 //Environmental_vars ::= GLOBAL LBRC AttributeDeclarationList:l RBRC 
 	private void valEnvVars(ASTNode envVarsNode) {
 		if ( envVarsNode != null ) {
-			debugGeneration("env vars: "+envVarsNode.getDescriptor());
+			debugGeneration("env vars");//+envVarsNode.getDescriptor());
 			blockLevel++;
 			ASTNode attDecListNode = (ASTNode) envVarsNode.getOp(0);
 			valAttDecList (attDecListNode);
@@ -256,12 +256,10 @@ public class Validator {
 	}
 
 //End ::= DEF REQUIRED END LPREN RPREN Block:b
-	private void validateEnd (ASTNode node) {
+	private void valEnd (ASTNode node) {
 		debugGeneration("end");
-		blockLevel++;
 		ASTNode blockNode = (ASTNode) node.getOp(0);
 		valBlock (blockNode);
-		blockLevel--;
 	}
 
 //Block ::= LBRC Lines:l RBRC
@@ -290,6 +288,7 @@ public class Validator {
 
 	private void valStatement (ASTNode node) {
 		blockLevel++;
+		debugGeneration(((Integer) node.getDescriptor()).toString());
 		switch ((Integer) node.getDescriptor()) {
 		case sym.IF: {
 			debugGeneration("IF");
@@ -321,6 +320,15 @@ public class Validator {
 			valFunc (node);
 			break;
 		}
+		case astsym.STEP_CALL:
+			valFunc (node);
+		case sym.TIMESEQ:
+		case sym.DIVIDEEQ:
+		case sym.MINUSEQ:
+		case sym.PLUSEQ:
+		case sym.MODEQ:
+		case sym.EQ:
+			valAss (node);
 		default: { // is an assignment
 			debugGeneration("assignment");
 			valAss (node);
@@ -467,8 +475,27 @@ public class Validator {
 	private int valExpList(ASTNode node) {
 		debugGeneration("explist");
 		int type;
-		if (node.getOp(0) instanceof ASTNode)
-			type = valExp ((ASTNode) node.getOp(0));
+		if (node.getOp(0) instanceof ASTNode){
+			debugGeneration("node");
+			type = valExp (node);
+		}
+		else if (node.getOp(0) instanceof Float) { 
+			debugGeneration("float");
+			type = sym.DECIMAL;
+		}
+		else if (node.getOp(0) instanceof Integer) { 
+			debugGeneration("int "+node.getOp(0));
+			type = sym.NUMBER;
+		}
+		else if (node.getOp(0) instanceof String) {
+			debugGeneration("string");
+			type = sym.STRING;
+		}
+		else {
+			debugGeneration("participant");
+			type = sym.PARTICIPANT;
+//			type = valExp ((ASTNode) node.getOp(0));
+		}
 		if (node.getNumberOfOperands() > 1) {
 			type = valExpList ((ASTNode) node.getOp(1));
 		}
@@ -479,12 +506,52 @@ public class Validator {
 	private int valExp(ASTNode expNode) {
 		debugGeneration("exp: "+expNode.toString());
 		int type;
-		if (expNode.getOp(0) instanceof ASTNode) 
+		switch (((Integer) expNode.getDescriptor()).intValue()) {
+		case sym.OR:
 			type = valOr (expNode);
-		else //(expNode.getOp(0) instanceof String)
-//			type = (String) expNode.getOp(0);
-//		else 
-			type = (Integer) expNode.getOp(0);
+//			sb.append(generateExpression((ASTNode) e.getOp(0)) + " || "
+//					+ generateExpression((ASTNode) e.getOp(1)));
+			break;
+		case sym.AND:
+			type = valAnd (expNode);
+//			sb.append(generateExpression((ASTNode) e.getOp(0)) + " && "
+//					+ generateExpression((ASTNode) e.getOp(1)));
+			break;
+		case sym.EQEQ:
+		case sym.NOTEQ:
+			type = valEquality (expNode);
+			break;
+		case sym.LT:
+		case sym.GT:
+		case sym.LTEQ:
+		case sym.GTEQ:
+			type = valRelational (expNode);
+		case sym.PLUS:
+		case sym.MINUS:
+			if (expNode.getNumberOfOperands() == 2)
+				type = valAdditive (expNode);
+			else
+				type = valUnary (expNode);
+		case sym.TIMES:
+		case sym.MOD:
+		case sym.DIVIDE:
+			type = valMultiplicative (expNode);
+		case sym.NOT:
+		case sym.LPREN:
+			type = valUnary (expNode);
+		default:
+			valData (expNode);
+		}
+//		if (expNode.getOp(0) instanceof ASTNode) 
+//		else if (expNode.getOp(0) instanceof Float) 
+//			type = sym.DECIMAL;
+//		else if (expNode.getOp(0) instanceof Integer) 
+//			type = sym.NUMBER;
+//		else if (expNode.getOp(0) instanceof String)
+//			type = sym.STRING;
+//		else
+//			type = sym.PARTICIPANT;
+			
 		debugGeneration("expression type: " + type);
 		return type;
 	}
@@ -494,11 +561,7 @@ public class Validator {
 	private int valOr (ASTNode expNode) {
 		int type1, type2;
 		if (expNode.getOp(0) instanceof ASTNode) 
-			if (expNode.getNumberOfOperands() == 0) {
-				debugGeneration("skipping to And");
-				return valAnd ((ASTNode) expNode.getOp(0));
-			}
-			else {
+			if ((Integer) expNode.getDescriptor() == sym.OR) {
 				debugGeneration("OR operator 0: "+expNode.getOp(0));
 				debugGeneration("OR operator 1: "+expNode.getOp(1));
 				type1 = valOr ((ASTNode) expNode.getOp(0));
@@ -509,6 +572,10 @@ public class Validator {
 					return -1;
 				}
 				else return sym.BOOLEAN;
+			}
+			else {
+				debugGeneration("skipping to And");
+				return valAnd ((ASTNode) expNode.getOp(0));
 			}
 //		else if (expNode.getOp(0) instanceof String) 
 //			return Integer.parseInt(expNode.getOp(0).toString());
@@ -589,7 +656,6 @@ public class Validator {
 		int type1 = valAdditive ((ASTNode) node.getOp(0)); 
 		int type2;
 		if ((Integer) node.getDescriptor() == sym.LT) {
-			debugGeneration("skipping to Additive");
 			type2 = valAdditive ((ASTNode) node.getOp(1));
 		}
 		else if ((Integer) node.getDescriptor() == sym.GT) {
@@ -598,9 +664,9 @@ public class Validator {
 		else if ((Integer) node.getDescriptor() == sym.LTEQ) {
 			type2 = valAdditive ((ASTNode) node.getOp(1));
 		}
-		else {//if ((Integer) node.getDescriptor() == sym.GTEQ) {
+		else //if ((Integer) node.getDescriptor() == sym.GTEQ) {
 			type2 = valAdditive ((ASTNode) node.getOp(1));
-		}
+//		}
 		if ((type1 == sym.BOOLEAN) || (type2 == sym.BOOLEAN) || (type1 == sym.PARTICIPANT) || (type2 == sym.PARTICIPANT)) {
 			allsWell = false;
 			emessage += "Relational operators in Rumble must operate on two expressions that each evaluate to a number.";
