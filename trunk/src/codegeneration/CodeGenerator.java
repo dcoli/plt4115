@@ -152,6 +152,17 @@ public class CodeGenerator {
 					.println("\tpublic static int getNumActions(){\n\t\treturn numActions;\n\t}");
 			pw
 					.println("\tpublic static int getNumParts(){\n\t\treturn participants.size();\n\t}");
+			
+			pw.println("\tpublic static " + PARTICIPANT_CLASS_NAME + " getParticipant(int i, Object o) { ");
+			pw.println("\t\tArrayList<" + PARTICIPANT_CLASS_NAME + "> partsCopy = (ArrayList<" + PARTICIPANT_CLASS_NAME + ">" +
+					")participants.clone();");
+			pw.println("\t\tif (o instanceof " + PARTICIPANT_CLASS_NAME + ")");
+			pw.println("\t\t\tpartsCopy.remove((" + PARTICIPANT_CLASS_NAME + ")o);");
+			pw.println("\t\ttry { ");
+			pw.println("\t\t\treturn partsCopy.get(i);");
+			pw.println("\t\t} catch (Exception e) { \n\t\t\tSystem.out.println(\"*** Error: Participant \" + i + \" does not exist ***\");");
+			pw.println("\t\t\tSystem.out.println(\"\\tThis simulation has \" + getNumParts() + \" participants, but each participant will only see the other \" + (getNumParts()-1) + \" participant(s).\\n\\tParticipants can reference themselves using the $me global.\");");
+			pw.println("\t\t\tSystem.exit(1);\n\t\t}\n\treturn null;\n\t}");
 
 			pw.println("\tpublic static String ENVIRONMENT_NAME = \""
 					+ environmentFileNode.getOp(0) + "\";");
@@ -693,8 +704,8 @@ public class CodeGenerator {
 
 		switch (((Integer) pr.getDescriptor()).intValue()) {
 		case sym.PART:
-			return "Environment.participants.get("
-					+ ((Integer) pr.getOp(0)).toString() + ")";
+			return "Environment.getParticipant("
+					+ ((Integer) pr.getOp(0)).toString() + ",this)";
 		case sym.ME:
 			if (place == IN_ACTION)
 				return "doer";
