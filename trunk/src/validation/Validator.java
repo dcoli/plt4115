@@ -9,6 +9,8 @@ import java.util.LinkedList;
 
 import java.util.Iterator;
 
+import codegeneration.CodeGenerator;
+
 import java_cup.runtime.Symbol;
 
 import compiler.syntax.*;
@@ -22,30 +24,10 @@ public class Validator {
 	
 	private static boolean allsWell = true;
 	
-	/*	private static int place;
-
-	public static final int IN_ENVIRONMENT_STEP = 1;
-
-	public static final int IN_ENVIRONMENT_END = 1;
-
-	public static final int IN_ACTION = 2;
-
-	public static final int IN_PARTICIPANT_STEP = 3;
-
-	public static final String RUMVAR = "rumVar_";
-
-	public static final String RUMACTION = "rumAction_";
-
-	public static final String PACKAGE_STRUCTURE = "/rumble/runtime/";
-
-	public static final String PARTICIPANT_CLASS_NAME = "participant";
-*/
-	private static int blockLevel = 0;
-	
 	public static void debugGeneration(String message) {
 		if (Settings.debug) {
-			for (int i = 0; i < blockLevel; i++)
-				System.out.print("\t");
+//			for (int i = 0; i < blockLevel; i++)
+//				System.out.print("\t");
 
 			System.out.println(message);
 		}
@@ -57,16 +39,10 @@ public class Validator {
 
 	public boolean go() {
 
-		// create packages if they're not there already
-//		(new File(Settings.outputPath + PACKAGE_STRUCTURE)).mkdirs();
 		validateStart(root);
 		if (allsWell) System.out.println("Validated.");
 		else System.out.println(emessage);
 		return allsWell;
-//		checkEnvironmentFile(root);
-//		writeParticipantFiles((ASTNode) root.getOp(1));
-//		writeRuntimeFile();
-//		checkNot(root);
 	}
 
 	private void validateStart (ASTNode root) {
@@ -76,19 +52,16 @@ public class Validator {
 		validateEnvironmentFile(environmentFileNode);
 		ASTNode participantFilesNode = (ASTNode) root.getOp(1);
 		valPartFiles(participantFilesNode);
-//		allsWell = false;
 	}
 	
 //EnvironmentFile ::= ENVIRONMENT Meta:m Interface:i Step:s Actions:a 
 	private void validateEnvironmentFile( ASTNode node ) {
 		String metaName = (String) node.getOp(0);
-//		debugGeneration("environment file: " + metaName + "");
 		debugGeneration( "environment file: " + metaName + "");
 		ASTNode interfaceNode = (ASTNode) node.getOp(1);
 		valInterface (interfaceNode);
 		valStep ((ASTNode) node.getOp(2));
 		valActions ((ASTNode) node.getOp(3));
-//		allsWell = false;
 	}
 
 	//ParticipantFile ::= PARTICIPANT Meta:m Step:s
@@ -190,10 +163,11 @@ public class Validator {
 		}
 	}
 
+//	Arg ::= DataType:d ID:i
 	private void valArg(ASTNode argNode) {
-		ASTNode dataTypeNode = (ASTNode) argNode.getOp(0);
+		Integer dataTypeNode = (Integer) argNode.getOp(0);
 		valDataType (dataTypeNode);
-		ASTNode idNode = (ASTNode) argNode.getOp(1);
+		String idNode = (String) argNode.getOp(1);
 		valId (idNode);
 	}
 
@@ -285,20 +259,17 @@ public class Validator {
 		}
 		case sym.WHILE: {
 			debugGeneration("WHILE");
-			ASTNode expNode = (ASTNode) node.getOp(0);
-			valExp (expNode);
-			ASTNode statementNode = (ASTNode) node.getOp(1);
-			valStatement (statementNode);
+			valWhile (node);
 			break;
 		}			
 		case sym.RETURN: {
 			debugGeneration("Return");
-			ASTNode expNode = (ASTNode) node.getOp(0);
-			valExp (expNode);
+			valReturn (node);
 			break;
 		}		
 		case astsym.DECLARATION: {
 			debugGeneration("declaration");
+			valDeclaration (node);
 			break;
 		}
 		case astsym.FUNCTION_CALL: {
@@ -313,20 +284,12 @@ public class Validator {
 		}
 	}
 	
-	private void valFunc(ASTNode node) {
-		// TODO Auto-generated method stub
-		
-	}
-
 	//IfStatement ::= IF LPREN Expression:e RPREN Statement:s
 	private void valIf(ASTNode node) {
 		valExp ((ASTNode) node.getOp(0));
 		valStatement ((ASTNode) node.getOp(1));
 	}
 	
-	//		debugGeneration( "statement sucks";
-	//		allsWell = false;
-
 	//ElseStatement ::= IF LPREN Expression:e RPREN Statement:s1 ELSE Statement:s2
 	private void valElse(ASTNode node) {
 		valExp ((ASTNode) node.getOp(0));
@@ -334,23 +297,80 @@ public class Validator {
 		valStatement ((ASTNode) node.getOp(2));
 	}
 	
+	private void valWhile(ASTNode node) {
+		ASTNode expNode = (ASTNode) node.getOp(0);
+		valExp (expNode);
+		ASTNode statementNode = (ASTNode) node.getOp(1);
+		valStatement (statementNode);
+	}
+	
+	private void valReturn(ASTNode node) {
+		ASTNode expNode = (ASTNode) node.getOp(0);
+		valExp (expNode);
+	}
 
+//AttributeDeclarationList ::= AttributeDeclaration:ad SEMI AttributeDeclarationList:adl 
+	private void valAttDecList(ASTNode attDecListNode) {
+		if ( attDecListNode != null ) {
+			valAttDec ((ASTNode) attDecListNode.getOp(0));
+			if (attDecListNode.getNumberOfOperands() > 1) {
+				valAttDecList ((ASTNode) attDecListNode.getOp(1));
+			}
+		}
+	}
 	
+//AttributeDeclaration ::= Declaration:d Constraint:c | Declaration
+	private void valAttDec(ASTNode node) {
+		valDeclaration ((ASTNode) node.getOp(0));
+		if (node.getNumberOfOperands() > 1) {
+			valConstraint ((ASTNode) node.getOp(1));
+		}
+	}
+
+//Constraint ::= LBRC Expression:e RBRC
+	private void valConstraint(ASTNode node) {
+		valExp (node);
+	}
+
+//	Declaration ::= DataType:d IdList:i
+	private void valDeclaration(ASTNode node) {
+		valDataType ((Integer) node.getOp(0));
+		valIdList ((ASTNode) node.getOp(1));
+	}
+
+//IdList ::= ID:i COMMA IdList:l 
+//			| ID:i								
+	private void valIdList(ASTNode node) {
+		valId ((String) node.getOp(0));
+		if (node.getNumberOfOperands() > 1) {
+			valIdList ((ASTNode) node.getOp(1));
+		}
+	}
+
+//DataType ::= INT | FLOAT | BOOLEAN | PARTICIPANT
+	private void valDataType(int dataType) {
+		
+	}	
 	
+//	Assignment ::= LValueData:i TIMESEQ Expression:e
+//            | LValueData:i DIVIDEEQ Expression:e
+//            | LValueData:i MINUSEQ Expression:e
+//            | LValueData:i PLUSEQ Expression:e
+//            | LValueData:i MODEQ Expression:e
+//            | LValueData:i EQ Expression:e
 	private void valAss(ASTNode assNode) {
-		// TODO Auto-generated method stub
 		debugGeneration( "assignment");
 		if (assNode != null)
 			if ( assNode.getNumberOfOperands() > 1 ) {
 				ASTNode lValNode = (ASTNode) assNode.getOp(0);
 				ASTNode expNode = (ASTNode) assNode.getOp(1);
 				switch ((Integer) assNode.getDescriptor()) {
-				case (sym.TIMESEQ): valLVal( lValNode); valExp (expNode); break;
-				case (sym.DIVIDEEQ): valLVal( lValNode); valExp (expNode); break;
-				case (sym.MINUSEQ): valLVal( lValNode); valExp (expNode); break;
-				case (sym.PLUSEQ): valLVal( lValNode); valExp (expNode); break;
-				case (sym.MODEQ): valLVal( lValNode); valExp (expNode); break;
-				case (sym.EQ): valLVal( lValNode); valExp (expNode); break;
+				case (sym.TIMESEQ): valLValData( lValNode); valExp (expNode); break;
+				case (sym.DIVIDEEQ): valLValData( lValNode); valExp (expNode); break;
+				case (sym.MINUSEQ): valLValData( lValNode); valExp (expNode); break;
+				case (sym.PLUSEQ): valLValData( lValNode); valExp (expNode); break;
+				case (sym.MODEQ): valLValData( lValNode); valExp (expNode); break;
+				case (sym.EQ): valLValData( lValNode); valExp (expNode); break;
 				}
 			}
 			else if ( assNode.getNumberOfOperands() == 1 ) {
@@ -362,44 +382,167 @@ public class Validator {
 		debugGeneration( "assignment type: " + (Integer) assNode.getDescriptor() + "");
 	}
 
+//LValueData ::= ID:i 	| SystemVar
+	private void valLValData(ASTNode valNode) {
+		switch ((Integer) valNode.getDescriptor()) {
+		case sym.ID:
+			valId ((String) valNode.getOp(0));
+			break;
+		case astsym.SYSTEM_VAR:
+			valSysVar ((String) valNode.getOp(0));
+			break;
+		}
+	}
+
+//FunctionCall ::= ID:i LPREN ExpressionList:l RPREN
+//				| ID:i LPREN RPREN  
+//				| DOLLAR SystemPartRef:s DOT STEP LPREN RPREN  
+	private void valFunc(ASTNode node) {
+		if ((Integer) node.getOp(0) == sym.ID) {
+			valId ((String) node.getOp(0));
+			if (node.getNumberOfOperands() > 1) {
+				valExpList ((ASTNode) node.getOp(1));
+			}
+		}
+		else if ((Integer) node.getOp(0) == astsym.STEP_CALL) {
+			valSysPartRef ((ASTNode) node.getOp(1));
+		}
+	}
+
+//ExpressionList ::= Expression:e COMMA ExpressionList:el
+//		| Expression:e
+	private void valExpList(ASTNode node) {
+		valExp ((ASTNode) node.getOp(0));
+		if (node.getNumberOfOperands() > 1) {
+			valExpList ((ASTNode) node.getOp(1));
+		}
+	}
+
+//	Expression	::= OrExpression:o							
+	private void valExp(ASTNode expNode) {
+		valOr (expNode);
+	}
+
+//OrExpression ::= OrExpression:o OR AndExpression:a
+//    | AndExpression:a									
+	private void valOr (ASTNode expNode) {
+		System.out.println(expNode.getOp(0));
+		if (expNode.getNumberOfOperands() == 1) {
+			valAnd ((ASTNode) expNode.getOp(0));
+		}
+		else {
+			valOr ((ASTNode) expNode.getOp(0));
+			valAnd ((ASTNode) expNode.getOp(1));
+		}
+	}
+
+//AndExpression ::= AndExpression:a AND EqualityExpression:e
+//      			| EqualityExpression:e
+	private void valAnd (ASTNode node) {
+		if (node.getNumberOfOperands() == 0) {
+			valEquality ((ASTNode) node.getOp(0));
+		}
+		else {
+			valAnd ((ASTNode) node.getOp(0));
+			valEquality ((ASTNode) node.getOp(1));
+		}
+	}
+
+//EqualityExpression ::= EqualityExpression:e EQEQ RelationalExpression:r
+//                   | EqualityExpression:e NOTEQ RelationalExpression:r
+//                   | RelationalExpression:r						
+	private void valEquality(ASTNode node) {
+		if (node.getNumberOfOperands() == 0) {
+			valRelational ((ASTNode) node.getOp(0));
+		}
+		else if ((Integer) node.getDescriptor() == sym.EQEQ) {
+			valEquality ((ASTNode) node.getOp(0));
+			valRelational ((ASTNode) node.getOp(1));
+		}
+		else {//if ((Integer) node.getDescriptor() == sym.NOTEQ) 
+			valEquality ((ASTNode) node.getOp(0));
+			valRelational ((ASTNode) node.getOp(1));
+		}
+	}
+
+//RelationalExpression ::= AdditiveExpression:al LT AdditiveExpression:ae
+//                      | AdditiveExpression:al GT AdditiveExpression:ae
+//                      | AdditiveExpression:al LTEQ AdditiveExpression:ae
+//                      | AdditiveExpression:al GTEQ AdditiveExpression:ae
+//					  | AdditiveExpression:ae			
+	private void valRelational(ASTNode node) {
+		valAdditive ((ASTNode) node.getOp(0)); 
+		if ((Integer) node.getDescriptor() == sym.LT) {
+			valAdditive ((ASTNode) node.getOp(1));
+		}
+		else if ((Integer) node.getDescriptor() == sym.GT) {
+			valAdditive ((ASTNode) node.getOp(1));
+		}
+		else if ((Integer) node.getDescriptor() == sym.LTEQ) {
+			valAdditive ((ASTNode) node.getOp(1));
+		}
+		else if ((Integer) node.getDescriptor() == sym.GTEQ) {
+			valAdditive ((ASTNode) node.getOp(1));
+		}
+	}
+
+//AdditiveExpression ::= AdditiveExpression:a PLUS MultiplicativeExpression:m
+//                   | AdditiveExpression:a MINUS MultiplicativeExpression:m
+//                   | MultiplicativeExpression:m
+	private void valAdditive(ASTNode node) {
+		if (node.getNumberOfOperands() == 1) 
+			valMultiplicative ((ASTNode) node.getOp(0)); 
+		else if ((Integer) node.getDescriptor() == sym.PLUS) {
+			valAdditive ((ASTNode) node.getOp(0));
+			valMultiplicative ((ASTNode) node.getOp(1));
+		}
+		else if ((Integer) node.getDescriptor() == sym.MINUS) {
+			valAdditive ((ASTNode) node.getOp(0));
+			valMultiplicative ((ASTNode) node.getOp(1));
+		}
+	}
+
+//MultiplicativeExpression ::= MultiplicativeExpression:m TIMES UnaryExpression:u
+//                         |  MultiplicativeExpression:m DIVIDE UnaryExpression:u
+//                         |  MultiplicativeExpression:m MOD UnaryExpression:u
+	private void valMultiplicative(ASTNode node) {	
+		if (node.getNumberOfOperands() == 1) {
+			valUnary ((ASTNode) node.getOp(0)); 
+		}
+		else if ((Integer) node.getDescriptor() == sym.TIMES) {
+			valMultiplicative ((ASTNode) node.getOp(0));
+			valUnary ((ASTNode) node.getOp(1));
+		}
+		else if ((Integer) node.getDescriptor() == sym.DIVIDE) {
+			valMultiplicative ((ASTNode) node.getOp(0));
+			valUnary ((ASTNode) node.getOp(1));
+		}
+		else if ((Integer) node.getDescriptor() == sym.MOD) {
+			valMultiplicative ((ASTNode) node.getOp(0));
+			valUnary ((ASTNode) node.getOp(1));
+		}
+	}
+
+	private void valUnary(ASTNode node) {
+	// TODO Auto-generated method stub
+	
+	}
+
+	private void valSysPartRef(ASTNode node) {
+	// TODO Auto-generated method stub
+	
+	}
+
 	private void valId(String string) {
 		// TODO Auto-generated method stub
 		
 	}
-
-	private void valId(ASTNode idNode) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void valDataType(ASTNode dataTypeNode) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void valAttDecList(ASTNode attDecListNode) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void validateId(ASTNode idNode) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	
 	
 	private void valSysVar(ASTNode sysVarNode) {
 		// TODO Auto-generated method stub
-		
 	}
 
-	private void valExp(ASTNode expNode) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void valLVal(ASTNode valNode) {
+	private void valSysVar(String string) {
 		// TODO Auto-generated method stub
 		
 	}
