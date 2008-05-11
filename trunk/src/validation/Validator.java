@@ -57,7 +57,7 @@ public class Validator {
 //EnvironmentFile ::= ENVIRONMENT Meta:m Interface:i Step:s Actions:a 
 	private void validateEnvironmentFile( ASTNode node ) {
 		String metaName = (String) node.getOp(0);
-		debugGeneration( "environment file: " + metaName + "");
+		debugGeneration( "-----------\n environment file: " + metaName + "");
 		ASTNode interfaceNode = (ASTNode) node.getOp(1);
 		valInterface (interfaceNode);
 		valStep ((ASTNode) node.getOp(2));
@@ -67,7 +67,7 @@ public class Validator {
 	//ParticipantFile ::= PARTICIPANT Meta:m Step:s
 	private void valPartFile(ASTNode partFileNode) {
 		String partFileName = (String) partFileNode.getOp(0);
-		debugGeneration( "participant file: " + partFileName);
+		debugGeneration( "------------\n participant file: " + partFileName);
 		valStep ((ASTNode) partFileNode.getOp(1));
 	}
 
@@ -86,7 +86,7 @@ public class Validator {
 	
 	private void validateSimulationFile (ASTNode node) {
 		String metaName = (String) node.getOp(0);
-		debugGeneration( "Simulation: " + metaName + "");
+		debugGeneration( "------------\n simulation: " + metaName + "");
 		ASTNode envConfigNode = (ASTNode) node.getOp(1);
 		validateEnvConfig(envConfigNode);
 		ASTNode partConfigListNode = (ASTNode) node.getOp(2);
@@ -98,6 +98,7 @@ public class Validator {
 	
 //Interface ::= Environmental_vars:e Participant_vars:p
 	private void valInterface (ASTNode node) {
+		debugGeneration("interface: "+node.getDescriptor());
 		ASTNode envVarsNode = (ASTNode) node.getOp(0);
 		valEnvVars (envVarsNode);
 		ASTNode partVarsNode = (ASTNode) node.getOp(1);
@@ -107,6 +108,7 @@ public class Validator {
 //Environmental_vars ::= GLOBAL LBRC AttributeDeclarationList:l RBRC 
 	private void valEnvVars(ASTNode envVarsNode) {
 		if ( envVarsNode != null ) {
+			debugGeneration("env vars: "+envVarsNode.getDescriptor());
 			ASTNode attDecListNode = (ASTNode) envVarsNode.getOp(0);
 			valAttDecList (attDecListNode);
 		}
@@ -115,6 +117,7 @@ public class Validator {
 //	Participant_vars ::= ATTRIBUTES LBRC AttributeDeclarationList:l RBRC | empty
 	private void valPartVars(ASTNode partVarsNode) {
 		if (partVarsNode != null) {
+			debugGeneration("participant vars:"+partVarsNode.getDescriptor());
 			valAttDecList ((ASTNode) partVarsNode.getOp(0));
 		}
 	}
@@ -126,6 +129,7 @@ public class Validator {
 	
 	private void valActions (ASTNode actionsNode) {
 		if ( actionsNode != null) {
+			debugGeneration("actions: "+node.getDescriptor());
 			ASTNode actionNode = (ASTNode) actionsNode.getOp(0);
 			valAction (actionNode);
 			if ( actionsNode.getNumberOfOperands() > 1 ) {
@@ -137,6 +141,7 @@ public class Validator {
 	
 	private void valAction(ASTNode actionNode) {
 		// TODO Auto-generated method stub
+		debugGeneration("action: "+node.getDescriptor());
 		if (actionNode.getNumberOfOperands() > 1) {
 			ASTNode argListNode = (ASTNode) actionNode.getOp(0);
 			valArgList (argListNode);
@@ -150,7 +155,6 @@ public class Validator {
 	}
 
 	private void valArgList(ASTNode argListNode) {
-		// TODO Auto-generated method stub
 		if ( argListNode.getNumberOfOperands() == 2 ) {
 			ASTNode argNode = (ASTNode) argListNode.getOp(0);
 			valArg (argNode);
@@ -165,6 +169,7 @@ public class Validator {
 
 //	Arg ::= DataType:d ID:i
 	private void valArg(ASTNode argNode) {
+		debugGeneration("Arg: "+argNode.getDescriptor());
 		Integer dataTypeNode = (Integer) argNode.getOp(0);
 		int type = valDataType (dataTypeNode);
 		String idNode = (String) argNode.getOp(1);
@@ -181,8 +186,8 @@ public class Validator {
 	
 //ParticipantConfigList ::= ParticipantConfig:c ParticipantConfigList:cs | empty
 	private void validatePartConfigList (ASTNode node) {
-		debugGeneration( "partconfiglist");
 		if ( node != null && node.getNumberOfOperands() > 0) {
+			debugGeneration( "partconfiglist: "+node.getDescriptor());
 			ASTNode partConfigNode = (ASTNode) node.getOp(0);
 			validatePartConfig(partConfigNode);
 			if (node.getNumberOfOperands() > 1) {
@@ -196,7 +201,7 @@ public class Validator {
 //    | PARTICIPANT STRING:s ID:i SEMI					
     private void validatePartConfig (ASTNode partConfigNode) {
 		String partName = (String) partConfigNode.getOp(0);
-		debugGeneration( "participant name: " + partName + "");
+		debugGeneration( "participant name: " + partName + ", "+partConfigNode.getDescriptor());
 		valId ((String) partConfigNode.getOp(1));
 		if (partConfigNode.getNumberOfOperands() > 1) {
 			valAssList ((ASTNode) partConfigNode.getOp(2));
@@ -206,8 +211,8 @@ public class Validator {
 //AssignmentList ::= Assignment:a SEMI AssignmentList:l 
 //|empty
 	private void valAssList(ASTNode assListNode) {
-		debugGeneration( "assignment list");
 		if ( assListNode != null && assListNode.getNumberOfOperands() > 0) {
+			debugGeneration( "assignment list: "+assListNode.getDescriptor());
 			ASTNode assNode = (ASTNode) assListNode.getOp(0);
 			valAss (assNode);
 			if (assListNode.getNumberOfOperands() > 1) {
@@ -286,27 +291,27 @@ public class Validator {
 	
 	//IfStatement ::= IF LPREN Expression:e RPREN Statement:s
 	private void valIf(ASTNode node) {
-		valExp ((ASTNode) node.getOp(0));
+		int type = valExp ((ASTNode) node.getOp(0));
 		valStatement ((ASTNode) node.getOp(1));
 	}
 	
 	//ElseStatement ::= IF LPREN Expression:e RPREN Statement:s1 ELSE Statement:s2
 	private void valElse(ASTNode node) {
-		valExp ((ASTNode) node.getOp(0));
+		int type = valExp ((ASTNode) node.getOp(0));
 		valStatement ((ASTNode) node.getOp(1));
 		valStatement ((ASTNode) node.getOp(2));
 	}
 	
 	private void valWhile(ASTNode node) {
 		ASTNode expNode = (ASTNode) node.getOp(0);
-		valExp (expNode);
+		int type = valExp (expNode);
 		ASTNode statementNode = (ASTNode) node.getOp(1);
 		valStatement (statementNode);
 	}
 	
 	private void valReturn(ASTNode node) {
 		ASTNode expNode = (ASTNode) node.getOp(0);
-		valExp (expNode);
+		int type = valExp (expNode);
 	}
 
 //AttributeDeclarationList ::= AttributeDeclaration:ad SEMI AttributeDeclarationList:adl 
@@ -329,7 +334,7 @@ public class Validator {
 
 //Constraint ::= LBRC Expression:e RBRC
 	private void valConstraint(ASTNode node) {
-		valExp (node);
+		int type = valExp (node);
 	}
 
 //	Declaration ::= DataType:d IdList:i
@@ -360,17 +365,18 @@ public class Validator {
 //            | LValueData:i EQ Expression:e
 	private void valAss(ASTNode assNode) {
 		debugGeneration( "assignment");
+		int type;
 		if (assNode != null)
 			if ( assNode.getNumberOfOperands() > 1 ) {
 				ASTNode lValNode = (ASTNode) assNode.getOp(0);
 				ASTNode expNode = (ASTNode) assNode.getOp(1);
 				switch ((Integer) assNode.getDescriptor()) {
-				case (sym.TIMESEQ): valLValData( lValNode); valExp (expNode); break;
-				case (sym.DIVIDEEQ): valLValData( lValNode); valExp (expNode); break;
-				case (sym.MINUSEQ): valLValData( lValNode); valExp (expNode); break;
-				case (sym.PLUSEQ): valLValData( lValNode); valExp (expNode); break;
-				case (sym.MODEQ): valLValData( lValNode); valExp (expNode); break;
-				case (sym.EQ): valLValData( lValNode); valExp (expNode); break;
+				case (sym.TIMESEQ): valLValData( lValNode); type = valExp (expNode); break;
+				case (sym.DIVIDEEQ): valLValData( lValNode); type = valExp (expNode); break;
+				case (sym.MINUSEQ): valLValData( lValNode); type = valExp (expNode); break;
+				case (sym.PLUSEQ): valLValData( lValNode); type = valExp (expNode); break;
+				case (sym.MODEQ): valLValData( lValNode); type = valExp (expNode); break;
+				case (sym.EQ): valLValData( lValNode); type = valExp (expNode); break;
 				}
 			}
 			else if ( assNode.getNumberOfOperands() == 1 ) {
@@ -379,7 +385,6 @@ public class Validator {
 					valSysVar (sysVarNode);
 			}
 		}
-		debugGeneration( "assignment type: " + (Integer) assNode.getDescriptor() + "");
 	}
 
 //LValueData ::= ID:i 	| SystemVar
@@ -412,68 +417,99 @@ public class Validator {
 //ExpressionList ::= Expression:e COMMA ExpressionList:el
 //		| Expression:e
 	private void valExpList(ASTNode node) {
-		valExp ((ASTNode) node.getOp(0));
+		debugGeneration("explist");
+		int type = valExp ((ASTNode) node.getOp(0));
 		if (node.getNumberOfOperands() > 1) {
 			valExpList ((ASTNode) node.getOp(1));
 		}
 	}
 
 //	Expression	::= OrExpression:o							
-	private void valExp(ASTNode expNode) {
-		int type = valOr (expNode);
+	private int valExp(ASTNode expNode) {
+		debugGeneration("exp: "+expNode.toString());
+		int type;
+		if (expNode.getOp(0) instanceof ASTNode) 
+			type = valOr (expNode);
+		else //(expNode.getOp(0) instanceof String)
+//			type = (String) expNode.getOp(0);
+//		else 
+			type = (Integer) expNode.getOp(0);
+		debugGeneration("expression type: " + type);
+		return type;
 	}
 
 //OrExpression ::= OrExpression:o OR AndExpression:a
 //    | AndExpression:a									
 	private int valOr (ASTNode expNode) {
-		if (expNode.getNumberOfOperands() == 1) {
-			return valAnd ((ASTNode) expNode.getOp(0));
-		}
-		else {
-			int type1 = valOr ((ASTNode) expNode.getOp(0));
-			int type2 = valAnd ((ASTNode) expNode.getOp(1));
-			if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
+		int type1, type2;
+		debugGeneration("OR operator 1: "+expNode.getOp(0));
+		if (expNode.getOp(0) instanceof ASTNode) 
+			if (expNode.getNumberOfOperands() == 1) {
+				return valAnd ((ASTNode) expNode.getOp(0));
+			}
+			else {
+				type1 = valOr ((ASTNode) expNode.getOp(0));
+				type2 = valAnd ((ASTNode) expNode.getOp(1));
+				if ((type1 != sym.BOOLEAN) || (type2 != sym.BOOLEAN)) {
+					allsWell = false;
+					emessage += "The || (or) operator can only work on two expressions that evaluate to booleans.";
+					return -1;
+				}
 				return sym.BOOLEAN;
 			}
-		}
+//		else if (expNode.getOp(0) instanceof String) 
+//			return Integer.parseInt(expNode.getOp(0).toString());
+		else return (Integer) expNode.getOp(0);
 	}
+	
 
 //AndExpression ::= AndExpression:a AND EqualityExpression:e
 //      			| EqualityExpression:e
 	private int valAnd (ASTNode node) {
-		if (node.getNumberOfOperands() == 0) {
-			return valEquality ((ASTNode) node.getOp(0));
-		}
-		else {
-			int type1 = valAnd ((ASTNode) node.getOp(0));
-			int type2 = valEquality ((ASTNode) node.getOp(1));
-			if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
-				return sym.BOOLEAN;
+		int type1, type2;
+		
+		if (node.getOp(0) instanceof ASTNode) 
+			if (node.getNumberOfOperands() == 0) {
+				return valEquality ((ASTNode) node.getOp(0));
 			}
-		}
+			else {
+				type1 = valAnd ((ASTNode) node.getOp(0));
+				type2 = valEquality ((ASTNode) node.getOp(1));
+				if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
+					return sym.BOOLEAN;
+				}
+				else {
+					allsWell = false;
+					emessage += "&& operator (and) must operate on two boolean expressions";
+					return -1;
+				}
+			}
+		else return (Integer) node.getOp(0);
 	}
 
 //EqualityExpression ::= EqualityExpression:e EQEQ RelationalExpression:r
 //                   | EqualityExpression:e NOTEQ RelationalExpression:r
 //                   | RelationalExpression:r						
 	private int valEquality(ASTNode node) {
+		int type1, type2;
 		if (node.getNumberOfOperands() == 0) {
 			return valRelational ((ASTNode) node.getOp(0));
 		}
 		else if ((Integer) node.getDescriptor() == sym.EQEQ) {
-			int type1 = valEquality ((ASTNode) node.getOp(0));
-			int type2 = valRelational ((ASTNode) node.getOp(1));
-			if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
-				return sym.BOOLEAN;
-			}
+			type1 = valEquality ((ASTNode) node.getOp(0));
+			type2 = valRelational ((ASTNode) node.getOp(1));
+//			if ((type1 == sym.PARTICIPANT) && (type2 == sym.PARTICIPANT)) {
+//				return sym.BOOLEAN;
+//			}
 		}
 		else {//if ((Integer) node.getDescriptor() == sym.NOTEQ) 
-			int type1 = valEquality ((ASTNode) node.getOp(0));
-			int type2 = valRelational ((ASTNode) node.getOp(1));
-			if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
-				return sym.BOOLEAN;
-			}
+			type1 = valEquality ((ASTNode) node.getOp(0));
+			type2 = valRelational ((ASTNode) node.getOp(1));
+//			if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
+//				return sym.BOOLEAN;
+//			}
 		}
+		return sym.BOOLEAN;
 	}
 
 //RelationalExpression ::= AdditiveExpression:al LT AdditiveExpression:ae
@@ -483,67 +519,90 @@ public class Validator {
 //					  | AdditiveExpression:ae			
 	private int valRelational(ASTNode node) {
 		int type1 = valAdditive ((ASTNode) node.getOp(0)); 
+		int type2;
 		if ((Integer) node.getDescriptor() == sym.LT) {
-			int type2 = valAdditive ((ASTNode) node.getOp(1));
+			type2 = valAdditive ((ASTNode) node.getOp(1));
 		}
 		else if ((Integer) node.getDescriptor() == sym.GT) {
-			int type2 = valAdditive ((ASTNode) node.getOp(1));
+			type2 = valAdditive ((ASTNode) node.getOp(1));
 		}
 		else if ((Integer) node.getDescriptor() == sym.LTEQ) {
-			int type2 = valAdditive ((ASTNode) node.getOp(1));
+			type2 = valAdditive ((ASTNode) node.getOp(1));
 		}
 		else {//if ((Integer) node.getDescriptor() == sym.GTEQ) {
-			int type2 = valAdditive ((ASTNode) node.getOp(1));
+			type2 = valAdditive ((ASTNode) node.getOp(1));
 		}
-		if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
-			return sym.BOOLEAN;
+		if ((type1 == sym.BOOLEAN) || (type2 == sym.BOOLEAN) || (type1 == sym.PARTICIPANT) || (type2 == sym.PARTICIPANT)) {
+			allsWell = false;
+			emessage += "Relational operators in Rumble must operate on two expressions that each evaluate to a number.";
+			return -1;
 		}
+		return sym.BOOLEAN;
 	}
 
 //AdditiveExpression ::= AdditiveExpression:a PLUS MultiplicativeExpression:m
 //                   | AdditiveExpression:a MINUS MultiplicativeExpression:m
 //                   | MultiplicativeExpression:m
 	private int valAdditive(ASTNode node) {
+		int type1, type2;
 		if (node.getNumberOfOperands() == 1) 
 			return valMultiplicative ((ASTNode) node.getOp(0)); 
 		else if ((Integer) node.getDescriptor() == sym.PLUS) {
-			int type1 = valAdditive ((ASTNode) node.getOp(0));
-			int type2 = valMultiplicative ((ASTNode) node.getOp(1));
-			if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
-				return sym.BOOLEAN;
+			type1 = valAdditive ((ASTNode) node.getOp(0));
+			type2 = valMultiplicative ((ASTNode) node.getOp(1));
+			if ((type1 == sym.BOOLEAN) || (type2 == sym.BOOLEAN) || (type1 == sym.PARTICIPANT) || (type2 == sym.PARTICIPANT)) {
+				allsWell = false;
+				emessage += "'+' in Rumble must operate on two expressions that each evaluate to a number.";
+				return -1;
 			}
 		}
-		else if ((Integer) node.getDescriptor() == sym.MINUS) {
-			int type1 = valAdditive ((ASTNode) node.getOp(0));
-			int type2 = valMultiplicative ((ASTNode) node.getOp(1));
-			if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
-				return sym.BOOLEAN;
+		else {//((Integer) node.getDescriptor() == sym.MINUS) {
+			type1 = valAdditive ((ASTNode) node.getOp(0));
+			type2 = valMultiplicative ((ASTNode) node.getOp(1));
+			if ((type1 == sym.BOOLEAN) || (type2 == sym.BOOLEAN) || (type1 == sym.PARTICIPANT) || (type2 == sym.PARTICIPANT)) {
+				allsWell = false;
+				emessage += "'-' (minus) in Rumble must operate on two expressions that each evaluate to a number.";
+				return -1;
 			}
 		}
+		if (type1 == sym.FLOAT || type2 == sym.FLOAT) return sym.FLOAT;
+		else return sym.INT;
 	}
 
 //MultiplicativeExpression ::= MultiplicativeExpression:m TIMES UnaryExpression:u
 //                         |  MultiplicativeExpression:m DIVIDE UnaryExpression:u
 //                         |  MultiplicativeExpression:m MOD UnaryExpression:u
 	private int valMultiplicative(ASTNode node) {	
+		int type1, type2;
 		if (node.getNumberOfOperands() == 1) {
 			return valUnary ((ASTNode) node.getOp(0)); 
 		}
 		else if ((Integer) node.getDescriptor() == sym.TIMES) {
-			int type1 = valMultiplicative ((ASTNode) node.getOp(0));
-			int type2 = valUnary ((ASTNode) node.getOp(1));
+			type1 = valMultiplicative ((ASTNode) node.getOp(0));
+			type2 = valUnary ((ASTNode) node.getOp(1));
+			if ((type1 == sym.BOOLEAN) || (type2 == sym.BOOLEAN) || (type1 == sym.PARTICIPANT) || (type2 == sym.PARTICIPANT)) {
+				allsWell = false;
+				emessage += "'*' (multiply) in Rumble must operate on two expressions that each evaluate to a number.";
+			}
 		}
 		else if ((Integer) node.getDescriptor() == sym.DIVIDE) {
-			int type1 = valMultiplicative ((ASTNode) node.getOp(0));
-			int type2 = valUnary ((ASTNode) node.getOp(1));
+			type1 = valMultiplicative ((ASTNode) node.getOp(0));
+			type2 = valUnary ((ASTNode) node.getOp(1));
+			if ((type1 == sym.BOOLEAN) || (type2 == sym.BOOLEAN) || (type1 == sym.PARTICIPANT) || (type2 == sym.PARTICIPANT)) {
+				allsWell = false;
+				emessage += "'/' (divide) in Rumble must operate on two expressions that each evaluate to a number.";
+			}
 		}
 		else {//if ((Integer) node.getDescriptor() == sym.MOD) {
-			int type1 = valMultiplicative ((ASTNode) node.getOp(0));
-			int type2 = valUnary ((ASTNode) node.getOp(1));
+			type1 = valMultiplicative ((ASTNode) node.getOp(0));
+			type2 = valUnary ((ASTNode) node.getOp(1));
+			if ((type1 == sym.BOOLEAN) || (type2 == sym.BOOLEAN) || (type1 == sym.PARTICIPANT) || (type2 == sym.PARTICIPANT)) {
+				allsWell = false;
+				emessage += "'%' (modulus) in Rumble must operate on two expressions that each evaluate to a number.";
+			}
 		}
-		if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
-			return sym.BOOLEAN;
-		}
+		if (type1 == sym.FLOAT || type2 == sym.FLOAT) return sym.FLOAT;
+		else return sym.INT;
 	}
 
 //UnaryExpression ::= NOT UnaryExpression:u
@@ -551,34 +610,52 @@ public class Validator {
 //                | LPREN Expression:e RPREN 				
 //                | Data:d								
 	private int valUnary(ASTNode node) {
+		int type;
 		switch ((Integer) node.getDescriptor()) {
 		case sym.NOT: {
-			int type = valUnary (node.getOp(0));
+			type = valUnary ((ASTNode) node.getOp(0));
 			if (type != sym.BOOLEAN) {
 				allsWell = false;
 				emessage += "Rumble only allows the negation operator on boolean values.";
+				return -1;
 			}
+			return type;
 		}
 		case sym.MINUS: {
-			int type = valUnary (node.getOp(0));
+			type = valUnary ((ASTNode) node.getOp(0));
 			if (type != sym.INT || type != sym.FLOAT) {
 				allsWell = false;
 				emessage += "Rumble only allows the unary minus operator on integers or floating point values.";
+				return -1;
 			}
+			return type;
 		}
 		case sym.LPREN: {
-			int type = valExp (node.getOp(0));
+			type = valExp ((ASTNode) node.getOp(0));
+			return type;
 		}
 		default: {
-			int type = valData (node.getOp(0));
+			type = valData ((ASTNode) node.getOp(0));
+			return type;
 		}
 		}
-		return type;
 	}
 
-	private void valSysPartRef(ASTNode node) {
-	// TODO Auto-generated method stub
-	
+//Data ::= ID:i
+//			| SystemVar:s							
+//			| NUMBER:num 							
+//			| DECIMAL:d 							
+//			| FunctionCall:f						
+//			| TRUE								
+//			| FALSE
+	private int valData(ASTNode node) {
+		// TODO Auto-generated method stub
+		switch ((Integer) node.getDescriptor()) {
+		case sym.ID: {
+			valSysVar ((ASTNode) node.getOp(0));
+		}
+		}
+		return 0;
 	}
 
 	private void valId(String string) {
@@ -595,4 +672,11 @@ public class Validator {
 		
 	}
 
+//SystemPartRef ::= PART LSBRK NUMBER:i RSBRK 
+//		| ME
+	private void valSysPartRef(ASTNode node) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }
