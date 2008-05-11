@@ -63,7 +63,7 @@ S ::= SimulationFile:s EnvironmentFile:ef ParticipantFiles:pf
 																:}; 
 
 EnvironmentFile ::= ENVIRONMENT Meta:m Interface:i Step:s Actions:a 
-																{: 
+																{:
 																Yylex.currentFileParsed++;
 																ASTNode n = new ASTNode(sym.ENVIRONMENT); 
 																   n.pushOp(m);
@@ -568,8 +568,13 @@ SystemVar ::= DOLLAR SystemVarName:s
 															RESULT = n;
 														:}
 
-	| DOLLAR GLOBAL DOT ID:i										{: ASTNode n = new ASTNode(astsym.SYSTEM_GLOBAL);
+	| DOLLAR GLOBAL DOT ID:i							{: ASTNode n = new ASTNode(astsym.SYSTEM_GLOBAL);
 															n.pushOp(i);
+															RESULT = n;
+														:}
+														
+	| DOLLAR SystemPartRef:s							{:	ASTNode n = new ASTNode(astsym.SYSTEM_PART_REF_ONLY);
+															n.pushOp(s);
 															RESULT = n;
 														:};
 
