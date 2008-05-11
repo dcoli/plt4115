@@ -139,7 +139,7 @@ public class CodeGenerator {
 			pw.println("\tprivate static int numSteps;");
 			pw.println("\tprivate static int numActions;");
 			pw.println("\tpublic static String lastParticipantId;");
-			pw.println("\tprivate static ArrayList<" + PARTICIPANT_CLASS_NAME
+			pw.println("\tpublic static ArrayList<" + PARTICIPANT_CLASS_NAME
 					+ "> participants;");
 
 			pw
@@ -659,6 +659,8 @@ public class CodeGenerator {
 		case astsym.SYSTEM_PART_REF:
 			return generateSystemPartRef((ASTNode) systemVar.getOp(0)) + ".get"
 					+ RUMVAR + (String) systemVar.getOp(1) + "()";
+		case astsym.SYSTEM_PART_REF_ONLY:
+			return generateSystemPartRef((ASTNode) systemVar.getOp(0));
 		case astsym.SYSTEM_GLOBAL:
 			return "Environment.get" + RUMVAR + (String) systemVar.getOp(0)
 					+ "()";
@@ -968,21 +970,34 @@ public class CodeGenerator {
 
 		sb.append("public static void " + CodeGenerator.RUMACTION
 				+ a.getDescriptor());
-		String addLine = "System.out.println(\"{\\n\\taction : \\\"'\" + doer.getId() + \"' did '"
-				+ a.getDescriptor() + "'\\\",\\n}\\n\");";
+		StringBuilder addLine = new StringBuilder("System.out.println(\"{\\n\\taction : \\\"'\" + doer.getId() + \"' did '"
+				+ a.getDescriptor() + "'");
+		
+		if (a.getNumberOfOperands() == 2) {
+			ASTNode argList = (ASTNode)a.getOp(0);
+			ASTNode arg;
+			
+			if ((Integer)argList.getDescriptor() == astsym.ARGLIST) {
+				arg = (ASTNode)argList.getOp(0);
+			} else {
+				arg = argList;
+			}
+			
+			if ((Integer)arg.getOp(0) == sym.PARTICIPANT) {
+				addLine.append(" to '\" + " + (String)arg.getOp(1) + ".getId() + \"' ");
+			}
+		}
+		
+		addLine.append("\\\",\\n}\\n\");");
 
 		if (a.getNumberOfOperands() == 2) {
 			sb.append("(" + PARTICIPANT_CLASS_NAME + " doer, ");
 			sb.append(generateArgList((ASTNode) a.getOp(0)));
 			sb.append(")");
-			sb
-					.append(generateBlockStatement((ASTNode) a.getOp(1),
-							addLine, ""));
+			sb.append(generateBlockStatement((ASTNode) a.getOp(1), addLine.toString(), ""));
 		} else {
 			sb.append("(" + PARTICIPANT_CLASS_NAME + " doer)");
-			sb
-					.append(generateBlockStatement((ASTNode) a.getOp(0),
-							addLine, ""));
+			sb.append(generateBlockStatement((ASTNode) a.getOp(0), addLine.toString(), ""));
 		}
 
 		blockLevel--;
@@ -1003,11 +1018,11 @@ public class CodeGenerator {
 	}
 
 	public String generateArg(ASTNode a) {
-		StringBuilder sb = new StringBuilder();
-
+		StringBuilder sb = new StringBuilder();	
+		
 		sb.append(generateDataType((Integer) a.getOp(0)));
-		sb.append(((Symbol) a.getOp(1)).value);
-
+		sb.append((String)a.getOp(1));
+		
 		return sb.toString();
 	}
 
