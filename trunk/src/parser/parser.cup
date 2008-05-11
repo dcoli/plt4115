@@ -223,7 +223,6 @@ Block ::= LBRC Lines:l RBRC
 																	n.pushOp(l);
 																	RESULT = n;
 																:};
-			| /* empty */
 
 Lines ::= Statement:s Lines:l
 																{: ASTNode n = new ASTNode(null);
