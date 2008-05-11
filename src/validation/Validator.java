@@ -397,6 +397,7 @@ public class Validator {
 //			| ID:i								
 	private void valIdList(ASTNode node) {
 		valId ((String) node.getOp(0));
+		debugGeneration((String) node.getOp(0));
 		if (node.getNumberOfOperands() > 1) {
 			valIdList ((ASTNode) node.getOp(1));
 		}
@@ -429,7 +430,7 @@ public class Validator {
 				case (sym.EQ): {
 					debugGeneration("=");
 					valLValData( lValNode); 
-					type = valExpList (expNode); 
+					valExpList (expNode); 
 					break;
 				}
 				}
@@ -437,6 +438,7 @@ public class Validator {
 			else if ( assNode.getNumberOfOperands() == 1 ) {
 				if ((Integer) assNode.getDescriptor() == astsym.SYSTEM_VAR) {
 					ASTNode sysVarNode = (ASTNode) assNode.getOp(0);
+					if (assNode.getOp(0) instanceof ASTNode) debugGeneration("valsysvar receives node");
 					valSysVar (sysVarNode);
 			}
 		}
@@ -450,7 +452,11 @@ public class Validator {
 			valId ((String) valNode.getOp(0));
 			break;
 		case astsym.SYSTEM_VAR:
-			valSysVar ((String) valNode.getOp(0));
+			if (valNode.getOp(0) instanceof ASTNode) {
+				valSysVar ((ASTNode) valNode.getOp(0));
+			}
+			else valSysVar ((String) valNode.getOp(0));
+
 			break;
 		}
 	}
@@ -460,6 +466,7 @@ public class Validator {
 //				| DOLLAR SystemPartRef:s DOT STEP LPREN RPREN  
 	private void valFunc(ASTNode node) {
 		if ((Integer) node.getOp(0) == sym.ID) {
+			debugGeneration(((String) node.getOp(1)));
 			valId ((String) node.getOp(1));
 			if (node.getNumberOfOperands() > 2) {
 				valExpList ((ASTNode) node.getOp(2));
@@ -472,39 +479,42 @@ public class Validator {
 
 //ExpressionList ::= Expression:e COMMA ExpressionList:el
 //		| Expression:e
-	private int valExpList(ASTNode node) {
-		debugGeneration("explist");
+	private void valExpList(ASTNode node) {
 		int type;
 		if (node.getOp(0) instanceof ASTNode){
-			debugGeneration("node");
-			type = valExp (node);
+//			debugGeneration("node");
+			if (node.getNumberOfOperands() == 1) {
+				type = valExp (node);
+			}
+			else if (node.getNumberOfOperands() > 1) {
+				debugGeneration("explist");
+				type = valExp((ASTNode) node.getOp(0));
+				valExpList ((ASTNode) node.getOp(1));
+			}
 		}
-		else if (node.getOp(0) instanceof Float) { 
-			debugGeneration("float");
-			type = sym.DECIMAL;
-		}
-		else if (node.getOp(0) instanceof Integer) { 
-			debugGeneration("int "+node.getOp(0));
-			type = sym.NUMBER;
-		}
-		else if (node.getOp(0) instanceof String) {
-			debugGeneration("string");
-			type = sym.STRING;
-		}
-		else {
-			debugGeneration("participant");
-			type = sym.PARTICIPANT;
-//			type = valExp ((ASTNode) node.getOp(0));
-		}
-		if (node.getNumberOfOperands() > 1) {
-			type = valExpList ((ASTNode) node.getOp(1));
-		}
-		return type;
+//		else if (node.getOp(0) instanceof Float) { 
+//			debugGeneration("float");
+//			type = sym.DECIMAL;
+//		}
+//		else if (node.getOp(0) instanceof Integer) { 
+//			debugGeneration("int "+node.getOp(0));
+//			type = sym.NUMBER;
+//		}
+//		else if (node.getOp(0) instanceof String) {
+//			debugGeneration("string");
+//			type = sym.STRING;
+//		}
+//		else {
+//			debugGeneration("participant");
+//			type = sym.PARTICIPANT;
+////			type = valExp ((ASTNode) node.getOp(0));
+//		}
+//		return type;
 	}
 
 //	Expression	::= OrExpression:o							
 	private int valExp(ASTNode expNode) {
-		debugGeneration("exp: "+expNode.toString());
+		debugGeneration("expression type: "+((Integer) expNode.getDescriptor()).intValue());
 		int type;
 		switch (((Integer) expNode.getDescriptor()).intValue()) {
 		case sym.OR:
@@ -539,8 +549,12 @@ public class Validator {
 		case sym.NOT:
 		case sym.LPREN:
 			type = valUnary (expNode);
+		case astsym.SYSTEM_VAR:
+			if (expNode.getOp(0) instanceof ASTNode)
+				valSysVar ((ASTNode) expNode.getOp(0));
+			else valSysVar ((String) expNode.getOp(0));
 		default:
-			valData (expNode);
+			type = valData (expNode);
 		}
 //		if (expNode.getOp(0) instanceof ASTNode) 
 //		else if (expNode.getOp(0) instanceof Float) 
@@ -786,15 +800,41 @@ public class Validator {
 //			| FunctionCall:f						
 //			| TRUE								
 //			| FALSE
-	private void valData(ASTNode node) {
+	private int valData(ASTNode node) {
 		// TODO Auto-generated method stub
-		switch ((Integer) node.getDescriptor()) {
-		case sym.ID: {
+		int type;
+		debugGeneration("valData node descriptor: "+((Object) node.getDescriptor()).toString());
+		if (((Integer) node.getDescriptor()) == sym.ID) {
 			debugGeneration(((Object) node.getOp(0)).toString());
+			type = -1;
 //			valSysVar ((ASTNode) node.getOp(0));
 		}
+		else if (((Integer) node.getDescriptor()) == astsym.SYSTEM_VAR) {
+			debugGeneration(((Object) node.getOp(0)).toString());
+			type = -1;
 		}
-//		return 0;
+		else if (node.getOp(0) instanceof Float) { 
+			debugGeneration("float: " + (Float)node.getOp(0));
+			type = sym.DECIMAL;
+		}
+		else if (node.getOp(0) instanceof Integer) { 
+			debugGeneration("int: " + (Integer)node.getOp(0));
+			type = sym.NUMBER;
+		}
+		else if (node.getOp(0) instanceof String) {
+			debugGeneration("string: " + (String)node.getOp(0));
+			type = sym.STRING;
+		}
+		else if (node.getOp(0) instanceof Boolean) {
+			debugGeneration("boolean: " + (Boolean)node.getOp(0));
+			type = sym.BOOLEAN;
+		}
+		else {
+			debugGeneration("participant");
+			type = sym.PARTICIPANT;
+//			type = valExp ((ASTNode) node.getOp(0));
+		}
+		return type;
 	}
 
 	private void valId(String name) {
@@ -804,11 +844,12 @@ public class Validator {
 	
 	private void valSysVar(ASTNode sysVarNode) {
 		// TODO Auto-generated method stub
+		debugGeneration(sysVarNode.getDescriptor().toString());
 	}
 
 	private void valSysVar(String string) {
 		// TODO Auto-generated method stub
-		
+		debugGeneration("sys var: "+string);
 	}
 
 //SystemPartRef ::= PART LSBRK NUMBER:i RSBRK 
