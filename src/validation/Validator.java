@@ -166,7 +166,7 @@ public class Validator {
 //	Arg ::= DataType:d ID:i
 	private void valArg(ASTNode argNode) {
 		Integer dataTypeNode = (Integer) argNode.getOp(0);
-		valDataType (dataTypeNode);
+		int type = valDataType (dataTypeNode);
 		String idNode = (String) argNode.getOp(1);
 		valId (idNode);
 	}
@@ -334,7 +334,7 @@ public class Validator {
 
 //	Declaration ::= DataType:d IdList:i
 	private void valDeclaration(ASTNode node) {
-		valDataType ((Integer) node.getOp(0));
+		int type = valDataType ((Integer) node.getOp(0));
 		valIdList ((ASTNode) node.getOp(1));
 	}
 
@@ -348,8 +348,8 @@ public class Validator {
 	}
 
 //DataType ::= INT | FLOAT | BOOLEAN | PARTICIPANT
-	private void valDataType(int dataType) {
-		
+	private int valDataType(int dataType) {
+		return dataType;
 	}	
 	
 //	Assignment ::= LValueData:i TIMESEQ Expression:e
@@ -420,48 +420,59 @@ public class Validator {
 
 //	Expression	::= OrExpression:o							
 	private void valExp(ASTNode expNode) {
-		valOr (expNode);
+		int type = valOr (expNode);
 	}
 
 //OrExpression ::= OrExpression:o OR AndExpression:a
 //    | AndExpression:a									
-	private void valOr (ASTNode expNode) {
-		System.out.println(expNode.getOp(0));
+	private int valOr (ASTNode expNode) {
 		if (expNode.getNumberOfOperands() == 1) {
-			valAnd ((ASTNode) expNode.getOp(0));
+			return valAnd ((ASTNode) expNode.getOp(0));
 		}
 		else {
-			valOr ((ASTNode) expNode.getOp(0));
-			valAnd ((ASTNode) expNode.getOp(1));
+			int type1 = valOr ((ASTNode) expNode.getOp(0));
+			int type2 = valAnd ((ASTNode) expNode.getOp(1));
+			if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
+				return sym.BOOLEAN;
+			}
 		}
 	}
 
 //AndExpression ::= AndExpression:a AND EqualityExpression:e
 //      			| EqualityExpression:e
-	private void valAnd (ASTNode node) {
+	private int valAnd (ASTNode node) {
 		if (node.getNumberOfOperands() == 0) {
-			valEquality ((ASTNode) node.getOp(0));
+			return valEquality ((ASTNode) node.getOp(0));
 		}
 		else {
-			valAnd ((ASTNode) node.getOp(0));
-			valEquality ((ASTNode) node.getOp(1));
+			int type1 = valAnd ((ASTNode) node.getOp(0));
+			int type2 = valEquality ((ASTNode) node.getOp(1));
+			if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
+				return sym.BOOLEAN;
+			}
 		}
 	}
 
 //EqualityExpression ::= EqualityExpression:e EQEQ RelationalExpression:r
 //                   | EqualityExpression:e NOTEQ RelationalExpression:r
 //                   | RelationalExpression:r						
-	private void valEquality(ASTNode node) {
+	private int valEquality(ASTNode node) {
 		if (node.getNumberOfOperands() == 0) {
-			valRelational ((ASTNode) node.getOp(0));
+			return valRelational ((ASTNode) node.getOp(0));
 		}
 		else if ((Integer) node.getDescriptor() == sym.EQEQ) {
-			valEquality ((ASTNode) node.getOp(0));
-			valRelational ((ASTNode) node.getOp(1));
+			int type1 = valEquality ((ASTNode) node.getOp(0));
+			int type2 = valRelational ((ASTNode) node.getOp(1));
+			if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
+				return sym.BOOLEAN;
+			}
 		}
 		else {//if ((Integer) node.getDescriptor() == sym.NOTEQ) 
-			valEquality ((ASTNode) node.getOp(0));
-			valRelational ((ASTNode) node.getOp(1));
+			int type1 = valEquality ((ASTNode) node.getOp(0));
+			int type2 = valRelational ((ASTNode) node.getOp(1));
+			if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
+				return sym.BOOLEAN;
+			}
 		}
 	}
 
@@ -470,62 +481,99 @@ public class Validator {
 //                      | AdditiveExpression:al LTEQ AdditiveExpression:ae
 //                      | AdditiveExpression:al GTEQ AdditiveExpression:ae
 //					  | AdditiveExpression:ae			
-	private void valRelational(ASTNode node) {
-		valAdditive ((ASTNode) node.getOp(0)); 
+	private int valRelational(ASTNode node) {
+		int type1 = valAdditive ((ASTNode) node.getOp(0)); 
 		if ((Integer) node.getDescriptor() == sym.LT) {
-			valAdditive ((ASTNode) node.getOp(1));
+			int type2 = valAdditive ((ASTNode) node.getOp(1));
 		}
 		else if ((Integer) node.getDescriptor() == sym.GT) {
-			valAdditive ((ASTNode) node.getOp(1));
+			int type2 = valAdditive ((ASTNode) node.getOp(1));
 		}
 		else if ((Integer) node.getDescriptor() == sym.LTEQ) {
-			valAdditive ((ASTNode) node.getOp(1));
+			int type2 = valAdditive ((ASTNode) node.getOp(1));
 		}
-		else if ((Integer) node.getDescriptor() == sym.GTEQ) {
-			valAdditive ((ASTNode) node.getOp(1));
+		else {//if ((Integer) node.getDescriptor() == sym.GTEQ) {
+			int type2 = valAdditive ((ASTNode) node.getOp(1));
+		}
+		if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
+			return sym.BOOLEAN;
 		}
 	}
 
 //AdditiveExpression ::= AdditiveExpression:a PLUS MultiplicativeExpression:m
 //                   | AdditiveExpression:a MINUS MultiplicativeExpression:m
 //                   | MultiplicativeExpression:m
-	private void valAdditive(ASTNode node) {
+	private int valAdditive(ASTNode node) {
 		if (node.getNumberOfOperands() == 1) 
-			valMultiplicative ((ASTNode) node.getOp(0)); 
+			return valMultiplicative ((ASTNode) node.getOp(0)); 
 		else if ((Integer) node.getDescriptor() == sym.PLUS) {
-			valAdditive ((ASTNode) node.getOp(0));
-			valMultiplicative ((ASTNode) node.getOp(1));
+			int type1 = valAdditive ((ASTNode) node.getOp(0));
+			int type2 = valMultiplicative ((ASTNode) node.getOp(1));
+			if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
+				return sym.BOOLEAN;
+			}
 		}
 		else if ((Integer) node.getDescriptor() == sym.MINUS) {
-			valAdditive ((ASTNode) node.getOp(0));
-			valMultiplicative ((ASTNode) node.getOp(1));
+			int type1 = valAdditive ((ASTNode) node.getOp(0));
+			int type2 = valMultiplicative ((ASTNode) node.getOp(1));
+			if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
+				return sym.BOOLEAN;
+			}
 		}
 	}
 
 //MultiplicativeExpression ::= MultiplicativeExpression:m TIMES UnaryExpression:u
 //                         |  MultiplicativeExpression:m DIVIDE UnaryExpression:u
 //                         |  MultiplicativeExpression:m MOD UnaryExpression:u
-	private void valMultiplicative(ASTNode node) {	
+	private int valMultiplicative(ASTNode node) {	
 		if (node.getNumberOfOperands() == 1) {
-			valUnary ((ASTNode) node.getOp(0)); 
+			return valUnary ((ASTNode) node.getOp(0)); 
 		}
 		else if ((Integer) node.getDescriptor() == sym.TIMES) {
-			valMultiplicative ((ASTNode) node.getOp(0));
-			valUnary ((ASTNode) node.getOp(1));
+			int type1 = valMultiplicative ((ASTNode) node.getOp(0));
+			int type2 = valUnary ((ASTNode) node.getOp(1));
 		}
 		else if ((Integer) node.getDescriptor() == sym.DIVIDE) {
-			valMultiplicative ((ASTNode) node.getOp(0));
-			valUnary ((ASTNode) node.getOp(1));
+			int type1 = valMultiplicative ((ASTNode) node.getOp(0));
+			int type2 = valUnary ((ASTNode) node.getOp(1));
 		}
-		else if ((Integer) node.getDescriptor() == sym.MOD) {
-			valMultiplicative ((ASTNode) node.getOp(0));
-			valUnary ((ASTNode) node.getOp(1));
+		else {//if ((Integer) node.getDescriptor() == sym.MOD) {
+			int type1 = valMultiplicative ((ASTNode) node.getOp(0));
+			int type2 = valUnary ((ASTNode) node.getOp(1));
+		}
+		if ((type1 == sym.BOOLEAN) && (type2 == sym.BOOLEAN)) {
+			return sym.BOOLEAN;
 		}
 	}
 
-	private void valUnary(ASTNode node) {
-	// TODO Auto-generated method stub
-	
+//UnaryExpression ::= NOT UnaryExpression:u
+//				| MINUS UnaryExpression:u
+//                | LPREN Expression:e RPREN 				
+//                | Data:d								
+	private int valUnary(ASTNode node) {
+		switch ((Integer) node.getDescriptor()) {
+		case sym.NOT: {
+			int type = valUnary (node.getOp(0));
+			if (type != sym.BOOLEAN) {
+				allsWell = false;
+				emessage += "Rumble only allows the negation operator on boolean values.";
+			}
+		}
+		case sym.MINUS: {
+			int type = valUnary (node.getOp(0));
+			if (type != sym.INT || type != sym.FLOAT) {
+				allsWell = false;
+				emessage += "Rumble only allows the unary minus operator on integers or floating point values.";
+			}
+		}
+		case sym.LPREN: {
+			int type = valExp (node.getOp(0));
+		}
+		default: {
+			int type = valData (node.getOp(0));
+		}
+		}
+		return type;
 	}
 
 	private void valSysPartRef(ASTNode node) {
