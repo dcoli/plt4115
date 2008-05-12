@@ -3,11 +3,11 @@
 participant name "Smarter Prisoner";
 
 def required step() {
-    if ($global.last_outcome == -1)
+    if ($global.last_outcome == -1) // first turn
        cooperate();
-    if ($global.last_outcome == 2) // we both coopeated
+    if ($global.last_outcome == 2) // both cooperated
        cooperate();
-    if ($global.last_outcome == 1)
+    if ($global.last_outcome == 1) // only one did
        defect();
     if ($global.last_outcome == 0)
        if ($randi % 4 != 0)

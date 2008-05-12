@@ -5,7 +5,7 @@ participant name "Smarter Prisoner";
 def required step() {
     if ($global.last_outcome == -1)
        defect();
-    if ($global.last_outcome == 2) // we both coopeated
+    if ($global.last_outcome == 2) // we both cooperated
        cooperate();
     if ($global.last_outcome == 1)
        defect();
