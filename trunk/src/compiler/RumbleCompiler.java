@@ -50,10 +50,19 @@ public class RumbleCompiler {
 			if (outputPath == null)
 				Settings.setOutputPath(Settings.getCurrentWorkingDirectory());
 			
-			try {
-				Analyzer analyzer = new Analyzer(new parser(scanner));
-				ASTNode root = analyzer.analyze();
+			try {				
+				java_cup.runtime.Symbol s;
+				parser parser = new parser();
+				if (Settings.isDebug())
+					s = parser.debug_parse();
+				else 
+					s = parser.parse();		
 				
+				ASTNode root = (ASTNode)s.value;
+				
+				if (Settings.isVerbose())
+					System.out.println("Validating code...");
+								
 				//generate code
 				Validator validator = new Validator(root);
 				if (!validator.go()) throw new Exception("Problems in your Rumble code.");
