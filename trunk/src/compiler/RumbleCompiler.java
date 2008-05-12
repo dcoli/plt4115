@@ -8,7 +8,6 @@ import validation.*;
 
 import java.io.*;
 
-import compiler.semantics.*;
 import compiler.syntax.*;
 
 import java_cup.runtime.*;
