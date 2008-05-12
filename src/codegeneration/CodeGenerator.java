@@ -101,8 +101,7 @@ public class CodeGenerator {
 			pw.println("public static void main(String[] args) {");
 			pw.println("Environment e = new Environment();");
 
-			pw
-					.println("boolean verbose = (args.length > 0 && args[0].equals(\"-v\"));");
+			pw.println("boolean verbose = (args.length > 0 && args[0].equals(\"-v\"));");
 
 			pw.println("while (!e.end()) {");
 			pw.println("e.step();");
