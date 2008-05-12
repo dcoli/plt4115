@@ -1,6 +1,6 @@
 // A cooperative prisoner -- i.e., he *always* chooses to cooperate
 
-participant name "Dumb Bastard";
+participant name "Dumb Prisoner";
 
 def required step() {
     cooperate();

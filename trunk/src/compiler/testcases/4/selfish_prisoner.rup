@@ -1,6 +1,6 @@
 // A "selfish" prisoner -- i.e., he never chooses to cooperate
 
-participant name "Greedy Bastard";
+participant name "Greedy Prisoner";
 
 def required step() {
     defect();
