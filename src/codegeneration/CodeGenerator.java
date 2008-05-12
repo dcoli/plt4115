@@ -718,7 +718,7 @@ public class CodeGenerator {
 		case sym.NUMBER:
 			return ((Integer)i.getOp(0)).toString();
 		case sym.ID:
-			return (String)i.getOp(0);
+			return generateID(i);
 		}
 		return "ERROR"; // should never happen; only to make eclipse happy
 	}
@@ -853,7 +853,7 @@ public class CodeGenerator {
 		case sym.EQ:
 			return generateAssignment(s);
 		case astsym.DECLARATION:
-			return generateDeclaration(s);
+			return generateDeclaration(s) + ";";
 		}
 
 		return ""; // just to make Eclipse shut up about not returning a
@@ -898,6 +898,10 @@ public class CodeGenerator {
 		if (list == null)
 			return "";
 
+		if ((Integer)list.getDescriptor() == sym.ID) {
+			return generateID(list);
+		}
+		
 		sb.append(generateID((ASTNode) list.getOp(0)));
 		String s = generateIDList((ASTNode) list.getOp(1));
 		if (!s.equals(""))
@@ -910,7 +914,7 @@ public class CodeGenerator {
 	public String generateID(ASTNode i) {
 		debugGeneration("Generating identifier.");
 
-		return CodeGenerator.RUMVAR + (String) (((Symbol) i.getOp(0)).value);
+		return CodeGenerator.RUMVAR + (String)i.getOp(0);
 	}
 
 	public String generateWhileStatement(ASTNode s) {
