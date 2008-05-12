@@ -26,6 +26,8 @@ public class Validator {
 
 	private static int blockLevel = 0;
 	
+	SymHash table = new SymHash();
+
 	public static void debugGeneration(String message) {
 		if (Settings.debug) {
 			for (int i = 0; i < blockLevel; i++)
@@ -40,7 +42,6 @@ public class Validator {
 	}
 
 	public boolean go() {
-
 		validateStart(root);
 		if (allsWell) System.out.println("Validated.");
 		else System.out.println(emessage);
@@ -49,10 +50,10 @@ public class Validator {
 
 	private void validateStart (ASTNode root) {
 		debugGeneration("start");
-		ASTNode simulationFileNode = (ASTNode) root.getDescriptor();
-		validateSimulationFile(simulationFileNode);
 		ASTNode environmentFileNode = (ASTNode) root.getOp(0);
 		validateEnvironmentFile(environmentFileNode);
+		ASTNode simulationFileNode = (ASTNode) root.getDescriptor();
+		validateSimulationFile(simulationFileNode);
 		ASTNode participantFilesNode = (ASTNode) root.getOp(1);
 		valPartFiles(participantFilesNode);
 	}
@@ -389,7 +390,7 @@ public class Validator {
 
 //	Declaration ::= DataType:d IdList:i
 	private int valDeclaration(ASTNode node) {
-		debugGeneration("declaration: "+(Integer) node.getOp(0));
+		debugGeneration("declaration: "+table.get((Integer) node.getOp(0)));
 		int type = valDataType ((Integer) node.getOp(0));
 		valIdList ((ASTNode) node.getOp(1));
 		return type;
@@ -407,7 +408,19 @@ public class Validator {
 
 //DataType ::= INT | FLOAT | BOOLEAN | PARTICIPANT
 	private int valDataType(int dataType) {
-		return dataType;
+		switch (dataType) {
+		case (sym.INT):
+		case (sym.FLOAT):
+		case (sym.BOOLEAN):
+		case (sym.PARTICIPANT): {
+			return dataType;
+		}
+		default: {
+			emessage += "invalid datatype: Rumble allows int, float, boolean, and participant\n";
+			allsWell = false;
+			return -1;
+		}
+		}
 	}	
 	
 //	Assignment ::= LValueData:i TIMESEQ Expression:e
@@ -424,11 +437,11 @@ public class Validator {
 				ASTNode lValNode = (ASTNode) assNode.getOp(0);
 				ASTNode expNode = (ASTNode) assNode.getOp(1);
 				switch ((Integer) assNode.getDescriptor()) {
-				case (sym.TIMESEQ): valLValData( lValNode); type = valExp (expNode); break;
-				case (sym.DIVIDEEQ): valLValData( lValNode); type = valExp (expNode); break;
-				case (sym.MINUSEQ): valLValData( lValNode); type = valExp (expNode); break;
-				case (sym.PLUSEQ): valLValData( lValNode); type = valExp (expNode); break;
-				case (sym.MODEQ): valLValData( lValNode); type = valExp (expNode); break;
+				case (sym.TIMESEQ): valLValData( lValNode); valExpList (expNode); break;
+				case (sym.DIVIDEEQ): valLValData( lValNode); valExpList (expNode); break;
+				case (sym.MINUSEQ): valLValData( lValNode); valExpList (expNode); break;
+				case (sym.PLUSEQ): valLValData( lValNode); valExpList (expNode); break;
+				case (sym.MODEQ): valLValData( lValNode); valExpList (expNode); break;
 				case (sym.EQ): {
 					debugGeneration("=");
 					valLValData( lValNode); 
@@ -450,7 +463,7 @@ public class Validator {
 	private void valLValData(ASTNode valNode) {
 		switch ((Integer) valNode.getDescriptor()) {
 		case sym.ID:
-			debugGeneration(valNode.getOp(0).toString());
+			debugGeneration("name: "+valNode.getOp(0).toString());
 			valId ((String) valNode.getOp(0));
 			break;
 		case astsym.SYSTEM_VAR:
@@ -518,9 +531,12 @@ public class Validator {
 	private int valExp(ASTNode expNode) {
 		int type;
 		if (expNode.getOp(0) instanceof ASTNode) {
-//			debugGeneration("expression op0: "+((Object) expNode.getOp(0)).toString());
+			debugGeneration("expression op0: \n"+((Object) expNode.getOp(0)).toString());
+//			if (expNode.getNumberOfOperands() > 1)
+//				debugGeneration("expression op1: "+((Object) expNode.getOp(0)).toString());
 			if (((ASTNode) expNode.getOp(0)).getDescriptor() != null) {
-				debugGeneration("expression type: "+(((Integer)((ASTNode) expNode.getOp(0)).getDescriptor())).intValue());
+//				debugGeneration("expression type: "+((Integer) expNode.getOp(0)));
+				debugGeneration("expression type: "+table.get((((Integer)((ASTNode) expNode.getOp(0)).getDescriptor())).intValue()));
 				switch (((Integer)((ASTNode) expNode.getOp(0)).getDescriptor()).intValue()) {
 				case sym.OR:
 					type = valOr (expNode);
@@ -554,8 +570,10 @@ public class Validator {
 					if (expNode.getOp(0) instanceof ASTNode)
 						valSysVar ((ASTNode) expNode.getOp(0));
 					else valSysVar ((String) expNode.getOp(0));
-				default:
-					type = valData (expNode);
+				default: {
+					debugGeneration("expression is simply data");
+					type = valData (expNode); 
+					}
 				}
 				//		if (expNode.getOp(0) instanceof ASTNode) 
 				//		else if (expNode.getOp(0) instanceof Float) 
@@ -767,6 +785,7 @@ public class Validator {
 //                | Data:d								
 	private int valUnary(ASTNode node) {
 		int type;
+		debugGeneration("unary type: "+table.get((Integer) node.getDescriptor()));
 		switch ((Integer) node.getDescriptor()) {
 		case sym.NOT: {
 			type = valUnary ((ASTNode) node.getOp(0));
@@ -778,6 +797,7 @@ public class Validator {
 			return type;
 		}
 		case sym.MINUS: {
+			
 			type = valUnary ((ASTNode) node.getOp(0));
 			if (type != sym.INT || type != sym.FLOAT) {
 				allsWell = false;
@@ -807,7 +827,7 @@ public class Validator {
 	private int valData(ASTNode node) {
 		// TODO Auto-generated method stub
 		int type;
-		debugGeneration("valData node descriptor: "+((Object) node.getDescriptor()).toString());
+		debugGeneration("valData node descriptor: "+table.get(((Object) node.getDescriptor()).toString()));
 		if (((Integer) node.getDescriptor()) == sym.ID) {
 			debugGeneration("valData is ID: "+((Object) node.getOp(0)).toString());
 			type = -1;
@@ -862,7 +882,7 @@ public class Validator {
 		case astsym.SYSTEM_PART_REF_ONLY: valSysPartRef ((String) sysVarNode.getOp(0));
 		}
 		// TODO Auto-generated method stub
-		debugGeneration("sysvar: " + sysVarNode.getDescriptor().toString());
+		debugGeneration("sysvar: " + table.get(sysVarNode.getDescriptor().toString()));
 	}
 
 private void valSysGlobal(String string) {
