@@ -7,6 +7,22 @@ public class SymHash {
 
 
 public SymHash () {
+//	 ASTSYM
+	symtable.put("103","FUNCTION_CALL");
+	symtable.put("104","STEP_CALL");
+	symtable.put("105","SYSTEM_VAR");
+	symtable.put("106","SYSTEM_VAR_NAME");
+	symtable.put("107","SYSTEM_PART_REF");
+	symtable.put("108","SYSTEM_GLOBAL");
+	symtable.put("109","CONSTRAINT");
+	symtable.put("110","DECLARATION");
+	symtable.put("111","IDLIST");
+	symtable.put("112","BLOCK");
+	symtable.put("113","ACTIONS");
+	symtable.put("114","ARG");
+	symtable.put("115","ARGLIST");
+	symtable.put("116","SYSTEM_PART_REF_ONLY");
+//sym
 	symtable.put("55","DIVIDE");
 	symtable.put("51","GTEQ");
 	symtable.put("47","LSBRK");
