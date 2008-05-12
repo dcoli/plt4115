@@ -9,7 +9,7 @@ participant "smarter_prisoner.rup" prisoner1 {
     last_action = -1;
 }
 
-participant "smarter_prisoner.rup" prisoner2 {
+participant "other_prisoner.rup" prisoner2 {
     points = 0;
     last_action = -1;
 }
