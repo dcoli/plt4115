@@ -703,8 +703,7 @@ public class CodeGenerator {
 
 		switch (((Integer) pr.getDescriptor()).intValue()) {
 		case sym.PART:
-			return "Environment.getParticipant("
-					+ ((Integer) pr.getOp(0)).toString() + ",this)";
+			return "Environment.getParticipant(" + generateIndex((ASTNode)pr.getOp(0)) + ",this)";
 		case sym.ME:
 			if (place == IN_ACTION)
 				return "doer";
@@ -714,6 +713,15 @@ public class CodeGenerator {
 		return "";
 	}
 
+	public String generateIndex(ASTNode i) {
+		switch ((Integer) i.getDescriptor()) {
+		case sym.NUMBER:
+			return ((Integer)i.getOp(0)).toString();
+		case sym.ID:
+			return (String)i.getOp(0);
+		}
+		return "ERROR"; // should never happen; only to make eclipse happy
+	}
 	public String generateFunctionCall(ASTNode functionCall) {
 		debugGeneration("Generating function call.");
 
@@ -729,13 +737,12 @@ public class CodeGenerator {
 						.getOp(1)).getOp(0);
 
 				if ((Integer) operand1Node.getDescriptor() == astsym.SYSTEM_PART_REF) {
-					if ((Integer) ((ASTNode) operand1Node.getOp(0))
-							.getDescriptor() == sym.PART)
+					if ((Integer) ((ASTNode) operand1Node.getOp(0)).getDescriptor() == sym.PART) {
 						return "Environment.participants.get("
-								+ (Integer) ((ASTNode) operand1Node.getOp(0))
-										.getOp(0) + ").set" + RUMVAR
+								+ generateIndex((ASTNode)((ASTNode) operand1Node.getOp(0)).getOp(0)) + ").set" + RUMVAR
 								+ (String) operand1Node.getOp(1) + "("
 								+ generateExpression(operand2Node) + ")";
+					}
 					else if ((Integer) ((ASTNode) operand1Node.getOp(0))
 							.getDescriptor() == sym.ME)
 						return "doer.set" + RUMVAR
