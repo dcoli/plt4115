@@ -24,7 +24,7 @@ non terminal IfStatement, ElseStatement, Declaration, Constraint;
 non terminal IdList;
 non terminal FunctionCall, Expression, ExpressionList, SystemPartRef, SystemVar, SystemVarName;
 non terminal OrExpression, AndExpression, RelationalExpression, EqualityExpression, AdditiveExpression;
-non terminal MultiplicativeExpression, UnaryExpression, Data;
+non terminal MultiplicativeExpression, UnaryExpression, Data, Index;
 
 
 //TERMINALS
@@ -597,7 +597,7 @@ SystemVarName ::= NUM_STEPS
 																{: RESULT = sym.RANDF;
 																:};
 
-SystemPartRef ::= PART LSBRK NUMBER:i RSBRK 
+SystemPartRef ::= PART LSBRK Index:i RSBRK 
 																{: ASTNode n = new ASTNode(sym.PART);
 																	n.pushOp(i);
 																	RESULT = n;
@@ -605,3 +605,12 @@ SystemPartRef ::= PART LSBRK NUMBER:i RSBRK
 		| ME
 																{: RESULT = new ASTNode(sym.ME);
 																:};
+Index ::= NUMBER:i                                              {: ASTNode n = new ASTNode(sym.NUMBER);
+																	n.pushOp(i);
+																	RESULT = n;
+																:}
+        | ID:i													{: ASTNode n = new ASTNode(sym.ID);
+        															n.pushOp(i);
+        															RESULT = n;
+        														:};
+        
