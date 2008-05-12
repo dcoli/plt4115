@@ -1,13 +1,15 @@
 simulation name "20-round Prisoner's Dilemma simulation";
 
-environment "PD.rue" {}
+environment "PD.rue" {
+    last_outcome = -1;
+}
 
-participant "selfish_prisoner.rup" prisoner1 {
+participant "smarter_prisoner.rup" prisoner1 {
     points = 0;
     last_action = -1;
 }
 
-participant "dumb_prisoner.rup" prisoner2 {
+participant "smarter_prisoner.rup" prisoner2 {
     points = 0;
     last_action = -1;
 }

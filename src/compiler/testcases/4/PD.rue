@@ -1,6 +1,12 @@
 // Details here: http://en.wikipedia.org/wiki/Prisoner's_dilemma
 environment name "The Prisoner's Dilemma";
 
+global {
+       // 0 = neither cooperated,  1 = one cooperated, 2 = both cooperated
+       // -1 = no prev action
+       int last_outcome {(last_outcome >=-1) && (last_outcome <= 2)};             
+}
+
 attributes {
 	int points {points >= 0};
 	
@@ -18,22 +24,21 @@ def required step() {
 		if ($part[1].last_action == 0) { // player 1 defected
 			set($part[0].points, $part[0].points+1);
 			set($part[1].points, $part[1].points+1);
+			last_outcome = 0;
 		} else { // player 1 cooperated
 			set($part[0].points, $part[0].points+5);
+			last_outcome = 1;
 		}		
 	} else { // player 0 cooperated
 		if ($part[1].last_action == 0) { // player 1 defected
 			set($part[0].points, $part[0].points+5);
+			last_outcome = 1;
 		} else { // player 1 cooperated
 			set($part[0].points, $part[0].points+3);
 			set($part[1].points, $part[1].points+3);
+			last_outcome = 2;
 		}
-	}
-	
-	if ($part[0].last_action == -1 || $part[1].last_action == -1) {
-		// how do we report the fact that clearly one of the participant programs
-		// is broken? Should we?
-	}
+	}	
 }
 
 // actions the prisoners can take
