@@ -1,0 +1,5 @@
+participant name "John McCain";
+
+def required step() {
+	policy_speech ();
+}
