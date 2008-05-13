@@ -693,7 +693,7 @@ public class CodeGenerator {
 		case sym.RANDF:
 			return "Environment.randf()";
 		case sym.LAST_PART:
-			return "Environment.getLastParticpant()";
+			return "Environment.getLastParticipant()";
 		}
 		return "";
 	}
@@ -735,24 +735,27 @@ public class CodeGenerator {
 						.getOp(0)).getOp(0);
 				ASTNode operand2Node = (ASTNode) ((ASTNode) operandList
 						.getOp(1)).getOp(0);
-
-				if ((Integer) operand1Node.getDescriptor() == astsym.SYSTEM_PART_REF) {
+				System.out.println("FUCK: operandList.getOp(0) is " + ((ASTNode)operandList.getOp(0)).getDescriptor());
+				if ((Integer)((ASTNode)operandList.getOp(0)).getDescriptor() == astsym.ID_DOT_ID) {
+					ASTNode id_dot_id = (ASTNode)operandList.getOp(0);
+					return generateID((ASTNode)id_dot_id.getOp(0)) + ".set" + generateID((ASTNode)id_dot_id.getOp(1)) +
+							"(" +  generateExpression(operand2Node) + ")";
+				} else if ((Integer) operand1Node.getDescriptor() == astsym.SYSTEM_PART_REF) {
 					if ((Integer) ((ASTNode) operand1Node.getOp(0)).getDescriptor() == sym.PART) {
 						return "Environment.participants.get("
 								+ generateIndex((ASTNode)((ASTNode) operand1Node.getOp(0)).getOp(0)) + ").set" + RUMVAR
 								+ (String) operand1Node.getOp(1) + "("
 								+ generateExpression(operand2Node) + ")";
 					}
-					else if ((Integer) ((ASTNode) operand1Node.getOp(0))
-							.getDescriptor() == sym.ME)
+					else if ((Integer) ((ASTNode) operand1Node.getOp(0)).getDescriptor() == sym.ME)
 						return "doer.set" + RUMVAR
 								+ (String) operand1Node.getOp(1) + "("
 								+ generateExpression(operand2Node) + ")";
-				} else if ((Integer) operand1Node.getDescriptor() == astsym.SYSTEM_GLOBAL)
+				} else if ((Integer) operand1Node.getDescriptor() == astsym.SYSTEM_GLOBAL) {
 					return "Environment.set" + RUMVAR
 							+ (String) operand1Node.getOp(0) + "("
 							+ generateExpression(operand2Node) + ")";
-
+				}
 			} else
 				sb.append("Environment." + CodeGenerator.RUMACTION
 						+ (String) functionCall.getOp(1));
@@ -803,10 +806,16 @@ public class CodeGenerator {
 			return "true";
 		case sym.FALSE:
 			return "false";
+		case astsym.ID_DOT_ID:
+			return generateID_DOT_ID(data);
 		}
 		return "";
 	}
 
+	public String generateID_DOT_ID(ASTNode n) {
+		return generateID((ASTNode)n.getOp(0)) + "." + "get" + generateID((ASTNode)n.getOp(1)) + "()";
+	}
+	
 	public String generateIfStatement(ASTNode s) {
 		debugGeneration("Generating if statement.");
 		blockLevel++;
@@ -1005,7 +1014,7 @@ public class CodeGenerator {
 			}
 			
 			if ((Integer)arg.getOp(0) == sym.PARTICIPANT) {
-				addLine.append(" to '\" + " + (String)arg.getOp(1) + ".getId() + \"' ");
+				addLine.append(" to '\" + " + generateID((ASTNode)arg.getOp(1)) + ".getId() + \"' ");
 			}
 		}
 		
@@ -1042,7 +1051,7 @@ public class CodeGenerator {
 		StringBuilder sb = new StringBuilder();	
 		
 		sb.append(generateDataType((Integer) a.getOp(0)));
-		sb.append((String)a.getOp(1));
+		sb.append(generateID((ASTNode)a.getOp(1)));
 		
 		return sb.toString();
 	}
