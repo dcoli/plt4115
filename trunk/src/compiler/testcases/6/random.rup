@@ -1,0 +1,14 @@
+// A slightly smarter prisoner -- looks at what happened last time
+
+participant name "Random Player";
+
+def required step() {
+    int choose;
+    choose = ($randi % 3);
+	if(choose == 0)
+		rock();
+	if(choose == 1)
+		paper();
+	if(choose == 2)
+		scissors();
+}

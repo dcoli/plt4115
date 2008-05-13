@@ -1,0 +1,21 @@
+simulation name "rock-paper-scissors";
+
+environment "rps.rue"{
+	rock_count = 0;
+	paper_count = 0;
+	scissors_count = 0;
+}
+
+participant "probability.rup" probability_player {
+	points = 0;
+	last_action = 0;
+}
+
+participant "random.rup" random_player{
+	points = 0;
+	last_action = 0;
+}
+
+def required end () {
+    return $num_steps == 20;
+}

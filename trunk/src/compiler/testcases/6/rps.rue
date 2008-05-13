@@ -1,0 +1,77 @@
+environment name "rock-paper-scissors";
+
+// Details here: http://en.wikipedia.org/wiki/Rock-paper-scissors
+global {
+       int rock_count;
+       int paper_count;
+       int scissors_count;              
+}
+
+attributes {
+	int points;
+	int last_action;
+}
+
+def required step() {
+	// let the prisoners choose what to do...
+	$part[0].step();
+	$part[1].step();
+	
+	// award the points for this round...
+	if ($part[0].last_action == $part[1].last_action) { // both throw same
+			if($part[0].last_action == 0)
+				rock_count += 2;
+			if($part[0].last_action == 1)
+				paper_count += 2;
+			if($part[0].last_action == 2)
+				scissors_count += 2;
+	} 
+	else { // player 0 cooperated
+		if ($part[0].last_action == 0){
+			rock_count += 1;
+			if($part[1].last_action == 1){
+				paper_count += 1;
+				set($part[1].points, $part[1].points + 1);
+			}
+			if($part[1].last_action == 2){
+				scissors_count += 1;
+				set($part[0].points, $part[0].points + 1);
+			}
+		}
+		if ($part[0].last_action == 1){
+			paper_count += 1;
+			if($part[1].last_action == 0){
+				rock_count += 1;
+				set($part[0].points, $part[0].points + 1);
+			}
+			if($part[1].last_action == 2){
+				scissors_count += 1;
+				set($part[1].points, $part[1].points + 1);
+			}
+		}
+		if ($part[0].last_action == 2){
+			scissors_count += 1;
+			if($part[1].last_action == 0){
+				rock_count += 1;
+				set($part[1].points, $part[1].points + 1);
+			}
+			if($part[1].last_action == 1){
+				paper_count += 1;
+				set($part[0].points, $part[0].points + 1);
+			}
+		}
+	}	
+}
+
+// actions the prisoners can take
+def action rock() {
+	set($me.last_action, 0);
+}
+
+def action paper() {
+	set($me.last_action, 1);
+}
+
+def action scissors() {
+    set($me.last_action, 2);
+}
