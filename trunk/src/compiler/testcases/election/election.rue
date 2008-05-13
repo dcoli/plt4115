@@ -28,6 +28,7 @@ def required step() {
 		if ( itarget == $num_parts ) { itarget = 0; }
 		$global.target = $part[itarget];
 		$part[this_parts_turn].step();
+		this_parts_turn += 1;
 
 
 //		if ( thispartsturn
