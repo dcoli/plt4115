@@ -15,4 +15,5 @@ public class astsym {
 	public static final int ARG = 114;
 	public static final int ARGLIST = 115;
 	public static final int SYSTEM_PART_REF_ONLY = 116;
+	public static final int ID_DOT_ID = 117;
 }
