@@ -44,7 +44,7 @@ def required step() {
 
 // actions
 def action throw() {
-  set($me.x,randi+randf);
-  set($me.y,randi+randf);
-  set($me.theta,randi+randf);
+  set($me.x,$randi+$randf);
+  set($me.y,$randi+$randf);
+  set($me.theta,$randi+$randf);
 }
