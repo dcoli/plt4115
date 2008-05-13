@@ -65,6 +65,17 @@ public class RumbleCompiler {
 				if (Settings.isVerbose())
 					System.out.println("Validating code...");
 								
+				NewValidator v = new NewValidator(root);
+				if (!v.isValid()) {
+					for (String str : v.getErrors()) {
+						System.out.println(str);
+					}
+					System.out.println("Finished Validating with errors.  Compilation halted.");
+					System.exit(1);
+				}
+				System.out.println("Finished Validating");
+
+				
 				//generate code
 				//Validator validator = new Validator(root);
 				//if (!validator.go()) throw new Exception("Problems in your Rumble code.");
