@@ -68,15 +68,21 @@ public class CodeGenerator {
 	
 	public void writeCompileScript(){
 		try {
-			PrintWriter pw = new PrintWriter(new FileOutputStream(
-					Settings.outputPath + "/make.sh"));
-			pw.println("javac rumble/runtime/*.java\njar cmf rumble/runtime/mainClass.txt Rumble.jar rumble/runtime/*.class\n");
-			pw.close();
+			PrintWriter pw; 
+			String os = System.getProperty("os.name").toLowerCase();
 			
-			pw = new PrintWriter(new FileOutputStream(
-					Settings.outputPath + "/make.bat"));
-			pw.println("javac rumble/runtime/*.java\njar cmf rumble/runtime/mainClass.txt Rumble.jar rumble/runtime/*.class\n");
-			pw.close();
+			if (os.startsWith("linux")){
+				pw = new PrintWriter(new FileOutputStream(
+						Settings.outputPath + "/make.sh"));
+				pw.println("javac rumble/runtime/*.java\njar cmf rumble/runtime/mainClass.txt Rumble.jar rumble/runtime/*.class\n");
+				pw.close();
+			}
+			else if (os.startsWith("windows")){
+				pw = new PrintWriter(new FileOutputStream(
+						Settings.outputPath + "/make.bat"));
+				pw.println("javac rumble/runtime/*.java\njar cmf rumble/runtime/mainClass.txt Rumble.jar rumble/runtime/*.class\n");
+				pw.close();
+			}
 
 		} catch (Exception e) {
 			System.out.println("Could not write manifest file.");
