@@ -1,6 +1,7 @@
 simulation name "Project Demo Buffon";
 
 environment "buffon.rue" {
+     n=0;
 }
 
 participant "buffon.rup" buffoon {
