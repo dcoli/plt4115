@@ -1,0 +1,21 @@
+//Simulation File wrestling.rus
+
+simulation name "Wrestling Simulation";
+
+environment "wrestling.rue" {
+    moves = 0;
+}
+
+participant "hulkhogan.rup" hulk_hogan {
+    strength = 20;
+    health = 30;
+}
+
+participant "therock.rup" the_rock {
+    strength = 30;
+    health = 20;
+}
+
+def required end () {
+    return ($part[0].health <= 0 || $part[0].strength <= 0 || $part[1].health <= 0 || $part[1].strength <= 0);
+}

@@ -1,0 +1,7 @@
+//Participant Hulk Hogan hulkhogan.rup
+
+participant name "Hulk Hogan";
+
+def required step() {
+    polish_hammer($part[0]);
+}
