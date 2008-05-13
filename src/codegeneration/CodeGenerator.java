@@ -735,7 +735,6 @@ public class CodeGenerator {
 						.getOp(0)).getOp(0);
 				ASTNode operand2Node = (ASTNode) ((ASTNode) operandList
 						.getOp(1)).getOp(0);
-				System.out.println("FUCK: operandList.getOp(0) is " + ((ASTNode)operandList.getOp(0)).getDescriptor());
 				if ((Integer)((ASTNode)operandList.getOp(0)).getDescriptor() == astsym.ID_DOT_ID) {
 					ASTNode id_dot_id = (ASTNode)operandList.getOp(0);
 					return generateID((ASTNode)id_dot_id.getOp(0)) + ".set" + generateID((ASTNode)id_dot_id.getOp(1)) +
