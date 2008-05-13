@@ -2,8 +2,8 @@
 environment name "Buffon's Needle";
 
 global {
-     int num_crosses;
-     int n;
+     float num_crosses;
+     float n;
      float pi;
 }
 
@@ -31,7 +31,7 @@ def required step() {
   float x1;
   x1 = $part[0].x + cost;
   float y1;
-  y1 = $part[0].x + sint;
+  y1 = $part[0].y + sint;
   if(y1 < $part[0].y)
   {
       float t;
