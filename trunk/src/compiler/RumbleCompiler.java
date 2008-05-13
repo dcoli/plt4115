@@ -73,14 +73,13 @@ public class RumbleCompiler {
 				
 				String os = System.getProperty("os.name").toLowerCase();
 				
-				if (os.equals("linux")){
-					System.out.println("Jarring output....");
+				if (os.startsWith("windows")){
+					System.out.println("Jarring output...");
+					Runtime.getRuntime().exec("cmd make.bat", null, new File(Settings.outputPath + "\\"));
+				} else {
+					System.out.println("Jarring output...");
 					Runtime.getRuntime().exec("sh make.sh", null, new File(Settings.outputPath + "/"));
 				}
-				else if (os.startsWith("windows"))
-					System.out.println("Please run the make.bat file in the output directory to JAR your simulation.");
-				
-					
 				
 				
 				
