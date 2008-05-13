@@ -1,0 +1,11 @@
+//Participant The Rock therock.rup
+
+participant name "The Rock";
+
+def required step() {
+    if ($randi % 2 == 0){
+        kick($part[0]);
+    } else {
+        punch($part[0]);
+    }
+}

@@ -1,0 +1,41 @@
+//Environment File - wrestling.rue
+
+environment name "Wrestling Environment";
+
+global {
+    int moves;
+}
+
+attributes {
+    int health;
+    int strength;
+}
+
+def required step() { 
+    moves += 1;
+    int i;
+    i = $last_part + 1;
+    if (i >= $num_parts){
+        i = 0;    
+    }
+    $part[i].step();
+}
+
+def action punch(participant enemy) {
+    set(enemy.health, enemy.health - 2);
+    set($me.strength, $me.strength - 3);
+}
+
+def action kick(participant enemy) {
+    set(enemy.health, enemy.health - 1);
+    set($me.strength, $me.strength - 1);
+}
+
+def action polish_hammer(participant enemy){
+    if ($randi % 10 >= 8) {
+        set(enemy.health, enemy.health - 10);
+        set($me.strength, $me.strength - 2);
+    } else {
+        set($me.strength, $me.strength - 1);
+    }
+}
