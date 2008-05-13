@@ -40,7 +40,6 @@ else {
 	yy_reader.close();
 	baseFile = (String)files.get(currentFileTokenized++);
 	nextFile = Settings.getCurrentWorkingDirectory() + baseFile;
-	baseFile = baseFile.substring(0, baseFile.indexOf('.'));
 	
 	yy_reader = new BufferedReader(new InputStreamReader(new FileInputStream(nextFile)));
 	currentLine = 1;
@@ -86,7 +85,7 @@ else {
 [0-9]+ { return new Symbol(sym.NUMBER, new Integer(yytext())); }
 [0-9]\.[0-9]+ { return new Symbol(sym.DECIMAL, new Float(yytext())); }
 [ \t\r\f] { /* ignore white space. */ }
-[\n]	{ System.out.println("Line: " + currentLine); currentLine++; }
+[\n]	{ if(Settings.debug) System.out.println("Line: " + currentLine); currentLine++; }
 
 "{" { return new Symbol(sym.LBRC); }
 "}" { return new Symbol(sym.RBRC); }

@@ -490,7 +490,6 @@ else {
 	yy_reader.close();
 	baseFile = (String)files.get(currentFileTokenized++);
 	nextFile = Settings.getCurrentWorkingDirectory() + baseFile;
-	baseFile = baseFile.substring(0, baseFile.indexOf('.'));
 	yy_reader = new BufferedReader(new InputStreamReader(new FileInputStream(nextFile)));
 	currentLine = 1;
 	System.out.println("Now tokenizing " + baseFile);
@@ -545,7 +544,7 @@ else {
 					case -8:
 						break;
 					case 8:
-						{ System.out.println("Line: " + currentLine); currentLine++; }
+						{ if(Settings.debug) System.out.println("Line: " + currentLine); currentLine++; }
 					case -9:
 						break;
 					case 9:
