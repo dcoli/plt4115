@@ -71,8 +71,12 @@ public class RumbleCompiler {
 				
 				System.out.println("Compilation completed successfully!");
 				System.out.println("Jarring output....");
+				String os = System.getProperty("os.name").toLowerCase();
+				if (os.equals("linux"))
+					Runtime.getRuntime().exec("sh make.sh", null, new File(Settings.outputPath + "/"));
+				else if (os.equals("windows"))
+					Runtime.getRuntime().exec("make.bat", null, new File(Settings.outputPath + "/"));
 				
-				Runtime.getRuntime().exec("sh make.sh", null, new File(Settings.outputPath + "/"));
 				
 				
 			}

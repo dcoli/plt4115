@@ -53,11 +53,7 @@ def required step() {
 
 // actions
 def action throw() {
-float r;
-r = $randi+$randf;
-  set($me.x,r);
-r = $randi+$randf;
-  set($me.y,r);
-r = $randi+$randf;
-  set($me.theta,r);
+  set($me.x,$randi+$randf);
+  set($me.y,$randi+$randf);
+  set($me.theta,$randi+$randf);
 }
