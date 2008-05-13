@@ -86,7 +86,7 @@ else {
 [0-9]+ { return new Symbol(sym.NUMBER, new Integer(yytext())); }
 [0-9]\.[0-9]+ { return new Symbol(sym.DECIMAL, new Float(yytext())); }
 [ \t\r\f] { /* ignore white space. */ }
-[\n]	{ currentLine++; }
+[\n]	{ System.out.println("Line: " + currentLine); currentLine++; }
 
 "{" { return new Symbol(sym.LBRC); }
 "}" { return new Symbol(sym.RBRC); }
