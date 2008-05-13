@@ -59,6 +59,9 @@ public class RumbleCompiler {
 				
 				ASTNode root = (ASTNode)s.value;
 				
+				// Make sure we've seen all of the parser's output
+				System.out.flush();
+				
 				if (Settings.isVerbose())
 					System.out.println("Validating code...");
 								
