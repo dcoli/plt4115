@@ -1,0 +1,22 @@
+// A slightly smarter prisoner -- looks at what happened last time
+
+participant name "Probability Player";
+
+def required step() {
+   	if($global.rock_count <= $global.paper_count){
+   		if($global.rock_count <= $global.scissors_count){
+  			rock();
+   		}
+   		else{
+   			scissors();
+   		}
+    }
+   	else {
+   		if($global.paper_count <= $global.scissors_count){
+   			paper();
+   		}
+	   	else {
+	   		scissors();
+	   	}
+	}
+}
