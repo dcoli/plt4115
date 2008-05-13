@@ -1,0 +1,18 @@
+simulation name "Project Demo Buffon";
+
+environment "buffon.rue" {
+  num_crosses=0;
+  pi=0;
+  n=0;
+}
+
+participant "buffon.rup" buffoon {
+  x=0;
+  y=0;
+  theta=0;
+}
+
+
+def required end () {
+  return $num_steps == 200;
+}

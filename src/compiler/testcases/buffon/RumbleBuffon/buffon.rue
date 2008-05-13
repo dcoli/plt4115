@@ -1,0 +1,59 @@
+//buffon.rue:
+environment name "Buffon's Needle";
+
+global {
+     float num_crosses;
+     float n;
+     float pi;
+}
+
+attributes {
+  float x;
+  float y;
+  float theta;
+}
+
+def required step() {
+  $part[0].step();
+  set($global.n,$global.n+1);
+  float sint;
+  sint = $part[0].theta
+                  - (($part[0].theta * $part[0].theta * $part[0].theta)/6)
+                  + (($part[0].theta * $part[0].theta * $part[0].theta * $part[0].theta * $part[0].theta) / 120)
+                  - (($part[0].theta * $part[0].theta * $part[0].theta * $part[0].theta * $part[0].theta * $part[0].theta * $part[0].theta) / 5040);
+
+ float cost;
+ cost = 1 - $part[0].theta * $part[0].theta / 2
+                  - ($part[0].theta * $part[0].theta * $part[0].theta * $part[0].theta)/24
+                  + ($part[0].theta * $part[0].theta * $part[0].theta * $part[0].theta * $part[0].theta * $part[0].theta)/720
+                  - ($part[0].theta * $part[0].theta * $part[0].theta * $part[0].theta * $part[0].theta * $part[0].theta* $part[0].theta * $part[0].theta)/40320;
+
+  float x1;
+  x1 = $part[0].x + cost;
+  float y1;
+  y1 = $part[0].y + sint;
+  if(y1 < $part[0].y)
+  {
+      float t;
+      t=$part[0].y;
+      set($part[0].y,y1);
+      y1=t;
+  }     
+  float iy;
+  iy=$part[0].y;
+  float iy1;
+  iy1=y1;
+  if( (iy1 % 2 != iy % 2 ) && ( iy  % 2 ==0 ) ) {
+      set($global.num_crosses, $global.num_crosses + 1);
+  }
+
+  set($global.pi , (2 * $global.n * 1)/($global.num_crosses*2));
+                     
+}
+
+// actions
+def action throw() {
+  set($me.x,$randi+$randf);
+  set($me.y,$randi+$randf);
+  set($me.theta,$randi+$randf);
+}

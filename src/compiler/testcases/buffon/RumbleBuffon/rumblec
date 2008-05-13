@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+import sys, os, time
+
+def main():
+    sim_file = ""
+    args = ""
+    if len(sys.argv) == 2:
+        sim_file = sys.argv[1]
+    elif len(sys.argv) == 3:
+        sim_file = sys.argv[2]
+        args = sys.argv[1]
+    else:
+        print "Usage: %s [-v] simulation.rus" % sys.argv[0]
+        sys.exit()
+    
+    if sim_file[:2] != "./" and sim_file[:1] != "/":
+        sim_file = "./" + sim_file
+
+    os.system("java -jar rumblec.jar %s %s" % (args, sim_file))
+    time.sleep(1)
+    os.system("java -jar Rumble.jar %s %s" % (args, sim_file))
+    os.system("rm -rf rumble Rumble.jar make.sh")
+
+if __name__ == "__main__": main()
