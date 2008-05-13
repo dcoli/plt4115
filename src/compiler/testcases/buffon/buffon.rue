@@ -44,8 +44,9 @@ def required step() {
   iy=y;
   int iy1
   iy1=y1;
-  if( (iy1 % 2 != iy %2 ) && ( iy  %2 ==0 ) )
-      num_crosses++;
+  if( (iy1 % 2 != iy %2 ) && ( iy  %2 ==0 ) ) {
+      num_crosses += 1;
+  }
 
   pi=(2*n*1)/(num_crosses*2);
                      
