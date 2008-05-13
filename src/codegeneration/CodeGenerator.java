@@ -71,15 +71,14 @@ public class CodeGenerator {
 			PrintWriter pw; 
 			String os = System.getProperty("os.name").toLowerCase();
 			
-			if (os.startsWith("linux")){
-				pw = new PrintWriter(new FileOutputStream(
-						Settings.outputPath + "/make.sh"));
-				pw.println("javac rumble/runtime/*.java\njar cmf rumble/runtime/mainClass.txt Rumble.jar rumble/runtime/*.class\n");
-				pw.close();
-			}
-			else if (os.startsWith("windows")){
+			if (os.startsWith("windows")){
 				pw = new PrintWriter(new FileOutputStream(
 						Settings.outputPath + "/make.bat"));
+				pw.println("javac rumble/runtime/*.java\njar cmf rumble/runtime/mainClass.txt Rumble.jar rumble/runtime/*.class\n");
+				pw.close();
+			} else { // assume Unix compatible 
+				pw = new PrintWriter(new FileOutputStream(
+						Settings.outputPath + "/make.sh"));
 				pw.println("javac rumble/runtime/*.java\njar cmf rumble/runtime/mainClass.txt Rumble.jar rumble/runtime/*.class\n");
 				pw.close();
 			}
@@ -237,8 +236,7 @@ public class CodeGenerator {
 			// toString
 			pw.println("\t public String toString(){");
 
-			pw
-					.println("\t\treturn \"{\\n\\tenvironment : \\\"\" + this.ENVIRONMENT_NAME + \"\\\",\\n\" + participantStrings()");
+			pw.println("\t\treturn \"{\\n\\tenvironment : \\\"\" + this.ENVIRONMENT_NAME + \"\\\",\\n\" + participantStrings()");
 			pw.println("\t\t\t"
 					+ "+ \"\\n\\tsimulation : \" + this.SIMULATION_NAME");
 			for (Iterator<Attribute> iter = globals.iterator(); iter.hasNext();) {
@@ -265,8 +263,7 @@ public class CodeGenerator {
 			place = IN_ENVIRONMENT_STEP;
 			// step function
 			pw.println("\tpublic void step()");
-			pw.println(generateBlockStatement((ASTNode) environmentFileNode
-					.getOp(2), "", "numSteps++;"));
+			pw.println(generateBlockStatement((ASTNode) environmentFileNode.getOp(2), "", "numSteps++;"));
 			// end step function
 			debugGeneration("End environment step.");
 
@@ -293,9 +290,7 @@ public class CodeGenerator {
 
 			// initialize participants
 			pw.println("\t\tEnvironment.participants = new ArrayList();");
-			pw
-					.println(generateParticipantInitializations((ASTNode) simulationFileNode
-							.getOp(2)));
+			pw.println(generateParticipantInitializations((ASTNode) simulationFileNode.getOp(2)));
 
 			pw.println("\t}");
 			// END CONSTRUCTOR
@@ -304,8 +299,7 @@ public class CodeGenerator {
 			place = IN_ENVIRONMENT_END;
 			// end function
 			pw.print("\tpublic boolean end()");
-			pw.println(generateBlockStatement((ASTNode) simulationFileNode
-					.getOp(3)));
+			pw.println(generateBlockStatement((ASTNode) simulationFileNode.getOp(3)));
 			// end end function
 			debugGeneration("End end function.");
 
@@ -328,7 +322,7 @@ public class CodeGenerator {
 		}
 	}
 
-	public void writeAbstractParticipant(ASTNode interfaceNode) {
+	public LinkedList<Attribute> writeAbstractParticipant(ASTNode interfaceNode) {
 		try {
 
 			debugGeneration("\nWriting abstract participant file.");
@@ -350,11 +344,9 @@ public class CodeGenerator {
 
 			abstractParticipantWriter.println("\t// custom attributes");
 
-			LinkedList<Attribute> attributes = makeAttributeList((ASTNode) interfaceNode
-					.getOp(1));
+			LinkedList<Attribute> attributes = makeAttributeList((ASTNode) interfaceNode.getOp(1));
 
-			for (Iterator<Attribute> iter = attributes.iterator(); iter
-					.hasNext();) {
+			for (Iterator<Attribute> iter = attributes.iterator(); iter.hasNext();) {
 				Attribute attribute = iter.next();
 				abstractParticipantWriter.println("\tprivate "
 						+ generateDataType(attribute.getType()) + " "
@@ -370,8 +362,7 @@ public class CodeGenerator {
 			// END CONSTRUCTOR
 
 			// GETTERS AND SETTERS
-			for (Iterator<Attribute> iter = attributes.iterator(); iter
-					.hasNext();) {
+			for (Iterator<Attribute> iter = attributes.iterator(); iter.hasNext();) {
 				Attribute attribute = iter.next();
 
 				// the getter
@@ -424,12 +415,14 @@ public class CodeGenerator {
 
 			abstractParticipantWriter.println("}");
 			abstractParticipantWriter.close();
+			
 			debugGeneration("Done.\n");
+			return attributes;
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("Could not write abstract participant class.");
 		}
-
+		return null;
 	}
 
 	public String generateParticipantInitializations(
