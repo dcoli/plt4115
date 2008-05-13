@@ -545,7 +545,7 @@ else {
 					case -8:
 						break;
 					case 8:
-						{ currentLine++; }
+						{ System.out.println("Line: " + currentLine); currentLine++; }
 					case -9:
 						break;
 					case 9:

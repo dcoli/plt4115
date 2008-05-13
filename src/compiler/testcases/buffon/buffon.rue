@@ -35,13 +35,13 @@ def required step() {
   if(y1 < $part[0].y)
   {
       float t;
-      t=y;
-      y=y1;
+      t=$part[0].y;
+      set($part[0].y,y1);
       y1=t;
   }     
-  int iy;
-  iy=$global.y;
-  int iy1;
+  float iy;
+  iy=$part[0].y;
+  float iy1;
   iy1=y1;
   if( (iy1 % 2 != iy % 2 ) && ( iy  % 2 ==0 ) ) {
       set($global.num_crosses, $global.num_crosses + 1);
@@ -53,7 +53,7 @@ def required step() {
 
 // actions
 def action throw() {
-int r;
+float r;
 r = $randi+$randf;
   set($me.x,r);
 r = $randi+$randf;
