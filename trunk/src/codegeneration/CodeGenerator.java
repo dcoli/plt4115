@@ -153,8 +153,7 @@ public class CodeGenerator {
 					.println("\tpublic static int getNumParts(){\n\t\treturn participants.size();\n\t}");
 			
 			pw.println("\tpublic static " + PARTICIPANT_CLASS_NAME + " getParticipant(int i, Object o) { ");
-			pw.println("\t\tArrayList<" + PARTICIPANT_CLASS_NAME + "> partsCopy = (ArrayList<" + PARTICIPANT_CLASS_NAME + ">" +
-					")participants.clone();");
+			pw.println("\t\tArrayList<" + PARTICIPANT_CLASS_NAME + "> partsCopy = (ArrayList<" + PARTICIPANT_CLASS_NAME + ">)participants.clone();");
 			pw.println("\t\tif (o instanceof " + PARTICIPANT_CLASS_NAME + ")");
 			pw.println("\t\t\tpartsCopy.remove((" + PARTICIPANT_CLASS_NAME + ")o);");
 			pw.println("\t\ttry { ");
