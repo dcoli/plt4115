@@ -51,7 +51,7 @@ public class RumbleCompiler {
 			
 			try {				
 				java_cup.runtime.Symbol s;
-				parser parser = new parser();
+				parser parser = new parser(scanner);
 				if (Settings.isDebug())
 					s = parser.debug_parse();
 				else 
@@ -63,8 +63,8 @@ public class RumbleCompiler {
 					System.out.println("Validating code...");
 								
 				//generate code
-				Validator validator = new Validator(root);
-				if (!validator.go()) throw new Exception("Problems in your Rumble code.");
+				//Validator validator = new Validator(root);
+				//if (!validator.go()) throw new Exception("Problems in your Rumble code.");
 				
 				CodeGenerator generator = new CodeGenerator(root);
 				generator.go();
