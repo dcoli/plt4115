@@ -168,8 +168,10 @@ ArgList ::= Arg:a COMMA ArgList:l
 		 
 Arg ::= DataType:d ID:i
 																{: ASTNode n = new ASTNode(astsym.ARG);
-																   n.pushOp(d); 
-																   n.pushOp(i);
+																   n.pushOp(d);
+																   ASTNode m = new ASTNode(sym.ID);
+																   m.pushOp(i);
+																   n.pushOp(m);
 																   RESULT = n;
 																:}
 		| error ID {: Yylex.displayError("Missing data type or identifier in prototype."); :};
@@ -309,7 +311,9 @@ Declaration ::= DataType:d IdList:i
 //finish this
 IdList ::= ID:i COMMA IdList:l 
 																{: ASTNode n = new ASTNode(astsym.IDLIST);
-																	n.pushOp(i);
+																	ASTNode m = new ASTNode(sym.ID);
+																	m.pushOp(i);
+																	n.pushOp(m);
 																	n.pushOp(l);
 																	RESULT = n;
 																:}
@@ -553,7 +557,16 @@ Data ::= ID:i 													{: ASTNode n = new ASTNode(sym.ID);
 															RESULT = n;
 														:}
 			| TRUE											{: RESULT = new ASTNode(sym.TRUE); :}
-            | FALSE											{: RESULT = new ASTNode(sym.FALSE); :};
+            | FALSE											{: RESULT = new ASTNode(sym.FALSE); :}
+            | ID:i DOT ID:p								{:	ASTNode n = new ASTNode(astsym.ID_DOT_ID);
+            												ASTNode m1 = new ASTNode(sym.ID);
+            												m1.pushOp(i);
+            												n.pushOp(m1);
+            												ASTNode m2 = new ASTNode(sym.ID);
+            												m2.pushOp(p);
+            												n.pushOp(m2);
+            												RESULT = n;
+            											:};
 
 
 SystemVar ::= DOLLAR SystemVarName:s 
