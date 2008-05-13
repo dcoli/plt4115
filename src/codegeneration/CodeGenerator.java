@@ -152,9 +152,9 @@ public class CodeGenerator {
 					+ "> participants;");
 
 			pw
-					.println("\tpublic static int randi(){\n\t\treturn rand.nextInt();\n\t}");
+					.println("\tpublic static int randi(){\n\t\treturn Math.abs(rand.nextInt());\n\t}");
 			pw
-					.println("\tpublic static float randf(){\n\t\treturn rand.nextFloat();\n\t}");
+					.println("\tpublic static float randf(){\n\t\treturn Math.abs(rand.nextFloat());\n\t}");
 			pw
 					.println("\tpublic static int getNumSteps(){\n\t\treturn numSteps;\n\t}");
 			pw
@@ -272,9 +272,8 @@ public class CodeGenerator {
 			pw.println("\t\trand = new Random(System.currentTimeMillis());");
 
 			// initialize globals
-			ASTNode globalBlock = (ASTNode) environmentConfig.getOp(1);
-			StringBuilder result = new StringBuilder("\t\t"
-					+ PARTICIPANT_CLASS_NAME + " newParticipant;");
+			ASTNode globalBlock = (ASTNode) environmentConfig.getOp(0);
+			StringBuilder result = new StringBuilder();
 
 			while (globalBlock != null) {
 				ASTNode assignment = (ASTNode) globalBlock.getOp(0);
@@ -288,6 +287,8 @@ public class CodeGenerator {
 				globalBlock = (ASTNode) globalBlock.getOp(1);
 			}
 
+			pw.println(result.toString());
+			
 			// initialize participants
 			pw.println("\t\tEnvironment.participants = new ArrayList();");
 			pw.println(generateParticipantInitializations((ASTNode) simulationFileNode.getOp(2)));
@@ -442,8 +443,7 @@ public class CodeGenerator {
 					+ "(\"" + participantConfig.getOp(1) + "\");\n");
 
 			if (participantConfig.getNumberOfOperands() == 3) {
-				ASTNode assignmentList = (ASTNode) participantConfigList
-						.getOp(2);
+				ASTNode assignmentList = (ASTNode) participantConfig.getOp(2);
 
 				while (assignmentList != null) {
 					ASTNode assignment = (ASTNode) assignmentList.getOp(0);
