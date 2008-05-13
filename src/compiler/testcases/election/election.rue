@@ -1,0 +1,67 @@
+// Details here: http://cnn.com
+environment name "Campaign 2008";
+
+global {
+       // 0 = neither cooperated,  1 = one cooperated, 2 = both cooperated
+       // -1 = no prev action
+       int last_outcome {(last_outcome >=-1) && (last_outcome <= 2)};
+       participant target;
+}
+
+attributes {
+	int electability;
+	int charisma;
+	int trustworthiness;
+	int experience;
+	int intelligence;
+}
+
+def required step() {
+	// we'll say they each take a turn, since they are constantly reacting to one another.
+	int this_parts_turn;
+	this_parts_turn = 0;
+	int itarget;
+	itarget = 0;
+	
+	while ( this_parts_turn < $num_parts ) {
+		itarget = this_parts_turn+1;
+		if ( itarget == $num_parts ) { itarget = 0; }
+		$global.target = $part[itarget];
+		$part[this_parts_turn].step();
+
+
+//		if ( thispartsturn
+//		if (j == 0) { most_electable = 1; j = 1; }
+//		else { most_electable = 0; }
+//		int i = 1;
+//		while ( i < $num_parts ) {
+//			if ( $part[i] > $part[most_electable] ) {
+//				most_electable = i;
+//			}
+//			i += 1;
+//		}
+//		if (
+//		target = $part[i];
+
+
+	}		
+}
+
+// actions the campaigners can take
+def action policy_speech() {
+	set($me.funds,$me.funds-10);
+	set($me.charisma,$me.charisma-1);
+	set($me.intelligence,$me.intelligence+1);
+	set($me.experience,$me.experience+2);
+	set($me.strength,$me.strength-1);
+}
+
+def action smear_campaign() {
+	set($me.charisma,$me.charisma-1);
+	set($me.trustworthiness,$me.trustworthiness-1);
+	set($me.funds,$me.funds-80);
+	set(target.charisma,target.charisma-1);
+	set(target.trustworthiness,target.trustworthiness-1);
+	set(target.intelligence,target.intelligence-1);
+	set(target.experience,target.experience-1);
+}

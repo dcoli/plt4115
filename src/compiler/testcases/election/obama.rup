@@ -1,0 +1,5 @@
+participant name "Barak Obama";
+
+def required step() {
+	smear_campaign ();
+}
